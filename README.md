@@ -1,4 +1,4 @@
-# Component Library 🎨
+# Component Library
 
 <div align="center">
 
@@ -15,16 +15,16 @@ A sleek and modern component library offering a rich collection of reusable UI e
 
 </div>
 
-## 🎨 Features
+## Features
 
-- ⚙️ **Modular Components** - A variety of reusable, well-documented components.
-- 🎨 **Customizable Themes** - Easily tailor component styles to fit your design needs.
-- 📱 **Responsive Design** - Components that look great on any device.
-- 🔧 **Developer Friendly** - Simple integration with your existing projects.
-- 🌐 **Accessibility Focused** - Built with best practices to ensure a great user experience for all.
-- 🚀 **Optimized Performance** - Lightweight and fast, perfect for modern web apps.
+- **Modular Components** - A variety of reusable, well-documented components.
+- **Customizable Themes** - Easily tailor component styles to fit your design needs.
+- **Responsive Design** - Components that look great on any device.
+- **Developer Friendly** - Simple integration with your existing projects.
+- **Accessibility Focused** - Built with best practices to ensure a great user experience for all.
+- **Optimized Performance** - Lightweight and fast, perfect for modern web apps.
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Frontend
 - **[React](https://reactjs.org/)** - Building the interactive UI components.
@@ -35,7 +35,7 @@ A sleek and modern component library offering a rich collection of reusable UI e
 ### Deployment
 - **[Vercel](https://vercel.com/)** - Seamless hosting and deployment.
 
-## 🚀 Installation
+## Installation
 
 1. **Clone the repository**
 
@@ -57,7 +57,7 @@ A sleek and modern component library offering a rich collection of reusable UI e
 
 **The application will be available at http://localhost:3000 (or as configured).**
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Here's how you can help improve the Color Scheme Generator:
 
@@ -82,7 +82,7 @@ Contributions are welcome! Here's how you can help improve the Color Scheme Gene
 
 5. **Open a Pull Request.**
 
-## 📸 Screenshots
+## Screenshots
 <div align="center">
 
 ### **Badges**
@@ -102,7 +102,7 @@ Contributions are welcome! Here's how you can help improve the Color Scheme Gene
 
 </div>
 
-## 🌐 Live
+## Live
 
 <div align="center">
 
@@ -110,7 +110,7 @@ Contributions are welcome! Here's how you can help improve the Color Scheme Gene
 
 </div>
 
-## 👤 Author
+## Author
 
 ### Ashwin S Nambiar
 - Portfolio: [ashwin.co.in](https://ashwin.co.in)
