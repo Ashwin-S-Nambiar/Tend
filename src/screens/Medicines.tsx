@@ -122,8 +122,11 @@ function MedCard({ med, selected }: { med: Medicine; selected?: boolean }) {
           {med.name}
         </b>
         <span className="num block wrap-anywhere text-[14px] text-soft">
-          {doseLine(med, false)} ·{' '}
-          {c?.total ? `day ${c.n} of ${c.total}` : shortSchedule(med.schedule)}
+          {doseLine(med, false)}
+        </span>
+        <span className="num mt-0.5 block wrap-anywhere text-[13px] text-soft">
+          {shortSchedule(med.schedule)}
+          {c?.total ? ` · day ${c.n} of ${c.total}` : ''}
         </span>
       </span>
       {info && (
