@@ -1,3 +1,5 @@
+import { useLayoutEffect, useRef } from 'react';
+
 export const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 export const reducedMotion = () =>
   matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -129,4 +131,16 @@ export function enter(el: HTMLElement, direction: -1 | 0 | 1 = 0) {
         ],
     { duration: reducedMotion() ? 100 : 220, easing: EASE },
   );
+}
+
+// Animate a changed content region, keeping its surrounding controls stationary.
+export function useContentMotion(key: string | number) {
+  const ref = useRef<HTMLDivElement>(null);
+  const previous = useRef(key);
+  useLayoutEffect(() => {
+    if (previous.current !== key && ref.current)
+      enter(ref.current, key > previous.current ? 1 : -1);
+    previous.current = key;
+  }, [key]);
+  return ref;
 }

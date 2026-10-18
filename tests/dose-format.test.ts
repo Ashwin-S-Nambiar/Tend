@@ -7,8 +7,8 @@ import {
   fmtDose,
   fmtNum,
   scheduleText,
-} from './dose-format.ts';
-import type { Medicine } from './types.ts';
+} from '../src/lib/dose-format.ts';
+import type { Medicine } from '../src/lib/types.ts';
 
 test('no trailing zeros, always a leading zero', () => {
   assert.equal(fmtNum(1.0), '1');

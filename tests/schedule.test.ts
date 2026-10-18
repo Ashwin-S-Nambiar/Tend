@@ -9,8 +9,8 @@ import {
   plan,
   prnState,
   stockInfo,
-} from './schedule.ts';
-import type { Medicine } from './types.ts';
+} from '../src/lib/schedule.ts';
+import type { Medicine } from '../src/lib/types.ts';
 
 const base: Pick<Medicine, 'form' | 'amount' | 'look' | 'created'> = {
   form: 'tablet',
@@ -256,7 +256,7 @@ test('a medicine added just after its routine still shows that dose', () => {
 });
 
 test('home time plans reminders at home instants while away', async () => {
-  const { setZone } = await import('./time.ts');
+  const { setZone } = await import('../src/lib/time.ts');
   setZone('Asia/Kolkata');
   try {
     const londonMorning = new Date('2026-10-17T06:00:00Z');

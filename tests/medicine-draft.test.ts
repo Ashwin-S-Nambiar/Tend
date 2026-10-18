@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { doseLine, medicineDose } from './dose-format.ts';
+import { doseLine, medicineDose } from '../src/lib/dose-format.ts';
 import {
   blank,
   fromMed,
@@ -9,7 +9,7 @@ import {
   problem,
   selectMedicineType,
   toMed,
-} from './medicine-draft.ts';
+} from '../src/lib/medicine-draft.ts';
 import {
   DEFAULT_ROUTINES,
   dosesOn,
@@ -17,8 +17,8 @@ import {
   perDay,
   plan,
   prnState,
-} from './schedule.ts';
-import { echo, parse } from './shorthand.ts';
+} from '../src/lib/schedule.ts';
+import { echo, parse } from '../src/lib/shorthand.ts';
 
 function apidra() {
   const d = insulinDraft(blank());

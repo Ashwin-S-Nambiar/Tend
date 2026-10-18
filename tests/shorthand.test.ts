@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { echo, parse, understood } from './shorthand.ts';
+import { echo, parse, understood } from '../src/lib/shorthand.ts';
 
 test('pattern, strength and food', () => {
   const p = parse('Metformin 500mg 1-0-1 PC');

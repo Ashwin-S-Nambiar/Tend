@@ -209,7 +209,7 @@ export default function Sheet({
     return () => removeEventListener('popstate', onPop);
   }, [id]);
 
-  useEffect(
+  useLayoutEffect(
     () => () => {
       travel.current?.stop();
       if (panel.current) cancelAnimations(panel.current);

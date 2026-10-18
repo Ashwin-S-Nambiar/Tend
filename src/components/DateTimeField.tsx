@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from 'react';
+import { useContentMotion } from '../lib/motion.ts';
 import { addDays, dayKey, fmtDay, fmtTime, parseDay } from '../lib/time.ts';
 import Icon from './Icon.tsx';
 import Sheet from './Sheet.tsx';
@@ -200,6 +201,7 @@ function Calendar({
   onChange: (value: string) => void;
 }) {
   const [month, setMonth] = useState(value.slice(0, 7));
+  const grid = useContentMotion(month);
   const first = `${month}-01`;
   const start = parseDay(first);
   const count = new Date(
@@ -245,7 +247,12 @@ function Calendar({
           <Icon name="next" size={18} />
         </button>
       </div>
-      <div className="grid grid-cols-7" role="group" aria-label="Choose a day">
+      <div
+        ref={grid}
+        className="grid grid-cols-7"
+        role="group"
+        aria-label="Choose a day"
+      >
         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
           <span
             key={d}
