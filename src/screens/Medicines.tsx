@@ -25,11 +25,11 @@ export default function Medicines({ selected }: { selected?: string }) {
   return (
     <div className="scroller min-w-0 flex-1">
       <div className="mx-auto grid w-full max-w-200 content-start gap-5 px-4 pt-[calc(12px+var(--sat))] pb-8 tab:px-8 tab:pt-[calc(28px+var(--sat))]">
-        <header className="flex items-center gap-3 px-1">
+        <header className="flex min-h-11 items-center gap-3 px-1">
           <h1 className="min-w-0 flex-1 font-extrabold text-[clamp(28px,4vw,40px)] leading-tight tracking-[-0.02em]">
             Medicines
           </h1>
-          {mode === 'phone' && (
+          {mode === 'phone' && active.length > 0 && (
             <IconButton
               icon="plus"
               label="Add medicine"
