@@ -231,7 +231,7 @@ export default function Today() {
           className="press surface flex min-h-16 items-center gap-3 rounded-[20px] p-3 text-left shadow-(--shadow)"
         >
           <span className="grid size-11 place-items-center rounded-[14px] bg-sun-wash">
-            <Pill look={med.look} />
+            <Pill look={med.look} form={med.form} />
           </span>
           <span className="min-w-0 flex-1">
             <b className="block font-bold font-display text-[16px]">
@@ -586,7 +586,7 @@ function SlotRow({ slot, meds }: { slot: Slot; meds: Medicine[] }) {
       </span>
       <span className="min-w-0 flex-1">
         <b className="block font-bold font-display text-[16px]">{slot.label}</b>
-        <span className="block truncate text-[14px] text-soft">
+        <span className="block wrap-anywhere text-[14px] text-soft">
           {status ?? list.join(', ')}
         </span>
       </span>
@@ -670,12 +670,12 @@ function MedTile({
       className="press surface grid content-start gap-1 rounded-[20px] p-4 text-left shadow-(--shadow)"
     >
       <span className="grid size-10 place-items-center rounded-[13px] bg-milk">
-        <Pill look={med.look} />
+        <Pill look={med.look} form={med.form} />
       </span>
-      <b className="mt-1.5 truncate font-bold font-display text-[16px]">
+      <b className="mt-1.5 wrap-anywhere font-bold font-display text-[16px]">
         {med.name}
       </b>
-      <span className="truncate text-[14px] text-soft">
+      <span className="wrap-anywhere text-[14px] text-soft">
         {c?.total ? `Day ${c.n} of ${c.total}` : shortSchedule(med.schedule)}
       </span>
       {info && (

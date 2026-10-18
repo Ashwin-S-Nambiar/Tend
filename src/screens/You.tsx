@@ -354,7 +354,7 @@ function DoctorCard({ open, onClose }: { open: boolean; onClose: () => void }) {
         {active.map((m) => (
           <li key={m.id} className="flex gap-3 rounded-[16px] bg-milk p-3">
             <span className="grid size-10 flex-none place-items-center rounded-[13px] bg-card">
-              <Pill look={m.look} />
+              <Pill look={m.look} form={m.form} />
             </span>
             <div className="min-w-0">
               <b className="block font-bold">{m.name}</b>

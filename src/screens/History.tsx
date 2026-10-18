@@ -127,10 +127,10 @@ function PerMedicine() {
             className="grid grid-cols-[40px_1fr_auto] items-center gap-3"
           >
             <span className="grid size-10 place-items-center rounded-[13px] bg-milk">
-              <Pill look={med.look} />
+              <Pill look={med.look} form={med.form} />
             </span>
             <div className="min-w-0">
-              <b className="block truncate font-semibold">{med.name}</b>
+              <b className="block wrap-anywhere font-semibold">{med.name}</b>
               <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-(--line)">
                 <span
                   className="block h-full rounded-full bg-pip"
@@ -201,8 +201,8 @@ export function DayPanel({ date, page }: { date?: string; page?: boolean }) {
                 key={d.medId}
                 className="flex items-center gap-3 text-[15px]"
               >
-                {med && <Pill look={med.look} size={20} />}
-                <span className="min-w-0 flex-1 truncate">
+                {med && <Pill look={med.look} form={med.form} size={20} />}
+                <span className="min-w-0 flex-1 wrap-anywhere">
                   {med?.name ?? 'Removed medicine'}
                 </span>
                 <span
