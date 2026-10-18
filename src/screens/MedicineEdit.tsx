@@ -344,28 +344,55 @@ function MedicineFields({
   shorthand: boolean;
 }) {
   const id = useId();
+  const nameInput = useRef<HTMLInputElement>(null);
+  const query = d.name.trim().toLocaleLowerCase();
+  const suggestions = query
+    ? [...new Set(names)]
+        .filter((name) => {
+          const candidate = name.toLocaleLowerCase();
+          return candidate.includes(query) && candidate !== query;
+        })
+        .slice(0, 4)
+    : [];
   const fields = FORM_FIELDS[d.form];
   const type = d.insulin ? 'insulin' : d.form;
   return (
     <>
       <Field label="Medicine name" htmlFor={`${id}-name`}>
         <input
+          ref={nameInput}
           id={`${id}-name`}
           name="med-name"
           className="field"
           value={d.name}
           onChange={(e) => set({ name: e.target.value })}
-          list={`${id}-names`}
           autoComplete="off"
           autoCapitalize="words"
           placeholder="Name on the label"
           enterKeyHint="next"
         />
-        <datalist id={`${id}-names`}>
-          {[...new Set(names)].map((name) => (
-            <option key={name} value={name} />
-          ))}
-        </datalist>
+        {suggestions.length > 0 && (
+          <div>
+            <p className="mb-1 text-[13px] text-soft">Previously added</p>
+            <div className="flex flex-wrap gap-1.5">
+              {suggestions.map((name) => (
+                <button
+                  key={name}
+                  type="button"
+                  className="press min-h-11 max-w-full rounded-[12px] bg-pip-wash px-3 text-left font-semibold text-[14px] text-pip-ink wrap-anywhere"
+                  aria-label={`Use medicine name ${name}`}
+                  onPointerDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    set({ name });
+                    nameInput.current?.focus({ preventScroll: true });
+                  }}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </Field>
       <Field label="Medicine type">
         <div

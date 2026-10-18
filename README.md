@@ -20,7 +20,7 @@ a gentle medicine reminder that lives on your phone. tell it when your day happe
 - **type it like the prescription.** `Metformin 500mg 1-0-1 PC`, `Syp Calpol 5ml TDS x 3 days`, `Tab Dolo 650mg SOS`, or `Inj Apidra 14-8-6 units AC`. an optional shortcut previews the interpretation; choose “Use these details” to fill the form, then review it before saving.
 - **logging that forgives.** take a whole routine at once, one medicine, or at another time (long-press). snooze, skip, swipe a row to skip just that one. every action has undo. a dose you never logged says not logged, never missed.
 - **stock.** a count per medicine that drops when you take it, a refill nudge at a chosen number of days of supply, and a refilled button that adds your saved refill amount. counts use tablets, ml, puffs, patches or insulin units as appropriate.
-- **edit, archive or delete.** open a medicine to edit it, or use its menu to archive it while keeping history. deleting removes the medicine and its logs, with a brief undo. closing a new-medicine sheet stays in Medicines, including when it was opened from Today.
+- **edit, archive or delete.** the Medicines list puts each dose and frequency on separate lines. open a medicine to edit it, or use its menu to archive it while keeping history. deleting removes the medicine and its logs, with a brief undo. closing a new-medicine sheet stays in Medicines, including when it was opened from Today.
 - **history without streaks.** a ring per day for the week, the times for any day, and a gentle percentage per medicine over 30 days.
 - **travel mode.** doses follow the local clock by default. keep home time instead and every routine stays on your home zone abroad, for medicines that need a steady gap, with the time here shown beside it. tend notices a new zone and asks.
 - **for the doctor.** a my medicines card to share or copy, an `.ics` export with alerts for anyone who won't install, and a json backup and restore.
@@ -51,12 +51,12 @@ a gentle medicine reminder that lives on your phone. tell it when your day happe
 
 The field choices follow medicine-use guidance from the NHS for [insulin](https://www.nhs.uk/medicines/insulin/rapid-acting-insulin/how-and-when-to-take-rapid-acting-insulin/), [topical treatments](https://www.nhs.uk/medicines/mometasone-for-skin/how-and-when-to-use-mometasone-for-skin/), [patches](https://www.nhs.uk/medicines/buprenorphine-for-pain/how-and-when-to-use-buprenorphine/), [inhalers](https://www.nhs.uk/medicines/salbutamol-inhaler/how-and-when-to-use-salbutamol-inhalers/) and [drops](https://www.nhs.uk/medicines/dexamethasone-eye-drops/how-and-when-to-use-dexamethasone-eye-drops/). These are reminder fields, not dose calculations. The screenshot entries are examples.
 
-[See the cream editor](docs/cream-phone.webp) · [See multiple medicines in onboarding](docs/welcome-medicines-phone.webp) · [See medicine details on desktop](docs/medicine-desktop.webp)
+[See the Medicines list](docs/medicines-phone.webp) · [See the cream editor](docs/cream-phone.webp) · [See multiple medicines in onboarding](docs/welcome-medicines-phone.webp) · [See medicine details on desktop](docs/medicine-desktop.webp)
 
 ### left out on purpose
 
 - interaction checks. that is medical advice, there is no free licensed data, and most indian brands are missing.
-- name lookup. rxnorm is us only, so names you have already typed are suggested instead.
+- name lookup. rxnorm is us only, so previously added names are suggested as you type, using Tend-styled buttons inside the editor.
 - caregiver alerts. they need accounts. maybe later.
 - alarms that break silent mode. the web can't.
 - streaks.
@@ -92,7 +92,7 @@ pip is one svg with two quadratic-curve eyes. each eye blends between a pill (a 
 - **a night mode that earns it.** the bedtime dose gets checked in a dark room, so dark follows the system, and once bedtime is logged today turns navy and pip goes to sleep whatever the theme.
 - **type.** gabarito for greetings, titles, times and buttons, rethink sans for names, doses and everything you read. both ofl, self-hosted as latin and latin-ext woff2, preloaded, with arial fallbacks tuned by size-adjust and ascent, descent and line-gap overrides so nothing jumps when they load.
 - **one layout per size.** a bottom tab bar on phones, a rail in landscape and on tablets, a context panel from 1024 where the dose and medicine details open, and a sidebar with keys from 1440.
-- **pickers belong to the app.** time and date controls use Tend sheets, colours and touch targets instead of opening a separate native picker. on touch-enabled Chrome, the keyboard overlays a stable page canvas while the app and sheets fit above it using keyboard insets; other browsers use the visual viewport. this also applies in onboarding and the installed PWA.
+- **pickers belong to the app.** time and date controls use Tend sheets, colours and touch targets instead of opening a separate native picker. medicine-name suggestions stay inside the sheet too, without Chrome's native datalist popup above the keyboard. on touch-enabled Chrome, the keyboard overlays a stable page canvas while the app and sheets fit above it using keyboard insets; other browsers use the visual viewport. this also applies in onboarding and the installed PWA.
 - **installed, it feels installed.** standalone with no url bar, an animated pip splash with matching ios launch images, and theme colours for the status bar.
 
 ## keyboard

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useLayout } from '../app/layout.ts';
 import { themeColor, useTheme } from '../app/theme.ts';
 import ActionSheet from '../components/ActionSheet.tsx';
-import DayRing from '../components/DayRing.tsx';
 import Icon from '../components/Icon.tsx';
 import MedRow from '../components/MedRow.tsx';
 import { Pill } from '../components/PillLook.tsx';
@@ -60,7 +59,6 @@ export default function Today() {
   const { mode, panel, wide } = useLayout();
   const dark = useTheme();
   const [hold, setHold] = useState<Slot | null>(null);
-  const [flash, setFlash] = useState(false);
   useTitle('Tend · Your medicines, on time');
 
   const focus = hold ?? t.focus;
@@ -74,23 +72,9 @@ export default function Today() {
 
   function onTake(slot: Slot, at?: string) {
     setHold(slot);
-    setFlash(true);
     take(slot.doses, slot.label, at);
     setTimeout(() => setHold(null), 450);
-    setTimeout(() => setFlash(false), 2600);
   }
-
-  const ringMood: Mood = flash
-    ? 'taken'
-    : night
-      ? 'sleep'
-      : t.focus?.state === 'due'
-        ? 'due'
-        : t.allDone
-          ? 'done'
-          : t.low.length
-            ? 'low'
-            : 'idle';
 
   if (!t.ready) return <div className="flex-1" />;
 
@@ -130,12 +114,6 @@ export default function Today() {
           onClick={() => navigate('/medicine/new')}
         />
       )}
-      <DayRing
-        done={t.progress.done}
-        total={t.progress.total}
-        mood={ringMood}
-        size={wide ? 64 : 56}
-      />
     </header>
   );
 
