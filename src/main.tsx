@@ -18,10 +18,11 @@ if (root) {
 
 initTips();
 watchPermission();
+const loaded = load();
 
 Promise.race([
   Promise.all([
-    load().then(replan),
+    loaded.then(replan),
     Promise.race([
       document.fonts.ready,
       new Promise((r) => setTimeout(r, 600)),
@@ -36,6 +37,8 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
   addEventListener('load', () => {
     navigator.serviceWorker
       .register('/sw.js')
+      .then(() => navigator.serviceWorker.ready)
+      .then(() => loaded)
       .then(() => checkPush())
       .catch(() => {});
   });
@@ -50,7 +53,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       dispatchEvent(new PopStateEvent('popstate'));
     }
   });
-} else checkPush();
+} else loaded.then(() => checkPush());
 
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) load().then(replan);

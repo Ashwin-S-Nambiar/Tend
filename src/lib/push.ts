@@ -45,7 +45,8 @@ export async function checkPush() {
   try {
     const reg = await navigator.serviceWorker.getRegistration();
     const sub = await reg?.pushManager.getSubscription();
-    if (pushStore.get() !== 'gone') pushStore.set(sub ? 'on' : 'off');
+    if (sub) await refreshPlan(sub);
+    else pushStore.set('off');
   } catch {
     pushStore.set('off');
   }
@@ -98,11 +99,10 @@ export async function enablePush(onAllowed?: () => void) {
           userVisibleOnly: true,
           applicationServerKey: key(VAPID),
         }));
-      if (!(await sync(sub))) throw new Error('Reminder sync failed');
+      if (!(await refreshPlan(sub))) throw new Error('Reminder sync failed');
     };
     await within(setup(), 12000);
     pushStore.set('on');
-    replan();
     return true;
   } catch {
     pushStore.set('error');
@@ -122,17 +122,39 @@ export async function disablePush() {
 }
 
 let timer: ReturnType<typeof setTimeout> | undefined;
+let syncing: Promise<boolean> = Promise.resolve(true);
+
+function refreshPlan(sub?: PushSubscription) {
+  // Setup, foreground refreshes and edits must reach the server in save order.
+  syncing = syncing
+    .catch(() => false)
+    .then(async () => {
+      // Never replace a saved server plan with the empty startup state.
+      if (!data().ready) return false;
+      badge();
+      // A push can arrive as soon as the server accepts its timestamps.
+      await writePlan(entries());
+      if (!sub) return true;
+      const ok = await sync(sub);
+      if (pushStore.get() !== 'gone') pushStore.set(ok ? 'on' : 'error');
+      return ok;
+    });
+  return syncing;
+}
 
 export function replan() {
   clearTimeout(timer);
-  timer = setTimeout(() => {
-    badge();
-    writePlan(entries());
-    if (pushStore.get() !== 'on') return;
-    navigator.serviceWorker?.getRegistration().then(async (reg) => {
+  timer = setTimeout(async () => {
+    try {
+      const enabled = ['on', 'error'].includes(pushStore.get());
+      const reg = enabled
+        ? await navigator.serviceWorker?.getRegistration()
+        : undefined;
       const sub = await reg?.pushManager.getSubscription();
-      if (sub) await sync(sub);
-    });
+      await refreshPlan(sub ?? undefined);
+    } catch {
+      pushStore.set('error');
+    }
   }, 400);
 }
 
@@ -234,20 +256,20 @@ function entries(): PlanEntry[] {
 let watching = false;
 
 export function watchPermission() {
-  if (watching || !navigator.permissions?.query) return;
+  if (watching) return;
   watching = true;
   navigator.permissions
-    .query({ name: 'notifications' })
+    ?.query({ name: 'notifications' })
     .then((status) => {
       status.onchange = () => {
         checkPush();
-        if (status.state === 'granted') replan();
       };
     })
     .catch(() => {});
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) checkPush();
   });
+  window.addEventListener('online', () => checkPush());
 }
 
 // Every saved change, including weekend toggles and backup restores, moves the plan.

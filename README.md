@@ -87,6 +87,8 @@ a web page cannot reliably schedule future local notifications. Tend calculates 
 
 saved meal-time changes, weekend toggles and restored backups rebuild the local plan and sync fresh timestamps when reminders are enabled. doses and meal offsets are resolved on the device, so the current interface changes require no Cloudflare Worker API change or separate deployment.
 
+opening Tend or reconnecting refreshes the server plan for an existing subscription. setup saves the local notification details before sending timestamps, and reminders show as on only after the server accepts them. a failed sync shows a connection error in You and retries when you reconnect or reopen the app.
+
 on iPhones, web push requires adding Tend to the home screen. notification action buttons vary by browser; tapping a notification always opens its dose sheet. onboarding distinguishes permission from completed reminder setup: success shows a check mark and **Let's go**; a failed connection offers retry or continuing into the app.
 
 ### installed app updates
@@ -135,7 +137,7 @@ npm run dev          # http://localhost:5173
 ```sh
 npm run check        # lint, format and import order
 npm run typecheck
-npm test             # tests/: scheduling, doses, editing, navigation and time zones
+npm test             # tests/: scheduling, notification delivery/actions, doses, editing, navigation and time zones
 npm run build
 npm run preview
 ```

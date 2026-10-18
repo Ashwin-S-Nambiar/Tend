@@ -79,10 +79,7 @@ function db() {
 function get(d, store, key) {
   return new Promise((resolve) => {
     const req = d.transaction(store).objectStore(store).get(key);
-    req.onsuccess = () => {
-      req.result.onversionchange = () => req.result.close();
-      resolve(req.result);
-    };
+    req.onsuccess = () => resolve(req.result);
     req.onerror = () => resolve(undefined);
   });
 }
