@@ -34,14 +34,14 @@ export default function MedicineDetail({
   if (!ready) return null;
   if (!med) {
     if (inPanel)
-      return (
+      return meds.length ? (
         <div className="grid justify-items-center gap-2 px-4 pt-20 text-center">
           <Pip mood="idle" className="size-24" track />
           <p className="max-w-[24ch] text-soft">
             Pick a medicine to see its schedule, stock and history.
           </p>
         </div>
-      );
+      ) : null;
     return <Gone />;
   }
   return <Detail med={med} inPanel={inPanel} />;
