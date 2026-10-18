@@ -19,6 +19,7 @@ a gentle medicine reminder that lives on your phone. tell it when your day happe
 - **logging that forgives.** take a whole routine at once, one medicine, or at another time (long-press). snooze, skip, swipe a row to skip just that one. every action has undo. a dose you never logged says not logged, never missed.
 - **stock.** a count per medicine that drops when you take it, a refill nudge at seven days of supply, and a refilled button that adds a strip.
 - **history without streaks.** a ring per day for the week, the times for any day, and a gentle percentage per medicine over 30 days.
+- **travel mode.** doses follow the local clock by default. keep home time instead and every routine stays on your home zone abroad, for medicines that need a steady gap, with the time here shown beside it. tend notices a new zone and asks.
 - **for the doctor.** a my medicines card to share or copy, an `.ics` export with alerts for anyone who won't install, and a json backup and restore.
 - **everything stays on the phone.** medicines and logs live in indexeddb. the reminder server only ever sees an anonymous device id and some times.
 
@@ -91,7 +92,7 @@ npm run dev          # http://localhost:8787
 
 for reminders locally, put the private key in `worker/.dev.vars` as `VAPID_PRIVATE='{...}'` with `VAPID_PUBLIC=...`, and in `.env.local` set `VITE_PUSH_URL=http://localhost:8787` and `VITE_VAPID_PUBLIC=...`. the service worker only registers in a production build, so use `npm run build && npx vite preview`.
 
-to ship the worker: `wrangler secret put VAPID_PRIVATE`, set `VAPID_PUBLIC` in `wrangler.toml`, `npm run deploy`, and point `VITE_PUSH_URL` at it.
+the live worker is `tend-push` on workers.dev. its public key sits in `wrangler.toml` and `.env.production` (both public by design: they end up in the browser anyway), and the private key is a worker secret. a new key pair means `wrangler secret put VAPID_PRIVATE`, both public copies updated, `npm run deploy`, and everyone turning reminders on again.
 
 `node scripts/og.mjs` renders `public/og.jpg` from `scripts/og.html`.
 
@@ -112,7 +113,6 @@ worker/         the reminder server
 ## known rough edges
 
 - the icon set and every line of copy are still waiting on a final pick.
-- travel mode (keep home time abroad) isn't built yet.
 - an installed android app shows chrome's own splash for a moment before pip's.
 - if nobody opens the app for 14 days the plan runs dry. the last reminder says so.
 - not yet checked on real phones, with voiceover or talkback, or at the largest text sizes.
