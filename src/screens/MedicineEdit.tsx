@@ -272,8 +272,8 @@ export default function MedicineEdit({
                   ? 'Save changes'
                   : 'Add medicine'
                 : step === 1
-                  ? 'Review medicine'
-                  : 'Set schedule'}
+                  ? 'Review'
+                  : 'Schedule'}
               {step < 2 && <Icon name="next" size={18} />}
             </button>
           </div>
@@ -769,7 +769,7 @@ function ScheduleFields({
         </Field>
       )}
       {d.kind === 'cycle' && (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,160px),1fr))] gap-3">
           <Field label="Days on">
             <Stepper
               label="Days on"

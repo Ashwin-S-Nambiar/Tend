@@ -316,21 +316,24 @@ function Foot({
       <div className="grid grid-cols-3 gap-2">
         <button
           type="button"
-          className="btn btn-soft btn-sm press min-h-12"
+          className="btn btn-soft btn-sm press min-h-14 flex-col gap-1 px-2"
+          aria-label="Snooze for 10 minutes"
           onClick={() => done(() => snooze(slot, 10))}
         >
-          Snooze 10 min
+          <span>Snooze</span>
+          <span className="font-medium text-[12px] text-soft">10 min</span>
         </button>
         <button
           type="button"
-          className="btn btn-soft btn-sm press min-h-12"
+          className="btn btn-soft btn-sm press min-h-14 px-2"
+          aria-label="Log dose at another time"
           onClick={() => setLate(true)}
         >
-          Other time
+          Log time
         </button>
         <button
           type="button"
-          className="btn btn-soft btn-sm press min-h-12"
+          className="btn btn-soft btn-sm press min-h-14 px-2"
           disabled={!chosen.length}
           onClick={() => done(() => skip(chosen, slot.label))}
         >

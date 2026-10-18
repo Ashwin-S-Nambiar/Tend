@@ -68,16 +68,18 @@ export function TravelCard() {
         <button
           type="button"
           className="btn btn-soft btn-sm press min-h-12"
+          aria-label={`Follow ${here} time`}
           onClick={() => dismissTravel()}
         >
-          Follow {here} time
+          Use local time
         </button>
         <button
           type="button"
           className="btn btn-primary btn-sm press min-h-12"
+          aria-label={`Keep ${home} time`}
           onClick={() => setTravel('home')}
         >
-          Keep {home} time
+          Keep home time
         </button>
       </div>
     </section>

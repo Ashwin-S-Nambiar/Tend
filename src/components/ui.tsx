@@ -42,7 +42,7 @@ export function Segmented<T extends string>({
       ref={ref}
       role="radiogroup"
       aria-label={label}
-      className={`relative isolate flex gap-1.5 ${wrap ? 'flex-wrap' : 'rounded-2xl bg-milk p-1'}`}
+      className={`relative isolate flex min-w-0 max-w-full gap-1.5 ${wrap ? 'flex-wrap' : 'rounded-2xl bg-milk p-1'}`}
     >
       {!wrap && (
         <SelectionIndicator
@@ -68,7 +68,7 @@ export function Segmented<T extends string>({
               }
               onChange(o.value);
             }}
-            className={`press relative z-1 ${wrap ? '' : 'flex-1'} ${size === 'sm' ? 'min-h-10 text-[14px]' : 'min-h-11 text-[15px]'} rounded-xl px-3 font-semibold transition-colors duration-150 ${
+            className={`press relative z-1 min-w-0 max-w-full ${wrap ? '' : 'flex-1'} ${size === 'sm' ? 'min-h-10 text-[14px]' : 'min-h-11 text-[15px]'} rounded-xl px-3 py-2 font-semibold leading-snug wrap-anywhere transition-colors duration-150 ${
               on
                 ? wrap
                   ? 'bg-ink text-milk'
@@ -221,26 +221,26 @@ export function Stepper({
         else return;
         e.preventDefault();
       }}
-      className="inline-flex items-center gap-1 rounded-2xl bg-milk p-1"
+      className="inline-flex min-w-0 items-center gap-1 rounded-2xl bg-milk p-1"
     >
       <button
         type="button"
         tabIndex={-1}
         aria-hidden="true"
-        className="press grid size-11 place-items-center rounded-xl bg-card text-ink disabled:opacity-40"
+        className="press grid size-11 flex-none place-items-center rounded-xl bg-card text-ink disabled:opacity-40"
         disabled={value <= min}
         onClick={() => set(value - step)}
       >
         <Icon name="skip" size={20} />
       </button>
-      <span className="num min-w-14 text-center font-bold font-display text-[18px]">
+      <span className="num min-w-0 flex-1 px-1 text-center font-bold font-display text-[18px] wrap-anywhere">
         {format(value)}
       </span>
       <button
         type="button"
         tabIndex={-1}
         aria-hidden="true"
-        className="press grid size-11 place-items-center rounded-xl bg-card text-ink disabled:opacity-40"
+        className="press grid size-11 flex-none place-items-center rounded-xl bg-card text-ink disabled:opacity-40"
         disabled={value >= max}
         onClick={() => set(value + step)}
       >
