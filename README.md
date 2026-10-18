@@ -100,6 +100,7 @@ after deployment, close Tend from recent apps and reopen it online. an already-o
 - **warm and quiet.** cream surfaces, round controls, simple scenes and one small character. teal is the action colour; sunrise, noon, dusk and night belong to the scenes.
 - **pip.** an SVG capsule with spring-driven eyes and gaze, a blink, a poke and a few distinct poses. its loop stops when hidden or off screen, and reduced motion uses static poses and fades.
 - **type.** gabarito for headings, times and buttons; rethink sans for the things you read. both are self-hosted and preloaded, with tuned fallback metrics to keep the layout steady while fonts load.
+- **opens straight in.** installed, Tend launches on a still Pip in cream or navy to match the theme, then shows the app in a single frame once medicines and fonts are loaded. there's no second splash, fade or hold, so nothing moves between launch and the finished screen.
 - **motion follows the task.** tabs crossfade without moving navigation. subpages open and return in opposite directions. desktop details animate within their own pane. selection indicators move between controls, and sheets and swipe rows start from their current position with gesture velocity carried into a damped spring.
 - **small feedback.** presses respond immediately, switches settle gently, optional sections expand in place, and toast messages enter and leave briefly. reduced motion uses short fades and immediate spring settling.
 - **a layout for the available space.** bottom tabs on phones, a rail on tablets and landscape phones, a context pane from 1024 px, and a sidebar from 1440 px. the main list keeps its scroll position when you return from a detail page.
@@ -116,7 +117,7 @@ after deployment, close Tend from recent apps and reopen it online. an already-o
 | motion | native view transitions, Web Animations and a small spring utility; no animation library |
 | storage | IndexedDB for medicines, logs and notification plans; localStorage for preferences and shared times |
 | reminders | web push, a Cloudflare Worker and one Durable Object per device |
-| offline | a service worker, manifest, icons and launch screens |
+| offline | a service worker, manifest, icons and iPhone launch screens |
 | tooling | Biome, Node's test runner and Playwright for browser checks |
 
 ## running it
@@ -177,7 +178,7 @@ scripts/        social share image rendering
 - **reminders need the app occasionally.** the server plan covers 14 days. if Tend stays unopened beyond that, it runs dry; the last reminder asks you to reopen it.
 - **browser support varies.** iPhone push needs a home-screen install. the web cannot guarantee exact delivery, bypass silent mode or provide every native notification action.
 - **your data stays in this browser.** clearing site data removes it. export a backup before moving devices or clearing storage.
-- **Android owns part of the experience.** its launch splash and Gboard's keyboard animation need checking on physical devices; desktop emulation does not reproduce them fully.
+- **Android owns part of the experience.** installed, it always shows its own launch splash with the app icon, drawn from the manifest; the web can't remove it. that splash and Gboard's keyboard animation need checking on physical devices; desktop emulation does not reproduce them fully.
 - **accessibility needs more device testing.** VoiceOver, TalkBack and the largest system text sizes still need a physical-device pass.
 
 <details>

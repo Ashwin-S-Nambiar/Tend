@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#dff1fc" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="robots" content="noindex" />
+    <title>Not found · Tend</title>
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/gabarito-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/rethink-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <script>
+      (() => {
+        try {
+          const t = JSON.parse(localStorage.getItem('tend:theme') || '"system"');
+          const dark = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) {
+            document.documentElement.setAttribute('data-dark', '');
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#1a3350');
+          }
+        } catch {}
+      })();
+    </script>
+    <style>
+      @font-face {
+        font-family: "Gabarito";
+        font-weight: 500 900;
+        font-display: swap;
+        src: url("/fonts/gabarito-latin.woff2") format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: "Rethink Sans";
+        font-weight: 400 800;
+        font-display: swap;
+        src: url("/fonts/rethink-sans-latin.woff2") format("woff2");
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: "Gabarito Fallback";
+        src: local("Arial"), local("ArialMT");
+        size-adjust: 96.709%;
+        ascent-override: 97.1988%;
+        descent-override: 26.8848%;
+        line-gap-override: 0%;
+      }
+      @font-face {
+        font-family: "Rethink Sans Fallback";
+        src: local("Arial"), local("ArialMT");
+        size-adjust: 98.8384%;
+        ascent-override: 100.3658%;
+        descent-override: 31.3643%;
+        line-gap-override: 0%;
+      }
+
+      :root {
+        --wash: #dff1fc;
+        --dusk: #7cc4f0;
+        --ink: #1d2430;
+        --soft: #5e6673;
+        --pip: #17a58f;
+        --pip-deep: #0e8576;
+        --pip-ink: #0b7568;
+        --on-pip: #ffffff;
+        --eye: #ffffff;
+        --display: "Gabarito", "Gabarito Fallback", ui-rounded, system-ui, sans-serif;
+        --ui: "Rethink Sans", "Rethink Sans Fallback", ui-sans-serif, system-ui, sans-serif;
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        color-scheme: light;
+      }
+      :root[data-dark] {
+        --wash: #1a3350;
+        --ink: #f2eee8;
+        --soft: #a9b2c3;
+        --pip: #2cc1aa;
+        --pip-deep: #2cc1aa;
+        --pip-ink: #5ed6c3;
+        --on-pip: #0b1a2e;
+        --eye: #0b1a2e;
+        color-scheme: dark;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--wash);
+        color: var(--ink);
+        font-family: var(--ui);
+        -webkit-tap-highlight-color: transparent;
+        -webkit-text-size-adjust: 100%;
+        overscroll-behavior: none;
+      }
+      main {
+        box-sizing: border-box;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: calc(24px + env(safe-area-inset-top, 0px)) calc(24px + env(safe-area-inset-right, 0px))
+          calc(24px + env(safe-area-inset-bottom, 0px)) calc(24px + env(safe-area-inset-left, 0px));
+        text-align: center;
+      }
+      .pip {
+        width: 160px;
+        height: 160px;
+        overflow: visible;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+      .rig {
+        transform-box: view-box;
+        transform-origin: 100px 186px;
+        animation: wobble 1.8s ease-in-out infinite;
+      }
+      .eyes {
+        animation: look 3.6s step-end infinite;
+      }
+      @keyframes wobble {
+        0%,
+        100% { transform: rotate(0); }
+        25% { transform: rotate(-4deg); }
+        75% { transform: rotate(4deg); }
+      }
+      @keyframes look {
+        0% { transform: translate(-10px, -3px); }
+        25% { transform: translate(10px, -3px); }
+        50% { transform: translate(-4px, -3px); }
+        75% { transform: translate(8px, -3px); }
+      }
+      .code {
+        margin: 0;
+        font: 900 96px / 0.9 var(--display);
+        letter-spacing: -0.04em;
+        color: var(--dusk);
+      }
+      h1 {
+        margin: 0;
+        font: 800 28px / 1.25 var(--display);
+        text-wrap: balance;
+      }
+      p.lede {
+        margin: 0;
+        max-width: 28ch;
+        font-size: 17px;
+        line-height: 1.45;
+        color: var(--soft);
+        text-wrap: pretty;
+      }
+      .btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 52px;
+        margin-top: 12px;
+        padding: 0 24px;
+        border-radius: 18px;
+        background: var(--pip-deep);
+        color: var(--on-pip);
+        font: 700 17px / 1 var(--display);
+        text-decoration: none;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-touch-callout: none;
+        transition: scale 180ms var(--ease-out);
+      }
+      .btn::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: currentColor;
+        opacity: 0;
+        transition: opacity 160ms var(--ease-out);
+        pointer-events: none;
+      }
+      .btn:active {
+        scale: 0.96;
+        transition-duration: 70ms;
+      }
+      .btn:focus-visible {
+        outline: 2.5px solid var(--pip-ink);
+        outline-offset: 2px;
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .btn:hover::after {
+          opacity: 0.07;
+        }
+      }
+      @media (orientation: landscape) and (max-height: 500px) {
+        main { gap: 4px; }
+        .pip { width: 96px; height: 96px; }
+        .code { font-size: 64px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .rig,
+        .eyes { animation: none; }
+        .eyes { transform: translate(-6px, -3px); }
+        .btn { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg class="pip" viewBox="0 0 200 200" role="img" aria-label="Pip looking around, lost">
+        <g class="rig">
+          <g transform="rotate(-14 100 104)">
+            <rect x="64" y="22" width="72" height="164" rx="36" fill="var(--pip)" />
+            <path d="M64 116h72v34a36 36 0 0 1-72 0z" fill="var(--pip-deep)" opacity=".9" />
+            <g class="eyes" fill="none" stroke="var(--eye)" stroke-linecap="round">
+              <path d="M85 62v16" stroke-width="16" />
+              <path d="M115 66.5v7" stroke-width="11" />
+            </g>
+          </g>
+        </g>
+      </svg>
+      <p class="code" aria-hidden="true">404</p>
+      <h1>Pip looked everywhere</h1>
+      <p class="lede">This page isn't on your schedule.</p>
+      <a class="btn" href="/">Back to today</a>
+    </main>
+  </body>
+</html>
