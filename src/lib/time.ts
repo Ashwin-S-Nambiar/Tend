@@ -1,7 +1,75 @@
 const pad = (n: number) => String(n).padStart(2, '0');
 
+let zone: string | undefined;
+
+export const deviceZone = () =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+export function setZone(next?: string) {
+  zone = next && next !== deviceZone() ? next : undefined;
+}
+
+export const activeZone = () => zone ?? deviceZone();
+
+const fmts = new Map<string, Intl.DateTimeFormat>();
+
+function wall(d: Date, z: string) {
+  let f = fmts.get(z);
+  if (!f) {
+    f = new Intl.DateTimeFormat('en-US', {
+      timeZone: z,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+    });
+    fmts.set(z, f);
+  }
+  const p: Record<string, number> = {};
+  for (const x of f.formatToParts(d))
+    if (x.type !== 'literal') p[x.type] = Number(x.value);
+  return {
+    y: p.year ?? 1970,
+    m: p.month ?? 1,
+    d: p.day ?? 1,
+    h: (p.hour ?? 0) % 24,
+    mi: p.minute ?? 0,
+    s: p.second ?? 0,
+  };
+}
+
+function offset(t: number, z: string) {
+  const w = wall(new Date(t), z);
+  return (
+    Date.UTC(w.y, w.m - 1, w.d, w.h, w.mi, w.s) - Math.floor(t / 1000) * 1000
+  );
+}
+
+export function zonedInstant(
+  y: number,
+  m: number,
+  d: number,
+  h: number,
+  mi: number,
+  z: string,
+) {
+  const guess = Date.UTC(y, m - 1, d, h, mi);
+  const first = guess - offset(guess, z);
+  const second = guess - offset(first, z);
+  return new Date(second);
+}
+
+function calKey(y: number, m: number, d: number) {
+  return `${y}-${pad(m)}-${pad(d)}`;
+}
+
 export function dayKey(d = new Date()) {
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  if (!zone) return calKey(d.getFullYear(), d.getMonth() + 1, d.getDate());
+  const w = wall(d, zone);
+  return calKey(w.y, w.m, w.d);
 }
 
 export function parseDay(key: string) {
@@ -10,9 +78,9 @@ export function parseDay(key: string) {
 }
 
 export function addDays(key: string, n: number) {
-  const d = parseDay(key);
-  d.setDate(d.getDate() + n);
-  return dayKey(d);
+  const [y = 1970, m = 1, d = 1] = key.split('-').map(Number);
+  const t = new Date(Date.UTC(y, m - 1, d + n));
+  return calKey(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate());
 }
 
 export function dayDiff(from: string, to: string) {
@@ -51,26 +119,42 @@ export function dueParts(due: string) {
 
 export function dueDate(due: string) {
   const { day, time } = dueParts(due);
-  const d = parseDay(day);
-  const [h = 0, m = 0] = time.split(':').map(Number);
-  d.setHours(h, m, 0, 0);
-  return d;
+  const [y = 1970, mo = 1, d = 1] = day.split('-').map(Number);
+  const [h = 0, mi = 0] = time.split(':').map(Number);
+  if (zone) return zonedInstant(y, mo, d, h, mi, zone);
+  return new Date(y, mo - 1, d, h, mi, 0, 0);
 }
 
 export function nowKey(d = new Date()) {
-  return dueKey(dayKey(d), `${pad(d.getHours())}:${pad(d.getMinutes())}`);
+  if (!zone)
+    return dueKey(dayKey(d), `${pad(d.getHours())}:${pad(d.getMinutes())}`);
+  const w = wall(d, zone);
+  return dueKey(calKey(w.y, w.m, w.d), `${pad(w.h)}:${pad(w.mi)}`);
 }
 
-const timeFmt = new Intl.DateTimeFormat(undefined, {
+const wallFmt = new Intl.DateTimeFormat(undefined, {
+  hour: 'numeric',
+  minute: '2-digit',
+  timeZone: 'UTC',
+});
+const hereFmt = new Intl.DateTimeFormat(undefined, {
   hour: 'numeric',
   minute: '2-digit',
 });
 
 export function fmtTime(at: string | Date) {
-  if (typeof at !== 'string') return timeFmt.format(at);
-  return timeFmt.format(
-    at.includes('T') ? dueDate(at) : dueDate(`1970-01-01T${at}`),
-  );
+  if (typeof at !== 'string') {
+    if (!zone) return hereFmt.format(at);
+    const w = wall(at, zone);
+    return wallFmt.format(new Date(Date.UTC(1970, 0, 1, w.h, w.mi)));
+  }
+  const time = at.includes('T') ? dueParts(at).time : at;
+  const [h = 0, m = 0] = time.split(':').map(Number);
+  return wallFmt.format(new Date(Date.UTC(1970, 0, 1, h, m)));
+}
+
+export function fmtHere(due: string) {
+  return hereFmt.format(dueDate(due));
 }
 
 export function fmtDay(key: string, opts: Intl.DateTimeFormatOptions) {
@@ -84,4 +168,13 @@ export function relDay(key: string, today = dayKey()) {
   if (d === -1) return 'yesterday';
   if (d > 1 && d < 7) return fmtDay(key, { weekday: 'long' });
   return fmtDay(key, { day: 'numeric', month: 'short' });
+}
+
+export function zoneName(z: string) {
+  const city = z.split('/').pop()?.replace(/_/g, ' ') ?? z;
+  return city;
+}
+
+export function zoneGap(a: string, b: string, at = new Date()) {
+  return Math.round((offset(at.getTime(), a) - offset(at.getTime(), b)) / 6e4);
 }

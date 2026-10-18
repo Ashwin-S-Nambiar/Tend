@@ -184,6 +184,7 @@ export type PlanEntry = {
   title: string;
   body: string;
   doses: { medId: string; due: string; amount: number }[];
+  zone: string;
 };
 
 export function writePlan(entries: PlanEntry[]) {

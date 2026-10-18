@@ -1,11 +1,12 @@
 import { doseLine } from './dose-format.ts';
 import { groupsOn } from './schedule.ts';
-import { addDays, dayKey } from './time.ts';
+import { addDays, dayKey, dueDate } from './time.ts';
 import type { Medicine, Routine } from './types.ts';
 
 const esc = (s: string) =>
   s.replace(/[\\,;]/g, (c) => `\\${c}`).replace(/\n/g, '\\n');
-const stamp = (due: string) => `${due.replace(/[-:]/g, '')}00`;
+const stamp = (d: Date) =>
+  `${d.toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`;
 
 export function buildIcs(meds: Medicine[], routines: Routine[], days = 30) {
   const today = dayKey();
@@ -22,15 +23,14 @@ export function buildIcs(meds: Medicine[], routines: Routine[], days = 30) {
       const list = g.doses
         .map((d) => meds.find((m) => m.id === d.medId))
         .filter((m): m is Medicine => Boolean(m));
-      const end = new Date(`${g.key}:00`);
-      end.setMinutes(end.getMinutes() + 15);
-      const endKey = `${dayKey(end)}T${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`;
+      const start = dueDate(g.key);
+      const end = new Date(start.getTime() + 15 * 6e4);
       lines.push(
         'BEGIN:VEVENT',
         `UID:${g.key}-${list.map((m) => m.id).join('-')}@tend.ashwin.co.in`,
         `DTSTAMP:${now}`,
-        `DTSTART:${stamp(g.key)}`,
-        `DTEND:${stamp(endKey)}`,
+        `DTSTART:${stamp(start)}`,
+        `DTEND:${stamp(end)}`,
         `SUMMARY:${esc(`${g.label} medicines`)}`,
         `DESCRIPTION:${esc(list.map((m) => `${m.name}, ${doseLine(m)}`).join('\n'))}`,
         'BEGIN:VALARM',

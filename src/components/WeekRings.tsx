@@ -4,7 +4,7 @@ import { useNow } from '../lib/hooks.ts';
 import { navigate } from '../lib/route.ts';
 import { routinesStore } from '../lib/settings.ts';
 import { useStore } from '../lib/store.ts';
-import { addDays, dayKey, fmtDay, weekday } from '../lib/time.ts';
+import { addDays, dayKey, dueDate, fmtDay, weekday } from '../lib/time.ts';
 import { progress, slotsOn } from '../lib/today.ts';
 
 export function useWeek(offset = 0) {
@@ -24,7 +24,7 @@ export function useWeek(offset = 0) {
             routines,
             logs,
             day,
-            day === today ? now : new Date(`${day}T23:59:59`),
+            day === today ? now : dueDate(`${day}T23:59`),
           );
       const p = progress(slots, logs, now);
       return { day, future, today: day === today, ...p };

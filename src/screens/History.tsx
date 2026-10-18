@@ -12,7 +12,14 @@ import { back, navigate } from '../lib/route.ts';
 import { dosesOn, latestLog } from '../lib/schedule.ts';
 import { routinesStore } from '../lib/settings.ts';
 import { useStore } from '../lib/store.ts';
-import { addDays, dayKey, fmtDay, fmtTime, nowKey } from '../lib/time.ts';
+import {
+  addDays,
+  dayKey,
+  dueDate,
+  fmtDay,
+  fmtTime,
+  nowKey,
+} from '../lib/time.ts';
 import { useTitle } from '../lib/title.ts';
 import { medById, slotsOn } from '../lib/today.ts';
 
@@ -160,7 +167,7 @@ export function DayPanel({ date, page }: { date?: string; page?: boolean }) {
         routines,
         logs,
         day,
-        day === dayKey(now) ? now : new Date(`${day}T23:59:59`),
+        day === dayKey(now) ? now : dueDate(`${day}T23:59`),
       ),
     [meds, routines, logs, day, now],
   );

@@ -254,3 +254,19 @@ test('a medicine added just after its routine still shows that dose', () => {
     '2026-10-17T20:30',
   );
 });
+
+test('home time plans reminders at home instants while away', async () => {
+  const { setZone } = await import('./time.ts');
+  setZone('Asia/Kolkata');
+  try {
+    const londonMorning = new Date('2026-10-17T06:00:00Z');
+    const items = plan([metformin], DEFAULT_ROUTINES, [], londonMorning, 1);
+    assert.equal(
+      new Date(items[0]?.at ?? 0).toISOString(),
+      '2026-10-17T15:00:00.000Z',
+    );
+    assert.equal(items[0]?.key, '2026-10-17T20:30');
+  } finally {
+    setZone(undefined);
+  }
+});
