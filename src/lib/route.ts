@@ -149,6 +149,10 @@ export function navigate(
     if (opts.replace)
       history.replaceState({ ...history.state, depth }, '', path);
     else {
+      if (to.name === 'new' && from.name !== 'medicines') {
+        depth += 1;
+        history.pushState({ depth }, '', '/medicines');
+      }
       depth += 1;
       history.pushState({ depth }, '', path);
     }

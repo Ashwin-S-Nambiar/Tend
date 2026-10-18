@@ -7,6 +7,7 @@ import {
   fromParsed,
   insulinDraft,
   problem,
+  selectMedicineType,
   toMed,
 } from './medicine-draft.ts';
 import {
@@ -15,6 +16,7 @@ import {
   groupsOn,
   perDay,
   plan,
+  prnState,
 } from './schedule.ts';
 import { echo, parse } from './shorthand.ts';
 
@@ -158,4 +160,61 @@ test('changing a variable schedule to a one-time dose uses its entered amount', 
   d.kind = 'once';
   d.amount = 24;
   assert.equal(toMed(d).amount, 24);
+});
+
+test('changing medicine type clears incompatible dose, food and stock settings', () => {
+  const insulin = {
+    ...fromMed(apidra()),
+    stock: true,
+    strengthLabel: '100 units / ml',
+  };
+  const cream = selectMedicineType(insulin, 'cream');
+  assert.equal(cream.insulin, false);
+  assert.equal(cream.food, 'none');
+  assert.equal(cream.variable, false);
+  assert.equal(cream.stock, false);
+  assert.deepEqual(cream.amounts, {});
+  assert.equal(cream.strengthLabel, '');
+  const liquid = fromParsed(insulin, parse('Syp Calpol 5ml TDS'));
+  assert.equal(liquid.doseUnit, 'ml');
+  assert.equal(liquid.amount, 5);
+  assert.equal(liquid.insulin, false);
+});
+
+test('application instructions and label strengths survive editing', () => {
+  const cream = selectMedicineType(
+    { ...blank(), name: 'Hydrocortisone' },
+    'cream',
+  );
+  cream.instructions = 'Thin layer';
+  cream.site = 'Affected arm';
+  cream.strengthLabel = '1%';
+  const med = toMed(cream);
+  assert.equal(doseLine(med), '1% · Thin layer · Affected arm');
+  assert.deepEqual(toMed(fromMed(med), med), med);
+  const liquid = selectMedicineType(cream, 'liquid');
+  liquid.amount = 5;
+  liquid.strengthLabel = '250 mg / 5 ml';
+  assert.equal(doseLine(toMed(liquid)), '250 mg / 5 ml · 5 ml');
+});
+
+test('when-needed medicines have no assumed limits and validate prescribed limits', () => {
+  const d = selectMedicineType({ ...blank(), name: 'Inhaler' }, 'puff');
+  d.kind = 'prn';
+  d.amount = 2;
+  const med = toMed(d);
+  assert.deepEqual(med.schedule, { kind: 'prn' });
+  assert.equal(prnState(med, [], new Date())?.canTake, true);
+  d.limitGap = true;
+  assert.match(problem(d) ?? '', /minimum gap/);
+  d.gap = 4;
+  d.limitMax = true;
+  assert.match(problem(d) ?? '', /daily limit/);
+  d.max = 3;
+  assert.equal(problem(d), null);
+  assert.deepEqual(toMed(d).schedule, {
+    kind: 'prn',
+    minGapH: 4,
+    maxPerDay: 3,
+  });
 });

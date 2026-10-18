@@ -284,14 +284,16 @@ export function prnState(med: Medicine, logs: DoseLog[], now: Date) {
   const todayCount = taken.filter((t) => t.startsWith(today)).length;
   const last = taken[taken.length - 1];
   let nextAt: string | undefined;
-  if (last) {
+  if (last && med.schedule.minGapH) {
     const t = new Date(
       dueDate(last.slice(0, 16)).getTime() + med.schedule.minGapH * 36e5,
     );
     const at = nowKey(t);
     if (at > nk) nextAt = at;
   }
-  const full = todayCount >= med.schedule.maxPerDay;
+  const full =
+    med.schedule.maxPerDay !== undefined &&
+    todayCount >= med.schedule.maxPerDay;
   return { todayCount, last, nextAt, full, canTake: !nextAt && !full };
 }
 

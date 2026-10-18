@@ -1,3 +1,4 @@
+import { isInsulin, type MedicineType } from './medicine-fields.ts';
 import { ROUTINE_ORDER } from './schedule.ts';
 import type { Parsed } from './shorthand.ts';
 import { dayKey, nowKey } from './time.ts';
@@ -28,7 +29,11 @@ export type Draft = {
   times: { id: number; t: string }[];
   before: boolean;
   beforeMin: number;
-  doseUnit: 'default' | 'units' | 'ml';
+  doseUnit: 'default' | 'units' | 'ml' | 'mg' | 'mcg';
+  insulin: boolean;
+  strengthLabel: string;
+  instructions: string;
+  site: string;
   variable: boolean;
   amounts: Record<string, string>;
   offsets: Partial<Record<RoutineId, number>>;
@@ -38,6 +43,8 @@ export type Draft = {
   off: number;
   once: string;
   gap: number;
+  limitGap: boolean;
+  limitMax: boolean;
   max: number;
   course: boolean;
   courseDays: number;
@@ -66,6 +73,10 @@ export function blank(): Draft {
     before: false,
     beforeMin: 30,
     doseUnit: 'default',
+    insulin: false,
+    strengthLabel: '',
+    instructions: '',
+    site: '',
     variable: false,
     amounts: {},
     offsets: {},
@@ -74,8 +85,10 @@ export function blank(): Draft {
     on: 21,
     off: 7,
     once: `${today}T09:00`,
-    gap: 6,
-    max: 4,
+    gap: 0,
+    limitGap: false,
+    limitMax: false,
+    max: 0,
     course: false,
     courseDays: 5,
     start: today,
@@ -96,11 +109,12 @@ export function lookFor(form: Form): Pick<Draft, 'shape' | 'colors'> {
 }
 
 export function fromParsed(d: Draft, p: Parsed): Draft {
-  const next = { ...d };
+  const type =
+    p.form === 'injection' && p.doseUnit === 'units' ? 'insulin' : p.form;
+  const next = { ...(type ? selectMedicineType(d, type) : d) };
   if (p.name) next.name = p.name;
-  if (p.form && p.form !== d.form)
-    Object.assign(next, { form: p.form }, lookFor(p.form));
   if (p.strength) {
+    next.strengthLabel = '';
     next.strength = String(p.strength.value);
     next.unit = p.strength.unit;
   }
@@ -112,6 +126,7 @@ export function fromParsed(d: Draft, p: Parsed): Draft {
     next.variable = new Set(Object.values(p.amounts)).size > 1;
   }
   if (p.doseUnit) next.doseUnit = p.doseUnit;
+  if (p.form === 'injection' && p.doseUnit === 'units') next.insulin = true;
   if (p.form === 'injection' && p.food === 'before') next.beforeMin = 15;
   if (p.everyDays) next.everyDays = p.everyDays;
   if (p.food) {
@@ -145,6 +160,10 @@ export function fromMed(m: Medicine): Draft {
     strength: m.strength ? String(m.strength.value) : '',
     unit: m.strength?.unit ?? 'mg',
     doseUnit: m.doseUnit ?? 'default',
+    insulin: isInsulin(m),
+    strengthLabel: m.strengthLabel ?? '',
+    instructions: m.instructions ?? '',
+    site: m.site ?? '',
     variable: at.some((a) => a.amount !== undefined),
     amounts: Object.fromEntries(
       at.map((a, i) => [
@@ -179,8 +198,10 @@ export function fromMed(m: Medicine): Draft {
     on: s.kind === 'cycle' ? s.on : d.on,
     off: s.kind === 'cycle' ? s.off : d.off,
     once: s.kind === 'once' ? s.when : d.once,
-    gap: s.kind === 'prn' ? s.minGapH : d.gap,
-    max: s.kind === 'prn' ? s.maxPerDay : d.max,
+    gap: s.kind === 'prn' ? (s.minGapH ?? 0) : d.gap,
+    limitGap: s.kind === 'prn' && s.minGapH !== undefined,
+    limitMax: s.kind === 'prn' && s.maxPerDay !== undefined,
+    max: s.kind === 'prn' ? (s.maxPerDay ?? 0) : d.max,
     start: 'start' in s ? s.start : (m.course?.start ?? d.start),
     course: Boolean(m.course),
     courseDays: m.course?.days ?? d.courseDays,
@@ -211,8 +232,10 @@ export function insulinDraft(d: Draft, bedtime = false): Draft {
   return {
     ...d,
     form: 'injection',
+    insulin: true,
     doseUnit: 'units',
     strength: '',
+    strengthLabel: '',
     ...lookFor('injection'),
     kind: 'daily',
     routines: bedtime ? ['bed'] : ['breakfast', 'lunch', 'dinner'],
@@ -240,7 +263,11 @@ export function toMed(d: Draft, prev?: Medicine): Medicine {
             ? { kind: 'cycle', on: d.on, off: d.off, start: d.start, at }
             : d.kind === 'once'
               ? { kind: 'once', when: d.once }
-              : { kind: 'prn', minGapH: d.gap, maxPerDay: d.max };
+              : {
+                  kind: 'prn',
+                  ...(d.limitGap ? { minGapH: d.gap } : {}),
+                  ...(d.limitMax ? { maxPerDay: d.max } : {}),
+                };
   const value = Number(d.strength);
   return {
     id: prev?.id ?? crypto.randomUUID().slice(0, 8),
@@ -253,6 +280,10 @@ export function toMed(d: Draft, prev?: Medicine): Medicine {
         ? (at[0]?.amount ?? d.amount)
         : d.amount,
     doseUnit: d.doseUnit === 'default' ? undefined : d.doseUnit,
+    insulin: d.form === 'injection' ? d.insulin : undefined,
+    strengthLabel: d.strengthLabel.trim() || undefined,
+    instructions: d.instructions.trim() || undefined,
+    site: d.site.trim() || undefined,
     food: d.food === 'none' ? undefined : d.food,
     look: { shape: d.shape, colors: d.colors.slice(0, 2) },
     schedule,
@@ -268,8 +299,50 @@ export function toMed(d: Draft, prev?: Medicine): Medicine {
   };
 }
 
-export function problem(d: Draft) {
+export function selectMedicineType(d: Draft, type: MedicineType): Draft {
+  const form = type === 'insulin' ? 'injection' : type;
+  if (form === d.form && (type === 'insulin') === d.insulin) return d;
+  const next: Draft = {
+    ...d,
+    form,
+    insulin: type === 'insulin',
+    ...lookFor(form),
+    strength: '',
+    strengthLabel: '',
+    instructions: '',
+    site: '',
+    amount: form === 'injection' ? 0 : 1,
+    doseUnit: form === 'liquid' || form === 'injection' ? 'ml' : 'default',
+    food: 'none',
+    before: false,
+    offsets: {},
+    variable: false,
+    amounts: {},
+    stock: false,
+  };
+  if (type === 'insulin') return insulinDraft(next);
+  return next;
+}
+
+export function detailsProblem(d: Draft) {
   if (!d.name.trim()) return 'Give it a name';
+  if (
+    !d.insulin &&
+    d.form !== 'cream' &&
+    (!Number.isFinite(d.amount) || d.amount <= 0)
+  )
+    return 'Enter a dose greater than zero';
+  if (
+    ['capsule', 'drops', 'puff', 'patch'].includes(d.form) &&
+    !Number.isInteger(d.amount)
+  )
+    return 'Use a whole number for this medicine';
+  return null;
+}
+
+export function problem(d: Draft) {
+  const detailsIssue = detailsProblem(d);
+  if (detailsIssue) return detailsIssue;
   if (
     ['daily', 'weekdays', 'interval', 'cycle'].includes(d.kind) &&
     anchors(d).length === 0
@@ -286,6 +359,26 @@ export function problem(d: Draft) {
       return 'Enter a dose greater than zero for each reminder';
   } else if (!Number.isFinite(d.amount) || d.amount <= 0)
     return 'Enter a dose greater than zero';
+  if (d.kind === 'prn') {
+    if (d.limitGap && (!Number.isFinite(d.gap) || d.gap <= 0))
+      return 'Enter the prescribed minimum gap';
+    if (d.limitMax && (!Number.isInteger(d.max) || d.max <= 0))
+      return 'Enter the prescribed daily limit';
+  }
+  if (
+    d.stock &&
+    (!Number.isFinite(d.count) ||
+      d.count < 0 ||
+      !Number.isFinite(d.pack) ||
+      d.pack <= 0)
+  )
+    return 'Enter a valid remaining supply and refill amount';
+  if (
+    d.variable &&
+    ['capsule', 'drops', 'puff', 'patch'].includes(d.form) &&
+    at.some((a) => !Number.isInteger(a.amount))
+  )
+    return 'Use a whole number for each reminder';
   const times = d.times.map((x) => x.t);
   if (new Set(times).size !== times.length)
     return 'Each clock time must be different';
