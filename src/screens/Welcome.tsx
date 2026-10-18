@@ -13,11 +13,9 @@ import { sfx } from '../lib/sound.ts';
 import { useStore } from '../lib/store.ts';
 import { useTitle } from '../lib/title.ts';
 import MedicineEdit from './MedicineEdit.tsx';
-import { RoutineRows } from './Routines.tsx';
 
 const STEPS: { next: string; back: string; mood: Mood }[] = [
   { next: "Let's set up", back: "I've used it before", mood: 'hello' },
-  { next: 'Looks right', back: 'Back', mood: 'idle' },
   { next: 'Continue', back: 'Back', mood: 'adding' },
   { next: 'Allow reminders', back: 'Not now', mood: 'nudge' },
 ];
@@ -106,8 +104,6 @@ export default function Welcome() {
     if (step === 0) go(1);
     else if (step === 1) go(2);
     else if (step === 2) {
-      go(3);
-    } else if (step === 3) {
       if (busy) return;
       if (remindersOn || unavailable) {
         finish();
@@ -129,13 +125,13 @@ export default function Welcome() {
 
   function prev() {
     if (step === 0) finish();
-    else if (step === 3) finish();
+    else if (step === 2) finish();
     else go(step - 1);
   }
 
   const s = STEPS[step] ?? STEPS[0];
   const label =
-    step === 3
+    step === 2
       ? busy
         ? 'Setting up reminders…'
         : remindersOn || unavailable
@@ -145,7 +141,7 @@ export default function Welcome() {
             : allowed
               ? 'Finish reminder setup'
               : 'Allow reminders'
-      : step === 2 && !meds.length
+      : step === 1 && !meds.length
         ? 'Skip for now'
         : (s?.next ?? '');
 
@@ -168,7 +164,7 @@ export default function Welcome() {
       </div>
       <div className="mx-auto flex min-h-0 w-full max-w-130 flex-[0_1_auto] flex-col land:flex-1 land:justify-center land:pt-(--sat)">
         <div className="welcome-steps relative min-h-0 shrink overflow-y-auto overscroll-contain px-5.5">
-          {[0, 1, 2, 3].map((i) => (
+          {[0, 1, 2].map((i) => (
             <section
               key={i}
               className="welcome-step grid content-end gap-3 pt-1 pb-2"
@@ -186,7 +182,6 @@ export default function Welcome() {
                 {
                   [
                     'Hi, I’m Pip.',
-                    'When does your day happen?',
                     'What do you take?',
                     remindersOn
                       ? 'You’re all set.'
@@ -201,15 +196,6 @@ export default function Welcome() {
                 </p>
               )}
               {i === 1 && (
-                <>
-                  <RoutineRows tone="glass" />
-                  <p className="text-[16px] opacity-90">
-                    Medicines follow these. Move breakfast and every morning
-                    dose moves too.
-                  </p>
-                </>
-              )}
-              {i === 2 && (
                 <>
                   <p className="text-[16px] opacity-90">
                     Choose the medicine type, set its schedule, then review it.
@@ -248,7 +234,7 @@ export default function Welcome() {
                   )}
                 </>
               )}
-              {i === 3 && !guide && (
+              {i === 2 && !guide && (
                 <div className="grid gap-3" role="status" aria-live="polite">
                   {(allowed || remindersOn) && (
                     <div className="flex items-center gap-2 rounded-[16px] bg-white/65 px-3 py-2.5 font-bold">
@@ -278,7 +264,7 @@ export default function Welcome() {
                   </p>
                 </div>
               )}
-              {i === 3 && guide && (
+              {i === 2 && guide && (
                 <ol className="m-0 grid list-none gap-2 p-0 text-[16px]">
                   {[
                     ['share', 'Tap Share in Safari’s toolbar'],
@@ -307,7 +293,7 @@ export default function Welcome() {
         </div>
         <div className="grid flex-none gap-2.5 px-5.5 pt-3 pb-[calc(20px+var(--sab))] land:pb-[calc(12px+var(--sab))]">
           <div className="flex justify-center gap-1" aria-hidden="true">
-            {[0, 1, 2, 3].map((i) => (
+            {[0, 1, 2].map((i) => (
               <i
                 key={i}
                 className="step-dot"
@@ -316,7 +302,7 @@ export default function Welcome() {
             ))}
           </div>
           <p className="sr-only" aria-live="polite">
-            Step {step + 1} of 4
+            Step {step + 1} of 3
           </p>
           {guide ? (
             <button
@@ -337,7 +323,7 @@ export default function Welcome() {
               {label}
             </button>
           )}
-          {!(step === 3 && remindersOn) && (
+          {!(step === 2 && remindersOn) && (
             <button
               type="button"
               className="press min-h-11 font-bold font-display text-[15px] opacity-90"
@@ -345,7 +331,7 @@ export default function Welcome() {
             >
               {guide
                 ? 'Later'
-                : step === 3 && (attempted || remindersOn)
+                : step === 2 && (attempted || remindersOn)
                   ? remindersOn
                     ? 'Go to Today'
                     : 'Set up later'

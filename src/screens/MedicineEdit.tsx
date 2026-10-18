@@ -41,14 +41,19 @@ import {
 } from '../lib/medicine-fields.ts';
 import { replan } from '../lib/push.ts';
 import { back } from '../lib/route.ts';
-import { anchorMin, ROUTINE_NAME, ROUTINE_ORDER } from '../lib/schedule.ts';
+import {
+  DEFAULT_ROUTINES,
+  ROUTINE_NAME,
+  ROUTINE_ORDER,
+} from '../lib/schedule.ts';
 import { routinesStore } from '../lib/settings.ts';
 import { echo, type Parsed, parse, understood } from '../lib/shorthand.ts';
 import { sfx } from '../lib/sound.ts';
 import { useStore } from '../lib/store.ts';
-import { dayKey, fmtTime, fromMin } from '../lib/time.ts';
+import { fmtTime, fromMin, toMin } from '../lib/time.ts';
 import { useTitle } from '../lib/title.ts';
 import { toast } from '../lib/toast.ts';
+import type { Anchor, Medicine, Routine, RoutineId } from '../lib/types.ts';
 
 const STEPS = ['Medicine', 'Schedule', 'Review'];
 const WEEK = [1, 2, 3, 4, 5, 6, 0];
@@ -63,6 +68,17 @@ const WEEK_LONG = [
   'Saturday',
 ];
 
+function reminderTimes(anchor: Anchor, routines: Routine[]) {
+  if ('time' in anchor) return fmtTime(anchor.time);
+  const routine = routines.find((r) => r.id === anchor.routine);
+  if (!routine) return '';
+  const time = (value: string) =>
+    fmtTime(fromMin((toMin(value) + anchor.offsetMin + 1440) % 1440));
+  return routine.weekend && routine.weekend !== routine.weekday
+    ? `${time(routine.weekday)} weekdays · ${time(routine.weekend)} weekends`
+    : time(routine.weekday);
+}
+
 export default function MedicineEdit({
   id,
   onDone,
@@ -71,6 +87,10 @@ export default function MedicineEdit({
   onDone?: () => void;
 }) {
   const { meds, ready } = useData();
+  const savedRoutines = useStore(routinesStore);
+  const [timeEdits, setTimeEdits] = useState<
+    Partial<Record<RoutineId, string>>
+  >({});
   const prev = id ? meds.find((m) => m.id === id) : undefined;
   const [open, setOpen] = useState(true);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -80,6 +100,23 @@ export default function MedicineEdit({
   const form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const d = draft ?? (prev ? fromMed(prev) : blank());
+  const routines = DEFAULT_ROUTINES.map((fallback) => ({
+    ...(savedRoutines.find((r) => r.id === fallback.id) ?? fallback),
+    ...(d.kind !== 'once' &&
+    d.kind !== 'prn' &&
+    d.routines.includes(fallback.id) &&
+    timeEdits[fallback.id]
+      ? { weekday: timeEdits[fallback.id] }
+      : {}),
+  }));
+  const changedTimes = routines.filter(
+    (r) =>
+      r.weekday !==
+      (
+        savedRoutines.find((s) => s.id === r.id) ??
+        DEFAULT_ROUTINES.find((s) => s.id === r.id)
+      )?.weekday,
+  );
   const set = (patch: Partial<Draft>) => setDraft({ ...d, ...patch });
   const issue = step === 0 ? detailsProblem(d) : problem(d);
   useTitle(prev ? `Edit ${prev.name} · Tend` : 'Add medicine · Tend');
@@ -103,12 +140,26 @@ export default function MedicineEdit({
       return;
     }
     const med = toMed(d, prev);
+    if (changedTimes.length) routinesStore.set(routines);
     const undo = putMed(med);
     replan();
     sfx.taken();
     haptic.success();
     toast(prev ? `${med.name} saved` : `${med.name} added`, () => {
       undo();
+      if (changedTimes.length) {
+        routinesStore.set((current) =>
+          current.map((r) => {
+            const changed = changedTimes.find((s) => s.id === r.id);
+            const before =
+              savedRoutines.find((s) => s.id === r.id) ??
+              DEFAULT_ROUTINES.find((s) => s.id === r.id);
+            return changed && before && r.weekday === changed.weekday
+              ? { ...r, weekday: before.weekday }
+              : r;
+          }),
+        );
+      }
       replan();
     });
     setOpen(false);
@@ -243,11 +294,23 @@ export default function MedicineEdit({
             shorthand={!prev}
           />
         )}
-        {step === 1 && <ScheduleFields d={d} set={set} />}
+        {step === 1 && (
+          <ScheduleFields
+            d={d}
+            set={set}
+            routines={routines}
+            setTime={(id, time) =>
+              setTimeEdits((prev) => ({ ...prev, [id]: time }))
+            }
+          />
+        )}
         {step === 2 && (
           <ReviewFields
             d={d}
             set={set}
+            routines={routines}
+            changedTimes={changedTimes}
+            otherMeds={meds.filter((m) => m.id !== id && !m.archived)}
             edit={(n) => {
               setStep(n);
               setTried(false);
@@ -564,12 +627,15 @@ export function Shorthand({ onApply }: { onApply: (p: Parsed) => void }) {
 function ScheduleFields({
   d,
   set,
+  routines,
+  setTime,
 }: {
   d: Draft;
   set: (p: Partial<Draft>) => void;
+  routines: Routine[];
+  setTime: (id: RoutineId, time: string) => void;
 }) {
   const id = useId();
-  const routines = useStore(routinesStore);
   const scheduled = d.kind !== 'once' && d.kind !== 'prn';
   const mealPlan =
     d.insulin &&
@@ -583,26 +649,22 @@ function ScheduleFields({
     ...ROUTINE_ORDER.filter((r) => d.routines.includes(r)).map((r) => ({
       key: r,
       label: ROUTINE_NAME[r],
-      time: fromMin(
-        ((anchorMin(
-          {
-            routine: r,
-            offsetMin:
-              d.offsets[r] ??
-              (d.before && r !== 'wake' && r !== 'bed' ? -d.beforeMin : 0),
-          },
-          routines,
-          dayKey(),
-        ) %
-          1440) +
-          1440) %
-          1440,
+      routine: routines.find((item) => item.id === r),
+      time: reminderTimes(
+        {
+          routine: r,
+          offsetMin:
+            d.offsets[r] ??
+            (d.before && r !== 'wake' && r !== 'bed' ? -d.beforeMin : 0),
+        },
+        routines,
       ),
     })),
     ...d.times.map((x, i) => ({
       key: `time-${x.id}`,
       label: `Clock time ${i + 1}`,
-      time: x.t,
+      routine: undefined,
+      time: fmtTime(x.t),
     })),
   ];
   return (
@@ -797,7 +859,7 @@ function ScheduleFields({
         <>
           <Field label={mealPlan ? 'Meals' : 'Reminder times'}>
             <Chips
-              label="Routines"
+              label="Meals and sleep"
               values={d.routines}
               onChange={(selected) => set({ routines: selected })}
               options={ROUTINE_ORDER.filter(
@@ -910,49 +972,78 @@ function ScheduleFields({
                 label="Different amounts at each reminder"
               />
             )}
-          {d.variable && (
+          {(d.routines.length > 0 || d.variable) && (
             <div className="grid gap-2">
-              {slots.map((slot) => (
-                <div
-                  key={slot.key}
-                  className="flex items-center gap-3 rounded-[18px] bg-milk p-3"
-                >
-                  <div className="min-w-0 flex-1">
-                    <label
-                      htmlFor={`${id}-${slot.key}`}
-                      className="block font-bold"
-                    >
-                      {slot.label}
-                    </label>
-                    <span className="num text-[13px] text-soft">
-                      {fmtTime(slot.time)}
-                    </span>
+              {d.routines.length > 0 && (
+                <p className="text-[13px] text-soft">
+                  Set when you eat or sleep; the reminder time appears below.
+                  These times are shared across medicines. Changes apply when
+                  you save.
+                </p>
+              )}
+              {slots
+                .filter((slot) => slot.routine || d.variable)
+                .map((slot) => (
+                  <div
+                    key={slot.key}
+                    className="grid gap-2 rounded-[18px] bg-milk p-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="min-w-0 flex-1">
+                        <span className="block font-bold">{slot.label}</span>
+                        {slot.routine && (
+                          <TimeField
+                            label={`${slot.label} time`}
+                            value={slot.routine.weekday}
+                            onChange={(time) => {
+                              if (slot.routine) setTime(slot.routine.id, time);
+                            }}
+                            className="mt-1 min-h-11 w-32 max-w-full bg-card! px-3 text-[14px]"
+                          />
+                        )}
+                      </div>
+                      {d.variable && (
+                        <>
+                          <input
+                            id={`${id}-${slot.key}`}
+                            aria-label={`${slot.label} dose`}
+                            className="field num w-22 bg-card! text-center"
+                            inputMode="decimal"
+                            value={d.amounts[slot.key] ?? ''}
+                            placeholder="Dose"
+                            onChange={(e) =>
+                              set({
+                                amounts: {
+                                  ...d.amounts,
+                                  [slot.key]: e.target.value.replace(
+                                    /[^\d.]/g,
+                                    '',
+                                  ),
+                                },
+                              })
+                            }
+                          />
+                          <span className="text-[13px] text-soft">
+                            {d.insulin
+                              ? 'units'
+                              : d.doseUnit === 'default'
+                                ? fields.noun
+                                : d.doseUnit}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <p className="num wrap-anywhere text-[13px] text-soft">
+                      {d.name || 'Reminder'}
+                      {(!d.variable || d.amounts[slot.key]) &&
+                        ` · ${medicineDose(
+                          toMed(d),
+                          d.variable ? Number(d.amounts[slot.key]) : d.amount,
+                        )}`}{' '}
+                      at {slot.time}
+                    </p>
                   </div>
-                  <input
-                    id={`${id}-${slot.key}`}
-                    aria-label={`${slot.label} dose`}
-                    className="field num w-22 bg-card! text-center"
-                    inputMode="decimal"
-                    value={d.amounts[slot.key] ?? ''}
-                    placeholder="Dose"
-                    onChange={(e) =>
-                      set({
-                        amounts: {
-                          ...d.amounts,
-                          [slot.key]: e.target.value.replace(/[^\d.]/g, ''),
-                        },
-                      })
-                    }
-                  />
-                  <span className="text-[13px] text-soft">
-                    {d.insulin
-                      ? 'units'
-                      : d.doseUnit === 'default'
-                        ? fields.noun
-                        : d.doseUnit}
-                  </span>
-                </div>
-              ))}
+                ))}
             </div>
           )}
           <Optional
@@ -1000,10 +1091,16 @@ function ReviewFields({
   d,
   set,
   edit,
+  routines,
+  changedTimes,
+  otherMeds,
 }: {
   d: Draft;
   set: (p: Partial<Draft>) => void;
   edit: (step: number) => void;
+  routines: Routine[];
+  changedTimes: Routine[];
+  otherMeds: Medicine[];
 }) {
   const med = toMed(d);
   const fields = FORM_FIELDS[d.form];
@@ -1056,7 +1153,12 @@ function ReviewFields({
               key={anchorText(a)}
               className="flex items-center justify-between gap-3 border-t border-line pt-2 text-[14px]"
             >
-              <span>{anchorText(a)}</span>
+              <span>
+                {anchorText(a)}
+                <span className="num block text-[13px]">
+                  {reminderTimes(a, routines)}
+                </span>
+              </span>
               <strong className="num text-right">
                 {medicineDose(med, a.amount ?? med.amount)}
               </strong>
@@ -1067,6 +1169,22 @@ function ReviewFields({
             For {d.courseDays} days, starting {d.start}
           </p>
         )}
+        {changedTimes.map((r) => {
+          const count = otherMeds.filter(
+            (m) =>
+              'at' in m.schedule &&
+              m.schedule.at.some((a) => 'routine' in a && a.routine === r.id),
+          ).length;
+          return (
+            <p key={r.id} className="text-[13px]">
+              Saving sets {ROUTINE_NAME[r.id].toLowerCase()} to{' '}
+              {fmtTime(r.weekday)}
+              {r.weekend ? ' on weekdays' : ''}.
+              {count > 0 &&
+                ` This also moves reminders for ${count} other ${count === 1 ? 'medicine' : 'medicines'}.`}
+            </p>
+          );
+        })}
       </div>
       {(stockUnit || d.stock) && (
         <Optional
