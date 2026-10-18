@@ -148,7 +148,7 @@ function Detail({ med, inPanel }: { med: Medicine; inPanel?: boolean }) {
               className="grid size-20 flex-none place-items-center rounded-[24px] bg-milk"
               aria-hidden="true"
             >
-              <Pill look={med.look} size={50} />
+              <Pill look={med.look} form={med.form} size={50} />
             </span>
             <div className="min-w-0 flex-1 pt-1">
               <h1 className="font-extrabold text-[28px] leading-tight">

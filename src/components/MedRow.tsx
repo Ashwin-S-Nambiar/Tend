@@ -26,10 +26,14 @@ export default function MedRow({
   const done = state === 'taken' || state === 'skipped';
   const body = (
     <>
-      <PillChip look={med.look} className={tone === 'milk' ? 'bg-card!' : ''} />
+      <PillChip
+        look={med.look}
+        form={med.form}
+        className={tone === 'milk' ? 'bg-card!' : ''}
+      />
       <span className="min-w-0 flex-1">
         <span
-          className={`block truncate font-bold text-[16px] leading-tight transition-colors duration-200 ${done ? 'text-soft' : ''}`}
+          className={`block wrap-anywhere font-bold text-[16px] leading-tight transition-colors duration-200 ${done ? 'text-soft' : ''}`}
         >
           {med.name}
         </span>

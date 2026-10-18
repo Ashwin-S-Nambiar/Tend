@@ -115,13 +115,13 @@ function MedCard({ med, selected }: { med: Medicine; selected?: boolean }) {
       } ${med.archived ? 'opacity-70' : ''}`}
     >
       <span className="grid size-12 flex-none place-items-center rounded-[15px] bg-milk">
-        <Pill look={med.look} size={28} />
+        <Pill look={med.look} form={med.form} size={28} />
       </span>
       <span className="min-w-0 flex-1">
-        <b className="block truncate font-bold font-display text-[17px]">
+        <b className="block wrap-anywhere font-bold font-display text-[17px]">
           {med.name}
         </b>
-        <span className="num block truncate text-[14px] text-soft">
+        <span className="num block wrap-anywhere text-[14px] text-soft">
           {doseLine(med, false)} ·{' '}
           {c?.total ? `day ${c.n} of ${c.total}` : shortSchedule(med.schedule)}
         </span>

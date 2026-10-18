@@ -297,7 +297,7 @@ export default function MedicineEdit({ id }: { id?: string }) {
       header={
         <div className="flex items-center gap-3 pt-1 pb-2">
           <Pip mood="adding" className="size-14 flex-none" track />
-          <h2 className="min-w-0 flex-1 truncate font-extrabold text-[24px]">
+          <h2 className="min-w-0 flex-1 wrap-anywhere font-extrabold text-[24px]">
             {prev ? `Edit ${prev.name}` : 'Add a medicine'}
           </h2>
         </div>
@@ -448,7 +448,7 @@ export function MedForm({
             </datalist>
           </Field>
           <Field label="Strength" htmlFor={`${id}-str`}>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <input
                 id={`${id}-str`}
                 className="field num w-32 flex-none"
@@ -461,15 +461,13 @@ export function MedForm({
                 placeholder="500"
                 autoComplete="off"
               />
-              <div className="min-w-0 flex-1 overflow-x-auto">
-                <Segmented
-                  label="Unit"
-                  size="sm"
-                  value={d.unit}
-                  onChange={(unit) => set({ unit })}
-                  options={UNITS.map((u) => ({ value: u, label: u }))}
-                />
-              </div>
+              <Segmented
+                label="Unit"
+                wrap
+                value={d.unit}
+                onChange={(unit) => set({ unit })}
+                options={UNITS.map((u) => ({ value: u, label: u }))}
+              />
             </div>
           </Field>
         </div>
@@ -477,7 +475,11 @@ export function MedForm({
           className="hidden size-36 place-items-center rounded-[28px] bg-milk tab:grid"
           aria-hidden="true"
         >
-          <Pill look={{ shape: d.shape, colors: d.colors }} size={88} />
+          <Pill
+            form={d.form}
+            look={{ shape: d.shape, colors: d.colors }}
+            size={88}
+          />
         </div>
       </div>
 
@@ -794,29 +796,44 @@ export function MedForm({
             )}
           </div>
 
-          <Field label="Looks like">
+          <Field
+            label={
+              d.form === 'tablet' || d.form === 'capsule'
+                ? 'Looks like'
+                : 'Colour'
+            }
+          >
             <div className="flex flex-wrap items-center gap-4">
               <span
                 className="grid size-16 place-items-center rounded-[20px] bg-milk tab:hidden"
                 aria-hidden="true"
               >
-                <Pill look={{ shape: d.shape, colors: d.colors }} size={40} />
+                <Pill
+                  form={d.form}
+                  look={{ shape: d.shape, colors: d.colors }}
+                  size={40}
+                />
               </span>
-              <Segmented
-                label="Shape"
-                value={d.shape}
-                onChange={(shape) => set({ shape })}
-                options={[
-                  { value: 'round', label: 'Round' },
-                  { value: 'oval', label: 'Oval' },
-                  { value: 'cap', label: 'Capsule' },
-                ]}
-              />
+              {d.form === 'tablet' && (
+                <Segmented
+                  label="Shape"
+                  value={d.shape === 'cap' ? 'round' : d.shape}
+                  onChange={(shape) => set({ shape })}
+                  options={[
+                    { value: 'round', label: 'Round' },
+                    { value: 'oval', label: 'Oval' },
+                  ]}
+                />
+              )}
             </div>
             <ColorPick
               colors={d.colors}
-              onChange={(colors) => set({ colors })}
-              two={d.shape === 'cap'}
+              onChange={(colors) =>
+                set({
+                  colors: d.form === 'capsule' ? colors : colors.slice(0, 1),
+                })
+              }
+              two={d.form === 'capsule'}
             />
           </Field>
 

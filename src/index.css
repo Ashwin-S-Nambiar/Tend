@@ -107,6 +107,16 @@
 }
 
 @layer base {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  h1,
+  h2,
+  h3 {
+    overflow-wrap: anywhere;
+  }
+
   html,
   body {
     margin: 0;
@@ -764,6 +774,7 @@ html[data-dir="theme"]::view-transition-new(screen) {
   transform: translateX(-40%);
 }
 .welcome-steps {
+  overflow-x: clip;
   scrollbar-width: none;
   padding-bottom: 12px;
   mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
@@ -777,9 +788,6 @@ html[data-dir="theme"]::view-transition-new(screen) {
   }
 }
 
-dialog.sheet .grid:not([class*="grid-cols"]) {
-  grid-template-columns: minmax(0, 1fr);
-}
 .scene[data-scene="night"] .orb {
   top: clamp(16px, 8cqh, 90px);
   right: clamp(24px, 14cqw, 180px);
