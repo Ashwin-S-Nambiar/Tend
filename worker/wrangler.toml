@@ -1,0 +1,17 @@
+name = "tend-push"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[vars]
+ORIGINS = "https://tend.ashwin.co.in,http://localhost:5317,http://localhost:4317"
+VAPID_PUBLIC = ""
+VAPID_SUBJECT = "https://tend.ashwin.co.in"
+
+[[durable_objects.bindings]]
+name = "DEVICE"
+class_name = "Device"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Device"]
