@@ -64,7 +64,7 @@ export default function History({ selected }: { selected?: string }) {
               className={offset === 0 ? 'invisible' : ''}
             />
           </div>
-          <div ref={days} className="grid grid-cols-7 gap-1">
+          <div ref={days} className="grid grid-cols-7 gap-1.5">
             {week.map((d) => (
               <button
                 key={d.day}
@@ -75,7 +75,7 @@ export default function History({ selected }: { selected?: string }) {
                 onClick={() =>
                   navigate(`/day/${d.day}`, { replace: Boolean(selected) })
                 }
-                className={`press grid min-h-11 justify-items-center gap-1.5 rounded-2xl py-2 disabled:cursor-default ${d.day === pick ? 'bg-pip-wash' : ''}`}
+                className={`press grid min-h-11 min-w-0 justify-items-center gap-1.5 rounded-2xl px-0.5 py-2 disabled:cursor-default ${d.day === pick ? 'bg-pip-wash' : ''}`}
               >
                 <span
                   className={`text-[13px] ${d.today ? 'font-bold' : 'font-semibold text-soft'}`}

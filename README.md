@@ -105,6 +105,7 @@ after deployment, close Tend from recent apps and reopen it online. an already-o
 - **small feedback.** presses respond immediately, switches settle gently, optional sections expand in place, and toast messages enter and leave briefly. reduced motion uses short fades and immediate spring settling.
 - **a layout for the available space.** bottom tabs on phones, a rail on tablets and landscape phones, a context pane from 1024 px, and a sidebar from 1440 px. the main list keeps its scroll position when you return from a detail page.
 - **app-owned pickers.** dates, times and medicine-name suggestions use Tend's own controls. sheets and onboarding fit above the keyboard while retaining the page canvas behind it.
+- **lost pages.** a mistyped link gets a real 404: Pip wobbles and looks around, because the page isn't on your schedule. it's a static copy of the in-app not-found screen, so it shows even before the app loads.
 - **night.** follows the system until you choose. theme changes crossfade, and logging the last bedtime dose gives Today a navy sky and a sleeping Pip.
 - **sound and touch.** quiet chimes are synthesized with Web Audio rather than shipped as files. Android haptics mark meaningful actions, and the sound preference is remembered.
 
@@ -164,7 +165,7 @@ src/
   components/   Pip, scenes, sheets, pickers, selection indicators and controls
   lib/          scheduling, medicine drafts, shorthand, storage, push and motion
 tests/          app logic and navigation regressions
-public/         service worker, manifest, icons, launch screens and fonts
+public/         service worker, manifest, icons, launch screens, fonts and the 404 page
 worker/
   src/          reminder API, Durable Objects and web push
   tests/        encryption and VAPID regressions

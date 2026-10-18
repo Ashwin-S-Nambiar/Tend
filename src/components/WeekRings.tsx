@@ -52,10 +52,9 @@ export function Ring({
   const f = total ? done / total : 0;
   return (
     <svg
-      width={size}
-      height={size}
       viewBox="0 0 40 40"
-      className="-rotate-90"
+      className="aspect-square h-auto w-full -rotate-90"
+      style={{ maxWidth: size }}
       aria-hidden="true"
     >
       <circle
@@ -95,7 +94,7 @@ export default function WeekRings({
 }) {
   const week = useWeek();
   return (
-    <div className="grid grid-cols-7 gap-1">
+    <div className="grid grid-cols-7 gap-1.5">
       {week.map((d) => {
         const name = fmtDay(d.day, {
           weekday: 'long',
@@ -115,7 +114,7 @@ export default function WeekRings({
             aria-current={d.today ? 'date' : undefined}
             disabled={d.future}
             onClick={() => navigate(`/day/${d.day}`)}
-            className="press grid min-h-11 justify-items-center gap-1 rounded-xl py-1 disabled:cursor-default"
+            className="press grid min-h-11 min-w-0 justify-items-center gap-1 rounded-xl py-1 disabled:cursor-default"
           >
             <Ring {...d} size={size} />
             {labels && (
