@@ -7,10 +7,6 @@ const UA =
 const families = [
   ['Gabarito', 'wght@500..900', 'gabarito'],
   ['Rethink Sans', 'wght@400..800', 'rethinksans'],
-  ['Bricolage Grotesque', 'opsz,wght@12..96,500..800', 'bricolagegrotesque'],
-  ['Figtree', 'wght@400..800', 'figtree'],
-  ['Fredoka', 'wght@500..700', 'fredoka'],
-  ['Onest', 'wght@400..800', 'onest'],
 ];
 
 const out = 'public/fonts';

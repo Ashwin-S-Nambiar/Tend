@@ -53,7 +53,7 @@ pip is one svg with two quadratic-curve eyes. each eye blends between a pill (a 
 - **headspace's warmth with our own parts.** one round character, soft scenes instead of photos, big rounded controls, very few words. the house rule of one physical object is waived for this one.
 - **teal means log it.** `#0e8576` is the only colour on controls and it means due now. the four routine scenes (sunrise, noon, dusk, night) are backgrounds only. taken isn't green and not logged isn't red.
 - **a night mode that earns it.** the bedtime dose gets checked in a dark room, so dark follows the system, and once bedtime is logged today turns navy and pip goes to sleep whatever the theme.
-- **type.** three pairings are in for the pick, switchable with `?type=a|b|c`: gabarito with rethink sans, bricolage grotesque with figtree, fredoka with onest. all ofl, self-hosted, with metric-matched fallbacks.
+- **type.** gabarito for greetings, titles, times and buttons, rethink sans for names, doses and everything you read. both ofl, self-hosted as latin and latin-ext woff2, preloaded, with arial fallbacks tuned by size-adjust and ascent, descent and line-gap overrides so nothing jumps when they load.
 - **one layout per size.** a bottom tab bar on phones, a rail in landscape and on tablets, a context panel from 1024 where the dose and medicine details open, and a sidebar with keys from 1440.
 - **installed, it feels installed.** standalone with no url bar, an animated pip splash with matching ios launch images, and theme colours for the status bar.
 
@@ -111,7 +111,7 @@ worker/         the reminder server
 
 ## known rough edges
 
-- the fonts, the icon set and every line of copy are still waiting on a final pick.
+- the icon set and every line of copy are still waiting on a final pick.
 - travel mode (keep home time abroad) isn't built yet.
 - an installed android app shows chrome's own splash for a moment before pip's.
 - if nobody opens the app for 14 days the plan runs dry. the last reminder says so.

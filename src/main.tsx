@@ -6,17 +6,6 @@ import { load } from './lib/db.ts';
 import { checkPush, replan, watchPermission } from './lib/push.ts';
 import { initTips } from './lib/tip.ts';
 
-const type = new URLSearchParams(location.search).get('type');
-if (type === 'a' || type === 'b' || type === 'c') {
-  try {
-    sessionStorage.setItem('tend:type', type);
-  } catch {}
-}
-try {
-  const t = sessionStorage.getItem('tend:type');
-  if (t) document.documentElement.dataset.type = t;
-} catch {}
-
 const root = document.getElementById('root');
 if (root) {
   createRoot(root).render(
