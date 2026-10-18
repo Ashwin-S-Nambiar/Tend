@@ -1,0 +1,39 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/today", "destination": "/index.html" },
+    { "source": "/welcome", "destination": "/index.html" },
+    { "source": "/dose/:due", "destination": "/index.html" },
+    { "source": "/medicines", "destination": "/index.html" },
+    { "source": "/medicine/:id", "destination": "/index.html" },
+    { "source": "/medicine/:id/edit", "destination": "/index.html" },
+    { "source": "/history", "destination": "/index.html" },
+    { "source": "/day/:date", "destination": "/index.html" },
+    { "source": "/routines", "destination": "/index.html" },
+    { "source": "/you", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "missing": [{ "type": "host", "value": "tend\\.ashwin\\.co\\.in" }],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/(dose|medicine|day)/(.*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    },
+    {
+      "source": "/fonts/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+    }
+  ]
+}
