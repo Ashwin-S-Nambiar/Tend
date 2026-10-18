@@ -825,3 +825,24 @@ html:has(input:focus, textarea:focus),
 html:has(input:focus, textarea:focus) body {
   transition: none;
 }
+
+/* Keep Android's keyboard animation over a continuously painted page. */
+:root[data-keyboard-overlay] {
+  --kb: env(keyboard-inset-height, 0px);
+  --visible-height: calc(100dvh - var(--kb));
+  --visible-top: 0px;
+}
+
+html,
+body {
+  overflow: hidden;
+}
+
+.shell {
+  height: var(--visible-height, 100dvh);
+}
+
+.welcome {
+  bottom: auto;
+  height: var(--visible-height, 100dvh);
+}

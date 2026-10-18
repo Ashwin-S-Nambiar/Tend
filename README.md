@@ -92,7 +92,7 @@ pip is one svg with two quadratic-curve eyes. each eye blends between a pill (a 
 - **a night mode that earns it.** the bedtime dose gets checked in a dark room, so dark follows the system, and once bedtime is logged today turns navy and pip goes to sleep whatever the theme.
 - **type.** gabarito for greetings, titles, times and buttons, rethink sans for names, doses and everything you read. both ofl, self-hosted as latin and latin-ext woff2, preloaded, with arial fallbacks tuned by size-adjust and ascent, descent and line-gap overrides so nothing jumps when they load.
 - **one layout per size.** a bottom tab bar on phones, a rail in landscape and on tablets, a context panel from 1024 where the dose and medicine details open, and a sidebar with keys from 1440.
-- **pickers belong to the app.** time and date controls use Tend sheets, colours and touch targets instead of opening a separate native picker. sheets follow the visible viewport when the keyboard opens.
+- **pickers belong to the app.** time and date controls use Tend sheets, colours and touch targets instead of opening a separate native picker. on touch-enabled Chrome, the keyboard overlays a stable page canvas while the app and sheets fit above it using keyboard insets; other browsers use the visual viewport. this also applies in onboarding and the installed PWA.
 - **installed, it feels installed.** standalone with no url bar, an animated pip splash with matching ios launch images, and theme colours for the status bar.
 
 ## keyboard
