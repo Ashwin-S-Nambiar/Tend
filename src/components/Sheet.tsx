@@ -151,6 +151,9 @@ export default function Sheet({
       opener.current = document.activeElement;
       openedAt.current = performance.now();
       closing.current = false;
+      // showModal otherwise focuses the first text field before p.focus(), which
+      // briefly opens and dismisses Android's keyboard while the sheet enters.
+      p.setAttribute('autofocus', '');
       d.showModal();
       p.focus({ preventScroll: true });
       for (const a of p.getAnimations()) a.cancel();

@@ -867,13 +867,6 @@ html:has(input:focus, textarea:focus) body {
   transition: none;
 }
 
-/* Keep Android's keyboard animation over a continuously painted page. */
-:root[data-keyboard-overlay] {
-  --kb: env(keyboard-inset-height, 0px);
-  --visible-height: calc(100dvh - var(--kb));
-  --visible-top: 0px;
-}
-
 html,
 body {
   overflow: hidden;
@@ -886,6 +879,12 @@ body {
 .welcome {
   bottom: auto;
   height: var(--visible-height, 100dvh);
+}
+
+/* A keyboard moves the foreground sheet; the canvas behind it stays painted. */
+html:has(dialog[open]) .shell,
+html:has(dialog[open]) .welcome {
+  height: 100dvh;
 }
 
 /* Progressive disclosure keeps its place while fields expand. */
