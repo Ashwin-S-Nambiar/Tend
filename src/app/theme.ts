@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { flushSync } from 'react-dom';
 import { useMedia } from '../lib/hooks.ts';
 import { type Theme, themeStore } from '../lib/settings.ts';
 import { useStore } from '../lib/store.ts';
@@ -27,47 +28,42 @@ export function useTheme() {
   return dark;
 }
 
-export function setTheme(next: Theme, from?: HTMLElement | null) {
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!document.startViewTransition || still || !from) {
-    themeStore.set(next);
-    return;
-  }
-  const r = from.getBoundingClientRect();
-  const x = r.left + r.width / 2;
-  const y = r.top + r.height / 2;
-  const end = Math.hypot(
-    Math.max(x, innerWidth - x),
-    Math.max(y, innerHeight - y),
-  );
+let changing: ViewTransition | null = null;
+let themeVersion = 0;
+export function setTheme(next: Theme, _from?: HTMLElement | null) {
   const root = document.documentElement;
-  root.dataset.dir = 'theme';
-  const vt = document.startViewTransition(() => {
-    themeStore.set(next);
+  const version = ++themeVersion;
+  const apply = () => {
+    if (version !== themeVersion) return;
+    flushSync(() => themeStore.set(next));
     const dark =
       next === 'dark' ||
       (next === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+    root.style.colorScheme = dark ? 'dark' : 'light';
     if (dark) root.dataset.dark = '';
     else delete root.dataset.dark;
-  });
-  vt.ready
+  };
+  if (
+    !document.startViewTransition ||
+    matchMedia('(prefers-reduced-motion: reduce)').matches ||
+    document.querySelector('dialog[open]') ||
+    root.dataset.motion ||
+    changing
+  ) {
+    changing?.skipTransition();
+    apply();
+    return;
+  }
+  root.dataset.dir = 'theme';
+  const vt = document.startViewTransition(apply);
+  changing = vt;
+  vt.ready.catch(() => {});
+  vt.updateCallbackDone.catch(() => {});
+  vt.finished
+    .catch(() => {})
     .then(() => {
-      root.animate(
-        {
-          clipPath: [
-            `circle(0px at ${x}px ${y}px)`,
-            `circle(${end}px at ${x}px ${y}px)`,
-          ],
-        },
-        {
-          duration: 480,
-          easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
-          pseudoElement: '::view-transition-new(root)',
-        },
-      );
-    })
-    .catch(() => {});
-  vt.finished.finally(() => {
-    if (root.dataset.dir === 'theme') delete root.dataset.dir;
-  });
+      if (changing !== vt) return;
+      changing = null;
+      delete root.dataset.dir;
+    });
 }

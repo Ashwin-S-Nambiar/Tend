@@ -150,7 +150,7 @@ function Detail({ med, inPanel }: { med: Medicine; inPanel?: boolean }) {
         <Card className="grid justify-items-start gap-3 p-5">
           <div className="flex w-full items-start gap-4">
             <span
-              className="grid size-20 flex-none place-items-center rounded-[24px] bg-milk"
+              className="grid size-20 flex-none place-items-center rounded-3xl bg-milk"
               aria-hidden="true"
             >
               <Pill look={med.look} form={med.form} size={50} />
@@ -237,7 +237,7 @@ function Detail({ med, inPanel }: { med: Medicine; inPanel?: boolean }) {
             {a.strip.map((d) => (
               <span
                 key={d.day}
-                className="h-8 rounded-[6px]"
+                className="h-8 rounded-md"
                 style={{
                   background: d.doses
                     ? `color-mix(in srgb, var(--pip) ${Math.round((d.taken / d.doses) * 100)}%, var(--line))`

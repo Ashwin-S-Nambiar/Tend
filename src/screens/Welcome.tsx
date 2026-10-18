@@ -6,6 +6,7 @@ import Pip, { type Mood } from '../components/Pip.tsx';
 import { useData } from '../lib/db.ts';
 import { scheduleText } from '../lib/dose-format.ts';
 import { haptic } from '../lib/haptics.ts';
+import { cancelAnimations, EASE, presentation } from '../lib/motion.ts';
 import { enablePush, isIOS, pushStore } from '../lib/push.ts';
 import { navigate } from '../lib/route.ts';
 import { onboardedStore } from '../lib/settings.ts';
@@ -51,8 +52,11 @@ export default function Welcome() {
   const last = useRef<DOMRect | null>(null);
 
   useLayoutEffect(() => {
+    if (!STEPS[step]) return;
     const el = pip.current;
     if (!el) return;
+    const offset = presentation(el);
+    cancelAnimations(el);
     const now = el.getBoundingClientRect();
     const was = last.current;
     last.current = now;
@@ -62,27 +66,26 @@ export default function Welcome() {
       matchMedia('(prefers-reduced-motion: reduce)').matches
     )
       return;
-    const dx = was.left + was.width / 2 - (now.left + now.width / 2);
-    const dy = was.top + was.height / 2 - (now.top + now.height / 2);
-    const k = was.width / now.width;
-    if (Math.abs(dx) < 1 && Math.abs(dy) < 1 && Math.abs(k - 1) < 0.01) return;
+    const dx = was.left + offset.x + was.width / 2 - (now.left + now.width / 2);
+    const dy = was.top + offset.y + was.height / 2 - (now.top + now.height / 2);
+    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
     el.animate(
       [
-        { transform: `translate(${dx}px, ${dy}px) scale(${k})` },
-        { transform: 'none' },
+        { transform: `translate(${dx}px,${dy}px)` },
+        { transform: 'translate(0,0)' },
       ],
-      { duration: 520, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' },
+      { duration: 320, easing: EASE },
     );
-  });
+  }, [step]);
 
   useEffect(() => {
     const el = stage.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => {
-      last.current = pip.current?.getBoundingClientRect() ?? null;
+    const observer = new ResizeObserver(() => {
+      last.current = null;
     });
-    ro.observe(el);
-    return () => ro.disconnect();
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -152,7 +155,7 @@ export default function Welcome() {
     >
       <div
         ref={stage}
-        className="welcome-stage relative grid min-h-24 flex-[1_1_0] place-items-center pt-[calc(12px+var(--sat))] pb-2 land:flex-[0_0_38%] land:pb-[var(--sab)]"
+        className="welcome-stage relative grid min-h-24 flex-[1_1_0] place-items-center pt-[calc(12px+var(--sat))] pb-2 land:flex-[0_0_38%] land:pb-(--sab)"
       >
         <div ref={pip} className="welcome-pip pointer-events-none">
           <Pip
@@ -237,7 +240,7 @@ export default function Welcome() {
               {i === 2 && !guide && (
                 <div className="grid gap-3" role="status" aria-live="polite">
                   {(allowed || remindersOn) && (
-                    <div className="flex items-center gap-2 rounded-[16px] bg-white/65 px-3 py-2.5 font-bold">
+                    <div className="flex items-center gap-2 rounded-2xl bg-white/65 px-3 py-2.5 font-bold">
                       <span className="grid size-8 place-items-center rounded-full bg-[#0e8576] text-white">
                         <Icon name="check" size={20} />
                       </span>
@@ -276,7 +279,7 @@ export default function Welcome() {
                   ].map(([icon, text], n) => (
                     <li
                       key={text}
-                      className="flex items-center gap-3 rounded-[16px] bg-white/60 p-3 font-semibold"
+                      className="flex items-center gap-3 rounded-2xl bg-white/60 p-3 font-semibold"
                     >
                       <span className="grid size-9 flex-none place-items-center rounded-[11px] bg-white">
                         <Icon name={icon as 'share'} size={20} />

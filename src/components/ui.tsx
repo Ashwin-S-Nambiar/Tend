@@ -2,6 +2,7 @@ import { type ReactNode, useRef } from 'react';
 import { haptic } from '../lib/haptics.ts';
 import { sfx } from '../lib/sound.ts';
 import Icon, { type IconName } from './Icon.tsx';
+import SelectionIndicator from './SelectionIndicator.tsx';
 
 export function Segmented<T extends string>({
   value,
@@ -41,8 +42,14 @@ export function Segmented<T extends string>({
       ref={ref}
       role="radiogroup"
       aria-label={label}
-      className={`flex gap-1.5 ${wrap ? 'flex-wrap' : 'rounded-[16px] bg-milk p-1'}`}
+      className={`relative isolate flex gap-1.5 ${wrap ? 'flex-wrap' : 'rounded-2xl bg-milk p-1'}`}
     >
+      {!wrap && (
+        <SelectionIndicator
+          value={value}
+          selector='button[aria-checked="true"]'
+        />
+      )}
       {options.map((o, i) => {
         const on = o.value === value;
         return (
@@ -61,9 +68,11 @@ export function Segmented<T extends string>({
               }
               onChange(o.value);
             }}
-            className={`press ${wrap ? '' : 'flex-1'} ${size === 'sm' ? 'min-h-10 text-[14px]' : 'min-h-11 text-[15px]'} rounded-[12px] px-3 font-semibold transition-colors duration-150 ${
+            className={`press relative z-1 ${wrap ? '' : 'flex-1'} ${size === 'sm' ? 'min-h-10 text-[14px]' : 'min-h-11 text-[15px]'} rounded-xl px-3 font-semibold transition-colors duration-150 ${
               on
-                ? 'bg-ink text-milk'
+                ? wrap
+                  ? 'bg-ink text-milk'
+                  : 'text-milk'
                 : wrap
                   ? 'bg-milk text-ink hover-fine:shadow-[inset_0_0_0_2px_var(--line-strong)]'
                   : 'text-soft hover-fine:text-ink'
@@ -105,7 +114,7 @@ export function Chips<T extends string | number>({
                 on ? values.filter((v) => v !== o.value) : [...values, o.value],
               );
             }}
-            className={`press min-h-11 min-w-11 rounded-[12px] px-3 font-semibold text-[15px] transition-colors duration-150 ${
+            className={`press min-h-11 min-w-11 rounded-xl px-3 font-semibold text-[15px] transition-colors duration-150 ${
               on
                 ? 'bg-pip-wash text-pip-ink shadow-[inset_0_0_0_2px_var(--pip)]'
                 : 'bg-milk text-ink'
@@ -141,7 +150,7 @@ export function Switch({
         haptic.tick();
         onChange(!on);
       }}
-      className="press flex min-h-14 w-full items-center gap-3 rounded-[18px] px-1 text-left"
+      className="press flex min-h-14 w-full items-center gap-3 rounded-btn px-1 text-left"
     >
       {icon && (
         <span className="grid size-10 flex-none place-items-center rounded-[13px] bg-milk text-ink">
@@ -161,7 +170,7 @@ export function Switch({
         aria-hidden="true"
       >
         <span
-          className={`absolute top-0.75 left-0.75 size-6 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out ${on ? 'translate-x-4.5' : ''}`}
+          className={`absolute top-0.75 left-0.75 size-6 rounded-full bg-white shadow-sm switch-thumb ${on ? 'translate-x-4.5' : ''}`}
         />
       </span>
     </button>
@@ -212,13 +221,13 @@ export function Stepper({
         else return;
         e.preventDefault();
       }}
-      className="inline-flex items-center gap-1 rounded-[16px] bg-milk p-1"
+      className="inline-flex items-center gap-1 rounded-2xl bg-milk p-1"
     >
       <button
         type="button"
         tabIndex={-1}
         aria-hidden="true"
-        className="press grid size-11 place-items-center rounded-[12px] bg-card text-ink disabled:opacity-40"
+        className="press grid size-11 place-items-center rounded-xl bg-card text-ink disabled:opacity-40"
         disabled={value <= min}
         onClick={() => set(value - step)}
       >
@@ -231,7 +240,7 @@ export function Stepper({
         type="button"
         tabIndex={-1}
         aria-hidden="true"
-        className="press grid size-11 place-items-center rounded-[12px] bg-card text-ink disabled:opacity-40"
+        className="press grid size-11 place-items-center rounded-xl bg-card text-ink disabled:opacity-40"
         disabled={value >= max}
         onClick={() => set(value + step)}
       >
@@ -250,7 +259,7 @@ export function Card({
 }) {
   return (
     <section
-      className={`surface rounded-[24px] p-4 shadow-(--shadow) ${className}`}
+      className={`surface rounded-3xl p-4 shadow-(--shadow) ${className}`}
     >
       {children}
     </section>
