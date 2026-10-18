@@ -195,8 +195,8 @@
   }
 
   :focus-visible {
-    outline: 2.5px solid var(--pip-ink);
-    outline-offset: 2px;
+    outline: 2px solid var(--pip-ink);
+    outline-offset: 1px;
   }
 
   ::selection {
