@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face { font-family: "Gabarito"; font-weight: 500 900; src: url("../public/fonts/gabarito-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Rethink Sans"; font-weight: 400 800; src: url("../public/fonts/rethink-sans-latin.woff2") format("woff2"); }
+      html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+      body { position: relative; background: #fff1c9; color: #1d2430; font-family: "Rethink Sans", sans-serif; }
+      .sun { position: absolute; width: 360px; height: 360px; border-radius: 50%; background: #ffc845; right: 70px; top: 40px; }
+      .hill { position: absolute; left: 0; bottom: 0; width: 1200px; height: 230px; }
+      .pip { position: absolute; width: 470px; height: 470px; right: 90px; bottom: -10px; }
+      .copy { position: absolute; left: 88px; top: 0; bottom: 0; display: grid; align-content: center; gap: 22px; width: 560px; }
+      h1 { margin: 0; font: 900 168px/0.86 "Gabarito", sans-serif; letter-spacing: -0.04em; }
+      p { margin: 0; font: 600 44px/1.18 "Rethink Sans", sans-serif; color: #3d4452; max-width: 13ch; }
+    </style>
+  </head>
+  <body>
+    <div class="sun"></div>
+    <svg class="hill" aria-hidden="true" viewBox="0 0 300 80" preserveAspectRatio="none"><path d="M0 46 Q 80 6 160 40 T 300 30 V80 H0Z" fill="#ffc845" opacity=".38" /></svg>
+    <svg class="pip" aria-hidden="true" viewBox="0 0 200 200">
+      <g transform="rotate(-14 100 104)">
+        <rect x="64" y="22" width="72" height="164" rx="36" fill="#17a58f" />
+        <path d="M64 116h72v34a36 36 0 0 1-72 0z" fill="#0e8576" />
+        <path d="M75 70 Q86 54 97 70 M103 70 Q114 54 125 70" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" />
+      </g>
+    </svg>
+    <div class="copy">
+      <h1>Tend</h1>
+      <p>Your medicines, on time.</p>
+    </div>
+  </body>
+</html>
