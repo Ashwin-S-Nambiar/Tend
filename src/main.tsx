@@ -19,16 +19,9 @@ if (root) {
 initTips();
 watchPermission();
 
-const loaded = load().then(replan);
-const standalone = document.documentElement.classList.contains('standalone');
-const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const hold = standalone
-  ? new Promise((r) => setTimeout(r, still ? 300 : 1250))
-  : Promise.resolve();
 Promise.race([
   Promise.all([
-    loaded,
-    hold,
+    load().then(replan),
     Promise.race([
       document.fonts.ready,
       new Promise((r) => setTimeout(r, 600)),
@@ -36,11 +29,7 @@ Promise.race([
   ]),
   new Promise((r) => setTimeout(r, 2500)),
 ]).then(() =>
-  requestAnimationFrame(() => {
-    const root = document.documentElement;
-    root.classList.add('ready', 'splashed');
-    setTimeout(() => document.getElementById('splash')?.remove(), 400);
-  }),
+  requestAnimationFrame(() => document.documentElement.classList.add('ready')),
 );
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
