@@ -329,6 +329,25 @@ export default function Sheet({
         e.preventDefault();
         requestClose();
       }}
+      onKeyDown={(e) => {
+        if (e.key !== 'Tab' || !panel.current) return;
+        const items = [
+          ...panel.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), a[href], input:not([disabled]), select, textarea, [tabindex="0"]',
+          ),
+        ].filter((el) => el.offsetParent !== null && !el.closest('[inert]'));
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (!first || !last) return;
+        const at = document.activeElement;
+        if (e.shiftKey && (at === first || at === panel.current)) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && at === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }}
     >
       <div
         ref={scrim}
