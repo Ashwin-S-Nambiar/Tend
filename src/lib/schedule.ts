@@ -130,31 +130,40 @@ export type Dose = {
   medId: string;
   due: string;
   routine?: RoutineId;
+  amount?: number;
 };
 
 export function dosesOn(meds: Medicine[], routines: Routine[], day: string) {
   const out: Dose[] = [];
   for (const med of meds) {
-    if (!activeOn(med, day) || !scheduledOn(med.schedule, day)) continue;
+    if (med.archived || med.schedule.kind === 'prn') continue;
     if (med.schedule.kind === 'once') {
-      out.push({ medId: med.id, due: med.schedule.when });
+      if (activeOn(med, day) && scheduledOn(med.schedule, day))
+        out.push({ medId: med.id, due: med.schedule.when, amount: med.amount });
       continue;
     }
-    if (med.schedule.kind === 'prn') continue;
     const seen = new Set<string>();
     const since = nowKey(
       new Date(dueDate(med.created.slice(0, 16)).getTime() - 2 * 36e5),
     );
-    for (const anchor of med.schedule.at) {
-      const due = dueKey(day, fromMin(anchorMin(anchor, routines, day)));
-      if (seen.has(due)) continue;
-      seen.add(due);
-      if (due < since) continue;
-      out.push({
-        medId: med.id,
-        due,
-        routine: 'routine' in anchor ? anchor.routine : undefined,
-      });
+    for (const shift of [-1, 0, 1]) {
+      const source = addDays(day, shift);
+      if (!activeOn(med, source) || !scheduledOn(med.schedule, source))
+        continue;
+      for (const anchor of med.schedule.at) {
+        const min = anchorMin(anchor, routines, source);
+        const date = addDays(source, Math.floor(min / 1440));
+        if (date !== day) continue;
+        const due = dueKey(date, fromMin(((min % 1440) + 1440) % 1440));
+        if (seen.has(due) || due < since) continue;
+        seen.add(due);
+        out.push({
+          medId: med.id,
+          due,
+          routine: 'routine' in anchor ? anchor.routine : undefined,
+          amount: anchor.amount ?? med.amount,
+        });
+      }
     }
   }
   return out.sort((a, b) => a.due.localeCompare(b.due));
@@ -173,7 +182,7 @@ export function groupsOn(meds: Medicine[], routines: Routine[], day: string) {
   const by = new Map<string, Group>();
   for (const dose of dosesOn(meds, routines, day)) {
     const time = dueParts(dose.due).time;
-    const id = dose.routine ?? time;
+    const id = time;
     const g = by.get(id);
     if (g) {
       g.doses.push(dose);
@@ -292,12 +301,17 @@ export function perDay(med: Medicine, routines: Routine[], from: string) {
   for (let i = 0; i < 28; i++) {
     const day = addDays(from, i);
     if (!scheduledOn(med.schedule, day)) continue;
-    if (med.schedule.kind === 'once') n += 1;
-    else
-      n += new Set(med.schedule.at.map((a) => anchorMin(a, routines, day)))
-        .size;
+    if (med.schedule.kind === 'once') n += med.amount;
+    else {
+      const amounts = new Map<number, number>();
+      for (const a of med.schedule.at) {
+        const min = anchorMin(a, routines, day);
+        if (!amounts.has(min)) amounts.set(min, a.amount ?? med.amount);
+      }
+      n += [...amounts.values()].reduce((sum, amount) => sum + amount, 0);
+    }
   }
-  return (n / 28) * med.amount;
+  return n / 28;
 }
 
 export function stockInfo(med: Medicine, routines: Routine[], from: string) {

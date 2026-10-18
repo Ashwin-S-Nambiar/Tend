@@ -5,6 +5,8 @@ export type Parsed = {
   strength?: { value: number; unit: Unit };
   form?: Form;
   amount?: number;
+  amounts?: Partial<Record<RoutineId, number>>;
+  doseUnit?: 'units';
   slots?: RoutineId[];
   prn?: boolean;
   stat?: boolean;
@@ -92,16 +94,24 @@ export function parse(line: string): Parsed {
     const names = parts.length === 4 ? FOUR : THREE;
     const slots: RoutineId[] = [];
     let amount = 0;
+    const amounts: Partial<Record<RoutineId, number>> = {};
+    out.amounts = amounts;
     parts.forEach((p, i) => {
       const n = amountOf(p);
       const slot = names[i];
       if (n > 0 && slot) {
         slots.push(slot);
+        amounts[slot] = n;
         if (!amount) amount = n;
       }
     });
     out.slots = slots;
     if (amount) out.amount = amount;
+  }
+
+  if (pattern && take(/\bunits?\b/i)) {
+    out.doseUnit = 'units';
+    out.form = 'injection';
   }
 
   const dur = take(DURATION);
@@ -138,14 +148,22 @@ export function parse(line: string): Parsed {
       continue;
     }
     const form = FORMS[k];
-    if (form && !out.form) {
-      out.form = form;
+    if (form) {
+      out.form ??= form;
       rest = rest.replace(` ${word} `, ' ');
     }
   }
 
   if (out.form === 'liquid' && out.strength?.unit === 'ml') {
     out.amount = out.strength.value;
+    out.strength = undefined;
+  }
+
+  if (out.form === 'injection' && out.strength?.unit === 'units') {
+    out.doseUnit = 'units';
+    out.amount = out.strength.value;
+    if (out.slots)
+      out.amounts = Object.fromEntries(out.slots.map((s) => [s, out.amount]));
     out.strength = undefined;
   }
 
@@ -168,15 +186,20 @@ export function echo(p: Parsed) {
     out.push(
       `${new Intl.NumberFormat('en').format(p.strength.value)} ${p.strength.unit}`,
     );
-  const amount = p.amount ?? 1;
-  const amt =
-    amount === 0.5 ? 'half' : new Intl.NumberFormat('en').format(amount);
   if (p.slots?.length) {
     const words = p.slots.map((s) => SLOT_WORD[s]);
     if (p.slots.length === 4 && !p.slots.includes('bed')) words[2] = 'evening';
     out.push(
       words
-        .map((w) => (p.form === 'liquid' ? `${amt} ml ${w}` : `${amt} ${w}`))
+        .map((w, i) => {
+          const amount =
+            p.amounts?.[p.slots?.[i] ?? 'breakfast'] ?? p.amount ?? 1;
+          const n =
+            amount === 0.5
+              ? 'half'
+              : new Intl.NumberFormat('en').format(amount);
+          return `${n}${p.doseUnit ? ' units' : p.form === 'liquid' ? ' ml' : ''} ${w}`;
+        })
         .join(', '),
     );
   } else if (p.prn) out.push('only when needed');

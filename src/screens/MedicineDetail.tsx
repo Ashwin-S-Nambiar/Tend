@@ -5,7 +5,12 @@ import { Pill } from '../components/PillLook.tsx';
 import Pip from '../components/Pip.tsx';
 import { Card, IconButton } from '../components/ui.tsx';
 import { deleteMed, putMed, useData } from '../lib/db.ts';
-import { doseLine, scheduleText } from '../lib/dose-format.ts';
+import {
+  anchorText,
+  doseLine,
+  medicineDose,
+  scheduleText,
+} from '../lib/dose-format.ts';
 import { replan } from '../lib/push.ts';
 import { back, navigate } from '../lib/route.ts';
 import { courseDay, dosesOn, latestLog, stockInfo } from '../lib/schedule.ts';
@@ -168,6 +173,22 @@ function Detail({ med, inPanel }: { med: Medicine; inPanel?: boolean }) {
           <p className="font-semibold text-[16px]">
             {scheduleText(med.schedule)}
           </p>
+          {'at' in med.schedule &&
+            med.schedule.at.some((a) => a.amount !== undefined) && (
+              <ul className="m-0 grid list-none gap-2 p-0">
+                {med.schedule.at.map((a) => (
+                  <li
+                    key={anchorText(a)}
+                    className="flex items-center justify-between gap-3 rounded-[14px] bg-milk px-3 py-2 text-[14px]"
+                  >
+                    <span>{anchorText(a)}</span>
+                    <strong className="num whitespace-nowrap">
+                      {medicineDose(med, a.amount ?? med.amount)}
+                    </strong>
+                  </li>
+                ))}
+              </ul>
+            )}
           {c?.total && (
             <p className="num text-soft">
               Course: day {Math.max(1, Math.min(c.n, c.total))} of {c.total}
@@ -240,7 +261,7 @@ function Detail({ med, inPanel }: { med: Medicine; inPanel?: boolean }) {
                   </span>
                   <span>
                     {l.status === 'taken'
-                      ? `Taken ${l.at ? fmtTime(l.at) : ''}`
+                      ? `${medicineDose(med, l.amount ?? med.amount)} · Taken ${l.at ? fmtTime(l.at) : ''}`
                       : 'Skipped'}
                   </span>
                 </li>

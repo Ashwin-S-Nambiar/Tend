@@ -59,10 +59,25 @@ export const FOOD_TEXT: Record<Food, string> = {
   empty: 'on an empty stomach',
 };
 
-export function doseLine(med: Medicine, withFood = true) {
+export function medicineDose(med: Medicine, amount = med.amount) {
+  return med.doseUnit
+    ? `${fmtAmount(amount)} ${med.doseUnit}`
+    : fmtDose(med.form, amount);
+}
+
+export function doseLine(med: Medicine, withFood = true, amount?: number) {
   const parts: string[] = [];
   if (med.strength) parts.push(fmtStrength(med.strength));
-  parts.push(fmtDose(med.form, med.amount));
+  const varies =
+    'at' in med.schedule &&
+    med.schedule.at.some(
+      (a) => a.amount !== undefined && a.amount !== med.amount,
+    );
+  parts.push(
+    amount === undefined && varies && 'at' in med.schedule
+      ? `${med.schedule.at.map((a) => medicineDose(med, a.amount ?? med.amount)).join(' / ')}`
+      : medicineDose(med, amount),
+  );
   if (withFood && med.food) parts.push(FOOD_TEXT[med.food]);
   return parts.join(' · ');
 }

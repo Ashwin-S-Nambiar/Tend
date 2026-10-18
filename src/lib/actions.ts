@@ -43,12 +43,18 @@ export function take(doses: Dose[], label: string, at = nowKey()) {
     medId: d.medId,
     due: d.due,
     status: 'taken',
+    amount: d.amount ?? medsFor([d])[0]?.amount,
     at,
   }));
   const meds = medsFor(fresh);
   const undo = after([
     putLogs(logs),
-    adjustStock(meds.map((m) => ({ id: m.id, by: -m.amount }))),
+    adjustStock(
+      fresh.map((d) => ({
+        id: d.medId,
+        by: -(d.amount ?? meds.find((m) => m.id === d.medId)?.amount ?? 1),
+      })),
+    ),
   ]);
   sfx.taken();
   haptic.success();
@@ -70,7 +76,16 @@ export function skip(doses: Dose[], label: string) {
   );
   const undo = after([
     putLogs(logs),
-    adjustStock(medsFor(wasTaken).map((m) => ({ id: m.id, by: m.amount }))),
+    adjustStock(
+      wasTaken.map((d) => ({
+        id: d.medId,
+        by:
+          prev.find((l) => l.medId === d.medId && l.due === d.due)?.amount ??
+          d.amount ??
+          medsFor([d])[0]?.amount ??
+          1,
+      })),
+    ),
   ]);
   sfx.skip();
   haptic.tick();
@@ -118,7 +133,9 @@ export function unlog(dose: Dose) {
       },
     ]),
     prev.status === 'taken' && med
-      ? adjustStock([{ id: med.id, by: med.amount }])
+      ? adjustStock([
+          { id: med.id, by: prev.amount ?? dose.amount ?? med.amount },
+        ])
       : () => {},
   ]);
   toast(`${med?.name ?? 'Dose'} cleared`, undo);
@@ -127,7 +144,9 @@ export function unlog(dose: Dose) {
 export function takePrn(med: Medicine) {
   const at = nowKey();
   const undo = after([
-    putLogs([{ medId: med.id, due: at, status: 'taken', at }]),
+    putLogs([
+      { medId: med.id, due: at, status: 'taken', at, amount: med.amount },
+    ]),
     adjustStock([{ id: med.id, by: -med.amount }]),
   ]);
   sfx.taken();

@@ -1,10 +1,15 @@
 import { useId, useMemo, useState } from 'react';
+import {
+  DateField,
+  DateTimeField,
+  TimeField,
+} from '../components/DateTimeField.tsx';
 import Icon from '../components/Icon.tsx';
 import { PILL_COLORS, Pill } from '../components/PillLook.tsx';
 import Pip from '../components/Pip.tsx';
 import Sheet from '../components/Sheet.tsx';
 import { Chips, Field, Segmented, Stepper, Switch } from '../components/ui.tsx';
-import { newId, putMed, useData } from '../lib/db.ts';
+import { putMed, useData } from '../lib/db.ts';
 import {
   FORM_NAME,
   fmtAmount,
@@ -12,56 +17,27 @@ import {
   scheduleText,
 } from '../lib/dose-format.ts';
 import { haptic } from '../lib/haptics.ts';
+import {
+  blank,
+  type Draft,
+  fromMed,
+  fromParsed,
+  insulinDraft,
+  lookFor,
+  problem,
+  toMed,
+} from '../lib/medicine-draft.ts';
 import { replan } from '../lib/push.ts';
 import { back } from '../lib/route.ts';
-import { ROUTINE_NAME, ROUTINE_ORDER } from '../lib/schedule.ts';
+import { anchorMin, ROUTINE_NAME, ROUTINE_ORDER } from '../lib/schedule.ts';
+import { routinesStore } from '../lib/settings.ts';
 import { echo, type Parsed, parse, understood } from '../lib/shorthand.ts';
 import { sfx } from '../lib/sound.ts';
-import { dayKey, nowKey } from '../lib/time.ts';
+import { useStore } from '../lib/store.ts';
+import { dayKey, fmtTime, fromMin } from '../lib/time.ts';
 import { useTitle } from '../lib/title.ts';
 import { toast } from '../lib/toast.ts';
-import type {
-  Anchor,
-  Food,
-  Form,
-  Medicine,
-  RoutineId,
-  Schedule,
-  Shape,
-  Unit,
-} from '../lib/types.ts';
-
-type Kind = Schedule['kind'];
-
-export type Draft = {
-  name: string;
-  strength: string;
-  unit: Unit;
-  form: Form;
-  amount: number;
-  food: Food | 'none';
-  shape: Shape;
-  colors: string[];
-  kind: Kind;
-  routines: RoutineId[];
-  times: { id: number; t: string }[];
-  before: boolean;
-  days: number[];
-  everyDays: number;
-  on: number;
-  off: number;
-  once: string;
-  gap: number;
-  max: number;
-  course: boolean;
-  courseDays: number;
-  start: string;
-  stock: boolean;
-  count: number;
-  refill: number;
-  pack: number;
-  notes: string;
-};
+import type { Form, Unit } from '../lib/types.ts';
 
 const UNITS: Unit[] = ['mg', 'mcg', 'g', 'ml', 'IU', 'units'];
 const FORMS: Form[] = [
@@ -86,175 +62,13 @@ const WEEK_LONG = [
   'Saturday',
 ];
 
-export function blank(): Draft {
-  const today = dayKey();
-  return {
-    name: '',
-    strength: '',
-    unit: 'mg',
-    form: 'tablet',
-    amount: 1,
-    food: 'none',
-    shape: 'round',
-    colors: ['#ffffff'],
-    kind: 'daily',
-    routines: ['breakfast'],
-    times: [],
-    before: false,
-    days: [new Date().getDay()],
-    everyDays: 2,
-    on: 21,
-    off: 7,
-    once: `${today}T09:00`,
-    gap: 6,
-    max: 4,
-    course: false,
-    courseDays: 5,
-    start: today,
-    stock: false,
-    count: 30,
-    refill: 7,
-    pack: 10,
-    notes: '',
-  };
-}
-
-function lookFor(form: Form): Pick<Draft, 'shape' | 'colors'> {
-  if (form === 'capsule')
-    return { shape: 'cap', colors: ['#e9a23b', '#f6d57a'] };
-  if (form === 'tablet') return { shape: 'round', colors: ['#ffffff'] };
-  if (form === 'liquid') return { shape: 'oval', colors: ['#f08a6c'] };
-  return { shape: 'oval', colors: ['#8fc6e8'] };
-}
-
-export function fromParsed(d: Draft, p: Parsed): Draft {
-  const next = { ...d };
-  if (p.name) next.name = p.name;
-  if (p.form && p.form !== d.form)
-    Object.assign(next, { form: p.form }, lookFor(p.form));
-  if (p.strength) {
-    next.strength = String(p.strength.value);
-    next.unit = p.strength.unit;
-  }
-  if (p.amount) next.amount = p.amount;
-  if (p.food) {
-    next.food = p.food;
-    next.before = p.food === 'before';
-  }
-  if (p.slots?.length) {
-    next.routines = p.slots;
-    next.times = [];
-    next.kind = p.weekly ? 'weekdays' : p.everyDays ? 'interval' : 'daily';
-  }
-  if (p.prn) next.kind = 'prn';
-  if (p.stat) {
-    next.kind = 'once';
-    next.once = nowKey();
-  }
-  if (p.days) {
-    next.course = true;
-    next.courseDays = p.days;
-  }
-  return next;
-}
-
-export function fromMed(m: Medicine): Draft {
-  const d = blank();
-  const s = m.schedule;
-  const at: Anchor[] = 'at' in s ? s.at : [];
-  return {
-    ...d,
-    name: m.name,
-    strength: m.strength ? String(m.strength.value) : '',
-    unit: m.strength?.unit ?? 'mg',
-    form: m.form,
-    amount: m.amount,
-    food: m.food ?? 'none',
-    shape: m.look.shape,
-    colors: m.look.colors,
-    kind: s.kind,
-    routines: at.flatMap((a) => ('routine' in a ? [a.routine] : [])),
-    times: at.flatMap((a, i) => ('time' in a ? [{ id: i, t: a.time }] : [])),
-    before: at.some((a) => 'routine' in a && a.offsetMin < 0),
-    days: s.kind === 'weekdays' ? s.days : d.days,
-    everyDays: s.kind === 'interval' ? s.everyDays : d.everyDays,
-    on: s.kind === 'cycle' ? s.on : d.on,
-    off: s.kind === 'cycle' ? s.off : d.off,
-    once: s.kind === 'once' ? s.when : d.once,
-    gap: s.kind === 'prn' ? s.minGapH : d.gap,
-    max: s.kind === 'prn' ? s.maxPerDay : d.max,
-    start: 'start' in s ? s.start : (m.course?.start ?? d.start),
-    course: Boolean(m.course),
-    courseDays: m.course?.days ?? d.courseDays,
-    stock: Boolean(m.stock),
-    count: m.stock?.count ?? d.count,
-    refill: m.stock?.refillAtDays ?? d.refill,
-    pack: m.stock?.pack ?? d.pack,
-    notes: m.notes ?? '',
-  };
-}
-
-function anchors(d: Draft): Anchor[] {
-  const off = d.before ? -30 : 0;
-  return [
-    ...ROUTINE_ORDER.filter((r) => d.routines.includes(r)).map((r) => ({
-      routine: r,
-      offsetMin: r === 'wake' || r === 'bed' ? 0 : off,
-    })),
-    ...[...new Set(d.times.map((x) => x.t))].sort().map((t) => ({ time: t })),
-  ];
-}
-
-export function toMed(d: Draft, prev?: Medicine): Medicine {
-  const at = anchors(d);
-  const schedule: Schedule =
-    d.kind === 'daily'
-      ? { kind: 'daily', at }
-      : d.kind === 'weekdays'
-        ? { kind: 'weekdays', days: d.days, at }
-        : d.kind === 'interval'
-          ? { kind: 'interval', everyDays: d.everyDays, start: d.start, at }
-          : d.kind === 'cycle'
-            ? { kind: 'cycle', on: d.on, off: d.off, start: d.start, at }
-            : d.kind === 'once'
-              ? { kind: 'once', when: d.once }
-              : { kind: 'prn', minGapH: d.gap, maxPerDay: d.max };
-  const value = Number(d.strength);
-  return {
-    id: prev?.id ?? newId(),
-    created: prev?.created ?? nowKey(),
-    name: d.name.trim(),
-    strength: d.strength && value > 0 ? { value, unit: d.unit } : undefined,
-    form: d.form,
-    amount: d.amount,
-    food: d.food === 'none' ? undefined : d.food,
-    look: { shape: d.shape, colors: d.colors.slice(0, 2) },
-    schedule,
-    course:
-      d.course && d.kind !== 'prn' && d.kind !== 'once'
-        ? { start: d.start, days: d.courseDays }
-        : undefined,
-    stock: d.stock
-      ? { count: d.count, refillAtDays: d.refill, pack: d.pack }
-      : undefined,
-    notes: d.notes.trim() || undefined,
-    archived: prev?.archived,
-  };
-}
-
-export function problem(d: Draft) {
-  if (!d.name.trim()) return 'Give it a name';
-  if (
-    ['daily', 'weekdays', 'interval', 'cycle'].includes(d.kind) &&
-    anchors(d).length === 0
-  )
-    return 'Pick at least one time';
-  if (d.kind === 'weekdays' && d.days.length === 0)
-    return 'Pick at least one day';
-  return null;
-}
-
-export default function MedicineEdit({ id }: { id?: string }) {
+export default function MedicineEdit({
+  id,
+  onDone,
+}: {
+  id?: string;
+  onDone?: () => void;
+}) {
   const { meds, ready } = useData();
   const prev = id ? meds.find((m) => m.id === id) : undefined;
   const [open, setOpen] = useState(true);
@@ -290,7 +104,9 @@ export default function MedicineEdit({ id }: { id?: string }) {
     <Sheet
       open={open}
       onClose={() => setOpen(false)}
-      onClosed={() => back(prev ? `/medicine/${prev.id}` : '/medicines')}
+      onClosed={() =>
+        onDone ? onDone() : back(prev ? `/medicine/${prev.id}` : '/medicines')
+      }
       pushHistory={false}
       size="lg"
       label={prev ? `Edit ${prev.name}` : 'Add a medicine'}
@@ -340,6 +156,30 @@ export default function MedicineEdit({ id }: { id?: string }) {
         }}
         noValidate
       >
+        {!prev && (
+          <div className="grid gap-2 rounded-[22px] bg-milk p-3.5">
+            <p className="font-bold">Setting up insulin?</p>
+            <p className="text-[14px] text-soft">
+              Choose a starting point, then enter your prescribed doses.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn btn-soft btn-sm press"
+                onClick={() => setDraft(insulinDraft(d))}
+              >
+                Meal-time insulin
+              </button>
+              <button
+                type="button"
+                className="btn btn-soft btn-sm press"
+                onClick={() => setDraft(insulinDraft(d, true))}
+              >
+                Bedtime insulin
+              </button>
+            </div>
+          </div>
+        )}
         {!prev && <Shorthand onApply={(p) => setDraft(fromParsed(d, p))} />}
         <MedForm d={d} set={set} names={meds.map((m) => m.name)} />
       </form>
@@ -400,8 +240,8 @@ export function Shorthand({ onApply }: { onApply: (p: Parsed) => void }) {
           </span>
         ) : (
           <span className="text-soft">
-            Patterns like 1-0-1, OD, BD or SOS, with mg, ml or units. Or fill it
-            in below.
+            Try Metformin 500mg 1-0-1 PC, or Inj Apidra 14-8-6 units AC. Review
+            the details below.
           </span>
         )}
       </output>
@@ -422,6 +262,7 @@ export function MedForm({
 }) {
   const id = useId();
   const unique = [...new Set(names)];
+  const routines = useStore(routinesStore);
   const scheduled = d.kind !== 'prn' && d.kind !== 'once';
   return (
     <>
@@ -447,7 +288,7 @@ export function MedForm({
               ))}
             </datalist>
           </Field>
-          <Field label="Strength" htmlFor={`${id}-str`}>
+          <Field label="Strength (optional)" htmlFor={`${id}-str`}>
             <div className="flex flex-wrap items-center gap-2">
               <input
                 id={`${id}-str`}
@@ -494,20 +335,40 @@ export function MedForm({
       </Field>
 
       <div className="grid gap-5 tab:grid-cols-2">
-        <Field label="Each dose">
-          <Stepper
-            label="Amount per dose"
-            value={d.amount}
-            onChange={(amount) => set({ amount })}
-            step={d.form === 'liquid' ? 1 : 0.5}
-            min={d.form === 'liquid' ? 1 : 0.25}
-            max={d.form === 'liquid' ? 100 : 20}
-            format={(n) =>
-              d.form === 'liquid' ? `${fmtAmount(n)} ml` : fmtAmount(n)
-            }
-          />
+        <Field
+          label={d.variable && scheduled ? 'Dose measured in' : 'Each dose'}
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            {(!d.variable || !scheduled) && (
+              <input
+                aria-label="Amount per dose"
+                className="field num w-28"
+                inputMode="decimal"
+                value={d.amount || ''}
+                onChange={(e) =>
+                  set({ amount: Number(e.target.value.replace(/[^\d.]/g, '')) })
+                }
+                placeholder="Dose"
+              />
+            )}
+            <Segmented
+              label="Dose measured in"
+              wrap
+              value={d.doseUnit}
+              onChange={(doseUnit) => set({ doseUnit })}
+              options={[
+                { value: 'default', label: FORM_NAME[d.form] },
+                { value: 'units', label: 'Units' },
+                { value: 'ml', label: 'ml' },
+              ]}
+            />
+          </div>
           <span className="text-[14px] text-soft">
-            {fmtDose(d.form, d.amount)}
+            {d.variable && scheduled
+              ? 'Set each reminder’s dose below.'
+              : d.doseUnit === 'default'
+                ? fmtDose(d.form, d.amount)
+                : `${fmtAmount(d.amount)} ${d.doseUnit}`}
           </span>
         </Field>
         <Field label="Food">
@@ -515,7 +376,9 @@ export function MedForm({
             label="Food"
             wrap
             value={d.food}
-            onChange={(food) => set({ food, before: food === 'before' })}
+            onChange={(food) =>
+              set({ food, before: food === 'before', offsets: {} })
+            }
             options={[
               { value: 'none', label: 'Any' },
               { value: 'before', label: 'Before' },
@@ -594,23 +457,20 @@ export function MedForm({
       )}
       {(d.kind === 'interval' || d.kind === 'cycle') && (
         <Field label="Starting" htmlFor={`${id}-start`}>
-          <input
+          <DateField
             id={`${id}-start`}
-            type="date"
-            className="field num"
+            label="Schedule starting date"
             value={d.start}
-            onChange={(e) => set({ start: e.target.value })}
+            onChange={(start) => set({ start })}
           />
         </Field>
       )}
       {d.kind === 'once' && (
         <Field label="When" htmlFor={`${id}-once`}>
-          <input
-            id={`${id}-once`}
-            type="datetime-local"
-            className="field num"
+          <DateTimeField
+            label="One-time dose"
             value={d.once}
-            onChange={(e) => set({ once: e.target.value })}
+            onChange={(once) => set({ once })}
           />
         </Field>
       )}
@@ -663,16 +523,13 @@ export function MedForm({
                 key={key}
                 className="flex items-center gap-1 rounded-[14px] bg-milk p-1 pl-1"
               >
-                <input
-                  type="time"
-                  aria-label={`Clock time ${i + 1}`}
-                  className="field num min-h-10 w-32 bg-card!"
+                <TimeField
+                  label={`Clock time ${i + 1}`}
+                  className="min-h-11 w-36 bg-card!"
                   value={t}
-                  onChange={(e) =>
+                  onChange={(t) =>
                     set({
-                      times: d.times.map((x, j) =>
-                        j === i ? { ...x, t: e.target.value } : x,
-                      ),
+                      times: d.times.map((x, j) => (j === i ? { ...x, t } : x)),
                     })
                   }
                 />
@@ -703,10 +560,112 @@ export function MedForm({
           </div>
           {d.food === 'before' &&
             d.routines.some((r) => r !== 'wake' && r !== 'bed') && (
-              <span className="text-[14px] text-soft">
-                Meal doses come 30 min before the meal.
-              </span>
+              <div className="grid gap-2 rounded-[18px] bg-milk p-3">
+                <span className="label">Before meals</span>
+                <Stepper
+                  label="Minutes before meals"
+                  value={d.beforeMin}
+                  onChange={(beforeMin) => set({ beforeMin, offsets: {} })}
+                  min={0}
+                  max={120}
+                  step={5}
+                  format={(n) => `${n} min before`}
+                />
+                <span className="text-[14px] text-soft">
+                  Use the timing on your prescription. Insulin timing depends on
+                  the type you take.
+                </span>
+              </div>
             )}
+          <Switch
+            on={d.variable}
+            onChange={(variable) =>
+              set({
+                variable,
+                amounts: Object.fromEntries([
+                  ...d.routines.map((r) => [
+                    r,
+                    d.amounts[r] ?? String(d.amount),
+                  ]),
+                  ...d.times.map((x) => [
+                    `time-${x.id}`,
+                    d.amounts[`time-${x.id}`] ?? String(d.amount),
+                  ]),
+                ]),
+              })
+            }
+            label="Different dose at each reminder"
+            hint="For example, 14 units at breakfast, 8 at lunch and 6 at dinner"
+          />
+          {d.variable && (
+            <div className="grid gap-2">
+              {[
+                ...ROUTINE_ORDER.filter((r) => d.routines.includes(r)).map(
+                  (r) => ({
+                    key: r,
+                    label: ROUTINE_NAME[r],
+                    time: fromMin(
+                      anchorMin(
+                        {
+                          routine: r,
+                          offsetMin:
+                            d.offsets[r] ??
+                            (d.before && r !== 'wake' && r !== 'bed'
+                              ? -d.beforeMin
+                              : 0),
+                        },
+                        routines,
+                        dayKey(),
+                      ),
+                    ),
+                  }),
+                ),
+                ...d.times.map((x) => ({
+                  key: `time-${x.id}`,
+                  label: 'Clock time',
+                  time: x.t,
+                })),
+              ].map((slot) => (
+                <div
+                  key={slot.key}
+                  className="flex items-center gap-3 rounded-[18px] bg-milk p-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <label
+                      htmlFor={`${id}-${slot.key}`}
+                      className="block font-bold"
+                    >
+                      {slot.label}
+                    </label>
+                    <span className="num text-[14px] text-soft">
+                      {fmtTime(slot.time)}
+                    </span>
+                  </div>
+                  <input
+                    id={`${id}-${slot.key}`}
+                    aria-label={`${slot.label} dose`}
+                    className="field num w-22 bg-card! text-center"
+                    inputMode="decimal"
+                    placeholder="Dose"
+                    value={d.amounts[slot.key] ?? ''}
+                    onChange={(e) =>
+                      set({
+                        amounts: {
+                          ...d.amounts,
+                          [slot.key]: e.target.value.replace(/[^\d.]/g, ''),
+                        },
+                      })
+                    }
+                  />
+                  <span className="text-[14px] text-soft">
+                    {d.doseUnit === 'default'
+                      ? FORM_NAME[d.form].toLowerCase()
+                      : d.doseUnit}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </Field>
       )}
 
@@ -738,12 +697,12 @@ export function MedForm({
                     />
                   </Field>
                   <Field label="Starting" htmlFor={`${id}-cstart`}>
-                    <input
+                    <DateField
                       id={`${id}-cstart`}
-                      type="date"
-                      className="field num w-44"
+                      label="Course starting date"
+                      className="w-48"
                       value={d.start}
-                      onChange={(e) => set({ start: e.target.value })}
+                      onChange={(start) => set({ start })}
                     />
                   </Field>
                 </div>

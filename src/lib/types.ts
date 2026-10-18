@@ -2,9 +2,10 @@ export type RoutineId = 'wake' | 'breakfast' | 'lunch' | 'dinner' | 'bed';
 
 export type Routine = { id: RoutineId; weekday: string; weekend?: string };
 
-export type Anchor =
+export type Anchor = (
   | { routine: RoutineId; offsetMin: number }
-  | { time: string };
+  | { time: string }
+) & { amount?: number };
 
 export type Schedule =
   | { kind: 'daily'; at: Anchor[] }
@@ -36,6 +37,7 @@ export type Medicine = {
   strength?: { value: number; unit: Unit };
   form: Form;
   amount: number;
+  doseUnit?: 'units' | 'ml';
   food?: Food;
   look: { shape: Shape; colors: string[] };
   schedule: Schedule;
@@ -52,6 +54,7 @@ export type DoseLog = {
   medId: string;
   due: string;
   status: DoseStatus;
+  amount?: number;
   at?: string;
   snoozeUntil?: string;
 };

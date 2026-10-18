@@ -207,6 +207,7 @@ function Body({
             <div className="min-w-0 flex-1">
               <MedRow
                 med={med}
+                amount={log?.amount ?? d.amount}
                 tone="milk"
                 withFood={false}
                 index={i}

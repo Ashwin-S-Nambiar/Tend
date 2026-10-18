@@ -21,7 +21,10 @@ export function buildIcs(meds: Medicine[], routines: Routine[], days = 30) {
   for (let i = 0; i < days; i++) {
     for (const g of groupsOn(meds, routines, addDays(today, i))) {
       const list = g.doses
-        .map((d) => meds.find((m) => m.id === d.medId))
+        .map((d) => {
+          const m = meds.find((m) => m.id === d.medId);
+          return m ? { ...m, amount: d.amount ?? m.amount } : undefined;
+        })
         .filter((m): m is Medicine => Boolean(m));
       const start = dueDate(g.key);
       const end = new Date(start.getTime() + 15 * 6e4);
@@ -32,7 +35,7 @@ export function buildIcs(meds: Medicine[], routines: Routine[], days = 30) {
         `DTSTART:${stamp(start)}`,
         `DTEND:${stamp(end)}`,
         `SUMMARY:${esc(`${g.label} medicines`)}`,
-        `DESCRIPTION:${esc(list.map((m) => `${m.name}, ${doseLine(m)}`).join('\n'))}`,
+        `DESCRIPTION:${esc(list.map((m) => `${m.name}, ${doseLine(m, true, m.amount)}`).join('\n'))}`,
         'BEGIN:VALARM',
         'ACTION:DISPLAY',
         `DESCRIPTION:${esc(list.map((m) => m.name).join(', '))}`,

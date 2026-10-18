@@ -57,26 +57,52 @@ function key(base64: string) {
   return Uint8Array.from(raw, (c) => c.charCodeAt(0));
 }
 
-export async function enablePush() {
+function within<T>(task: Promise<T>, milliseconds: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(
+      () => reject(new Error('Reminder setup timed out')),
+      milliseconds,
+    );
+    task.then(resolve, reject).finally(() => clearTimeout(timeout));
+  });
+}
+
+export async function enablePush(onAllowed?: () => void) {
+  if (
+    !('Notification' in window) ||
+    !('serviceWorker' in navigator) ||
+    !('PushManager' in window)
+  ) {
+    pushStore.set('unsupported');
+    return false;
+  }
   if (!ENDPOINT || !VAPID) {
     pushStore.set('error');
     return false;
   }
-  const perm = await Notification.requestPermission();
-  if (perm !== 'granted') {
-    pushStore.set(perm === 'denied' ? 'denied' : 'off');
-    return false;
-  }
   try {
-    const reg = await navigator.serviceWorker.ready;
-    const sub =
-      (await reg.pushManager.getSubscription()) ??
-      (await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: key(VAPID),
-      }));
+    const perm =
+      Notification.permission === 'granted'
+        ? 'granted'
+        : await Notification.requestPermission();
+    if (perm !== 'granted') {
+      pushStore.set(perm === 'denied' ? 'denied' : 'off');
+      return false;
+    }
+    onAllowed?.();
+    const setup = async () => {
+      const reg = await within(navigator.serviceWorker.ready, 8000);
+      const sub =
+        (await reg.pushManager.getSubscription()) ??
+        (await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: key(VAPID),
+        }));
+      if (!(await sync(sub))) throw new Error('Reminder sync failed');
+    };
+    await within(setup(), 12000);
     pushStore.set('on');
-    await sync(sub);
+    replan();
     return true;
   } catch {
     pushStore.set('error');
@@ -111,7 +137,7 @@ export function replan() {
 }
 
 async function sync(sub: PushSubscription) {
-  if (!ENDPOINT) return;
+  if (!ENDPOINT) return false;
   const { meds, logs } = data();
   const now = new Date();
   const routines = routinesStore.get();
@@ -128,11 +154,15 @@ async function sync(sub: PushSubscription) {
   try {
     const res = await fetch(`${ENDPOINT}/plan/${deviceId()}`, {
       method: 'PUT',
+      signal: AbortSignal.timeout(10000),
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ subscription: sub.toJSON(), items, logged }),
     });
     if (res.status === 410 || res.status === 404) pushStore.set('gone');
-  } catch {}
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 function badge() {
@@ -171,15 +201,18 @@ function entries(): PlanEntry[] {
       addDays(today, i),
     )) {
       const list = g.doses
-        .map((d) => meds.find((m) => m.id === d.medId))
+        .map((d) => {
+          const m = meds.find((m) => m.id === d.medId);
+          return m ? { ...m, amount: d.amount ?? m.amount } : undefined;
+        })
         .filter((m): m is Medicine => Boolean(m));
       const foods = [...new Set(list.map((m) => m.food).filter(Boolean))];
       const food =
         foods.length === 1 && foods[0] ? `, ${FOOD_TEXT[foods[0]]}` : '';
       const named =
         list.length === 1 && list[0]
-          ? `${list[0].name} ${doseLine(list[0], false)}${food}.`
-          : `${joinNames(list.map((m) => (m.strength ? `${m.name} ${doseLine(m, false).split(' · ')[0]}` : m.name)))}${food}.`;
+          ? `${list[0].name} ${doseLine(list[0], false, list[0].amount)}${food}.`
+          : `${joinNames(list.map((m) => `${m.name} ${doseLine(m, false, m.amount)}`))}${food}.`;
       out.push({
         key: g.key,
         zone: activeZone(),

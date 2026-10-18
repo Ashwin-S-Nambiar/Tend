@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { TimeField } from '../components/DateTimeField.tsx';
 import { SceneIcon } from '../components/Scene.tsx';
 import { Card, Switch } from '../components/ui.tsx';
 import { useData } from '../lib/db.ts';
@@ -65,21 +66,16 @@ export function RoutineRows({
                 </span>
               )}
             </span>
-            <input
+            <TimeField
               id={`${id}-${r}`}
-              type="time"
-              className="field num min-h-11 w-38 flex-none bg-card! px-3 font-bold font-display text-[16px]"
+              label={`${ROUTINE_NAME[r]} time`}
+              className="min-h-11 w-38 flex-none bg-card! px-3 font-bold font-display text-[16px]"
               value={value}
-              onChange={(e) => {
-                if (!e.target.value) return;
+              onChange={(value) => {
                 set(
                   r,
-                  field === 'weekend'
-                    ? { weekend: e.target.value }
-                    : { weekday: e.target.value },
+                  field === 'weekend' ? { weekend: value } : { weekday: value },
                 );
-              }}
-              onBlur={() => {
                 if (tone === 'milk' && count)
                   toast(`${ROUTINE_NAME[r]} doses moved with it`);
               }}

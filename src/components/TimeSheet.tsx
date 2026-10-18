@@ -1,4 +1,5 @@
 import { useEffect, useId, useState } from 'react';
+import { TimePicker } from './DateTimeField.tsx';
 import Sheet from './Sheet.tsx';
 
 export default function TimeSheet({
@@ -48,22 +49,14 @@ export default function TimeSheet({
         className="grid gap-2 pb-2"
         onSubmit={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           onSave(time);
           onClose();
         }}
       >
-        <label htmlFor={`${id}-t`} className="label">
-          Time
-        </label>
-        <input
-          id={`${id}-t`}
-          type="time"
-          required
-          className="field num font-display text-[20px]"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          enterKeyHint="done"
-        />
+        {open && (
+          <TimePicker key={defaultTime} value={time} onChange={setTime} />
+        )}
         {hint && <p className="text-[14px] text-soft">{hint}</p>}
       </form>
     </Sheet>

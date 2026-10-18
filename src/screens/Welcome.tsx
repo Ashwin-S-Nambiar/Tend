@@ -1,28 +1,24 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { themeColor } from '../app/theme.ts';
 import Icon from '../components/Icon.tsx';
+import MedRow from '../components/MedRow.tsx';
 import Pip, { type Mood } from '../components/Pip.tsx';
-import { putMed } from '../lib/db.ts';
+import { useData } from '../lib/db.ts';
+import { scheduleText } from '../lib/dose-format.ts';
 import { haptic } from '../lib/haptics.ts';
-import { enablePush, isIOS } from '../lib/push.ts';
+import { enablePush, isIOS, pushStore } from '../lib/push.ts';
 import { navigate } from '../lib/route.ts';
 import { onboardedStore } from '../lib/settings.ts';
-import type { Parsed } from '../lib/shorthand.ts';
 import { sfx } from '../lib/sound.ts';
+import { useStore } from '../lib/store.ts';
 import { useTitle } from '../lib/title.ts';
-import {
-  blank,
-  fromParsed,
-  problem,
-  Shorthand,
-  toMed,
-} from './MedicineEdit.tsx';
+import MedicineEdit from './MedicineEdit.tsx';
 import { RoutineRows } from './Routines.tsx';
 
 const STEPS: { next: string; back: string; mood: Mood }[] = [
   { next: "Let's set up", back: "I've used it before", mood: 'hello' },
   { next: 'Looks right', back: 'Back', mood: 'idle' },
-  { next: 'Add it', back: 'Back', mood: 'adding' },
+  { next: 'Continue', back: 'Back', mood: 'adding' },
   { next: 'Allow reminders', back: 'Not now', mood: 'nudge' },
 ];
 
@@ -32,8 +28,17 @@ const standalone = () =>
 
 export default function Welcome() {
   const [step, setStep] = useState(0);
-  const [parsed, setParsed] = useState<Parsed | null>(null);
+  const { meds } = useData();
+  const [editor, setEditor] = useState<string | null>(null);
   const [guide, setGuide] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [allowed, setAllowed] = useState(
+    () => 'Notification' in window && Notification.permission === 'granted',
+  );
+  const [attempted, setAttempted] = useState(false);
+  const push = useStore(pushStore);
+  const remindersOn = push === 'on' && !busy;
+  const unavailable = push === 'denied' || push === 'unsupported';
   const pip = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement[]>([]);
@@ -101,21 +106,24 @@ export default function Welcome() {
     if (step === 0) go(1);
     else if (step === 1) go(2);
     else if (step === 2) {
-      if (parsed) {
-        const d = fromParsed(blank(), parsed);
-        if (!problem(d)) {
-          const med = toMed(d);
-          putMed(med);
-        }
-      }
       go(3);
     } else if (step === 3) {
+      if (busy) return;
+      if (remindersOn || unavailable) {
+        finish();
+        return;
+      }
       if (isIOS() && !standalone()) {
         setGuide(true);
         return;
       }
-      await enablePush();
-      finish();
+      setBusy(true);
+      setAttempted(true);
+      try {
+        await enablePush(() => setAllowed(true));
+      } finally {
+        setBusy(false);
+      }
     }
   }
 
@@ -126,7 +134,20 @@ export default function Welcome() {
   }
 
   const s = STEPS[step] ?? STEPS[0];
-  const label = step === 2 && !parsed ? 'Skip for now' : (s?.next ?? '');
+  const label =
+    step === 3
+      ? busy
+        ? 'Setting up reminders…'
+        : remindersOn || unavailable
+          ? "Let's go"
+          : attempted
+            ? 'Try again'
+            : allowed
+              ? 'Finish reminder setup'
+              : 'Allow reminders'
+      : step === 2 && !meds.length
+        ? 'Skip for now'
+        : (s?.next ?? '');
 
   return (
     <div
@@ -167,7 +188,9 @@ export default function Welcome() {
                     'Hi, I’m Pip.',
                     'When does your day happen?',
                     'What do you take?',
-                    'Can I tap you on the shoulder?',
+                    remindersOn
+                      ? 'You’re all set.'
+                      : 'Can I tap you on the shoulder?',
                   ][i]
                 }
               </h1>
@@ -188,22 +211,73 @@ export default function Welcome() {
               )}
               {i === 2 && (
                 <>
-                  <div className="welcome-field">
-                    <Shorthand onApply={(p) => setParsed(p)} />
-                  </div>
                   <p className="text-[16px] opacity-90">
-                    Or add it step by step later. You can add the rest any time.
+                    Add each medicine with its own schedule. Insulin can have a
+                    different dose for every meal, or a single bedtime dose.
                   </p>
+                  <div className="grid gap-2">
+                    {meds.map((med) => (
+                      <div
+                        key={med.id}
+                        className="rounded-[20px] bg-white/80 p-2 text-[#1d2430]"
+                      >
+                        <MedRow
+                          med={med}
+                          onClick={() => setEditor(med.id)}
+                          trailing={<Icon name="edit" size={18} />}
+                        />
+                        <p className="px-2.5 pb-1 text-[13px]">
+                          {scheduleText(med.schedule)}
+                        </p>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      className="btn press bg-white/85 text-[#1d2430]"
+                      onClick={() => setEditor('new')}
+                    >
+                      <Icon name="plus" size={20} />
+                      {meds.length ? 'Add another medicine' : 'Add a medicine'}
+                    </button>
+                  </div>
+                  {!meds.length && (
+                    <p className="text-[14px] opacity-90">
+                      For example: Apidra, 14–8–6 units before meals, and
+                      Lantus, 24 units at bedtime. Enter your own prescribed
+                      doses.
+                    </p>
+                  )}
                 </>
               )}
               {i === 3 && !guide && (
-                <p className="text-[17px] opacity-90">
-                  I'll send one reminder per routine, with Taken and Snooze
-                  right on it.
-                  {isIOS() && !standalone()
-                    ? ' On iPhone, add me to your home screen first and I’ll show you how.'
-                    : ''}
-                </p>
+                <div className="grid gap-3" role="status" aria-live="polite">
+                  {(allowed || remindersOn) && (
+                    <div className="flex items-center gap-2 rounded-[16px] bg-white/65 px-3 py-2.5 font-bold">
+                      <span className="grid size-8 place-items-center rounded-full bg-[#0e8576] text-white">
+                        <Icon name="check" size={20} />
+                      </span>
+                      {remindersOn
+                        ? 'Reminders are on'
+                        : 'Notifications allowed'}
+                    </div>
+                  )}
+                  <p className="text-[17px] opacity-90">
+                    {busy
+                      ? 'Finishing reminder setup. This can take a moment.'
+                      : remindersOn
+                        ? 'I’ll remind you at each scheduled time. Your medicines are ready on Today.'
+                        : push === 'denied'
+                          ? 'Notifications are blocked in your browser settings. You can enable reminders later in You.'
+                          : push === 'unsupported'
+                            ? 'This browser doesn’t support reminders. You can still use Tend and log your doses.'
+                            : attempted
+                              ? 'Reminder setup didn’t finish. Try again, or continue and set up reminders later in You.'
+                              : "I'll send reminders at each scheduled time, with Taken and Snooze right on it."}
+                    {!attempted && isIOS() && !standalone()
+                      ? ' On iPhone, add me to your home screen first and I’ll show you how.'
+                      : ''}
+                  </p>
+                </div>
               )}
               {i === 3 && guide && (
                 <ol className="m-0 grid list-none gap-2 p-0 text-[16px]">
@@ -258,19 +332,35 @@ export default function Welcome() {
               type="button"
               className="btn press bg-[#0e8576] text-white"
               onClick={next}
+              disabled={busy}
+              aria-busy={busy}
             >
               {label}
             </button>
           )}
-          <button
-            type="button"
-            className="press min-h-11 font-bold font-display text-[15px] opacity-90"
-            onClick={prev}
-          >
-            {guide ? 'Later' : (s?.back ?? '')}
-          </button>
+          {!(step === 3 && remindersOn) && (
+            <button
+              type="button"
+              className="press min-h-11 font-bold font-display text-[15px] opacity-90"
+              onClick={prev}
+            >
+              {guide
+                ? 'Later'
+                : step === 3 && (attempted || remindersOn)
+                  ? remindersOn
+                    ? 'Go to Today'
+                    : 'Set up later'
+                  : (s?.back ?? '')}
+            </button>
+          )}
         </div>
       </div>
+      {editor && (
+        <MedicineEdit
+          id={editor === 'new' ? undefined : editor}
+          onDone={() => setEditor(null)}
+        />
+      )}
     </div>
   );
 }
