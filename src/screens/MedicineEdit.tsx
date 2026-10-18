@@ -1,4 +1,11 @@
-import { useId, useMemo, useState } from 'react';
+import {
+  type ReactNode,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   DateField,
   DateTimeField,
@@ -6,27 +13,32 @@ import {
 } from '../components/DateTimeField.tsx';
 import Icon from '../components/Icon.tsx';
 import { PILL_COLORS, Pill } from '../components/PillLook.tsx';
-import Pip from '../components/Pip.tsx';
 import Sheet from '../components/Sheet.tsx';
 import { Chips, Field, Segmented, Stepper, Switch } from '../components/ui.tsx';
 import { putMed, useData } from '../lib/db.ts';
 import {
-  FORM_NAME,
-  fmtAmount,
-  fmtDose,
+  anchorText,
+  doseLine,
+  fmtStrength,
+  medicineDose,
   scheduleText,
 } from '../lib/dose-format.ts';
 import { haptic } from '../lib/haptics.ts';
 import {
   blank,
   type Draft,
+  detailsProblem,
   fromMed,
   fromParsed,
-  insulinDraft,
-  lookFor,
   problem,
+  selectMedicineType,
   toMed,
 } from '../lib/medicine-draft.ts';
+import {
+  FORM_FIELDS,
+  hasFoodTiming,
+  MEDICINE_TYPES,
+} from '../lib/medicine-fields.ts';
 import { replan } from '../lib/push.ts';
 import { back } from '../lib/route.ts';
 import { anchorMin, ROUTINE_NAME, ROUTINE_ORDER } from '../lib/schedule.ts';
@@ -37,19 +49,8 @@ import { useStore } from '../lib/store.ts';
 import { dayKey, fmtTime, fromMin } from '../lib/time.ts';
 import { useTitle } from '../lib/title.ts';
 import { toast } from '../lib/toast.ts';
-import type { Form, Unit } from '../lib/types.ts';
 
-const UNITS: Unit[] = ['mg', 'mcg', 'g', 'ml', 'IU', 'units'];
-const FORMS: Form[] = [
-  'tablet',
-  'capsule',
-  'liquid',
-  'drops',
-  'puff',
-  'injection',
-  'patch',
-  'cream',
-];
+const STEPS = ['Medicine', 'Schedule', 'Review'];
 const WEEK = [1, 2, 3, 4, 5, 6, 0];
 const WEEK_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const WEEK_LONG = [
@@ -73,19 +74,32 @@ export default function MedicineEdit({
   const prev = id ? meds.find((m) => m.id === id) : undefined;
   const [open, setOpen] = useState(true);
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [step, setStep] = useState(0);
   const [tried, setTried] = useState(false);
   const formId = useId();
+  const form = useRef<HTMLFormElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
   const d = draft ?? (prev ? fromMed(prev) : blank());
   const set = (patch: Partial<Draft>) => setDraft({ ...d, ...patch });
-  const issue = problem(d);
+  const issue = step === 0 ? detailsProblem(d) : problem(d);
   useTitle(prev ? `Edit ${prev.name} · Tend` : 'Add medicine · Tend');
-
+  useEffect(() => {
+    if (!STEPS[step]) return;
+    heading.current?.focus({ preventScroll: true });
+    form.current?.closest('.scroller')?.scrollTo({ top: 0 });
+  }, [step]);
   if (!ready) return null;
 
-  function save() {
+  function next() {
     setTried(true);
     if (issue) {
       haptic.warn();
+      return;
+    }
+    if (step < 2) {
+      setTried(false);
+      setStep(step + 1);
+      haptic.tick();
       return;
     }
     const med = toMed(d, prev);
@@ -111,11 +125,62 @@ export default function MedicineEdit({
       size="lg"
       label={prev ? `Edit ${prev.name}` : 'Add a medicine'}
       header={
-        <div className="flex items-center gap-3 pt-1 pb-2">
-          <Pip mood="adding" className="size-14 flex-none" track />
-          <h2 className="min-w-0 flex-1 wrap-anywhere font-extrabold text-[24px]">
-            {prev ? `Edit ${prev.name}` : 'Add a medicine'}
-          </h2>
+        <div className="grid gap-4 pt-1 pb-2">
+          <div className="flex items-center gap-3">
+            <span
+              className="grid size-12 flex-none place-items-center rounded-[16px] bg-pip-wash"
+              aria-hidden="true"
+            >
+              <Pill
+                form={d.form}
+                look={{ shape: d.shape, colors: d.colors }}
+                size={30}
+              />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] text-soft">
+                {prev ? `Edit ${prev.name}` : 'Add a medicine'}
+              </p>
+              <h2
+                ref={heading}
+                tabIndex={-1}
+                className="font-extrabold text-[24px] leading-tight outline-none"
+              >
+                {
+                  [
+                    'What do you take?',
+                    'When do you use it?',
+                    'Does this look right?',
+                  ][step]
+                }
+              </h2>
+            </div>
+            <button
+              type="button"
+              aria-label="Close medicine editor"
+              className="press grid size-11 flex-none place-items-center rounded-[14px] bg-milk text-soft"
+              onClick={() => setOpen(false)}
+            >
+              <Icon name="close" size={20} />
+            </button>
+          </div>
+          <ol
+            className="m-0 flex list-none gap-2 p-0"
+            aria-label="Medicine setup steps"
+          >
+            {STEPS.map((name, i) => (
+              <li
+                key={name}
+                aria-current={i === step ? 'step' : undefined}
+                className={`flex min-w-0 flex-1 items-center gap-1.5 border-b-[3px] pb-2 font-semibold text-[13px] ${i <= step ? 'border-pip text-pip-ink' : 'border-line text-soft'}`}
+              >
+                <span aria-hidden="true">
+                  {i < step ? <Icon name="check" size={14} /> : `${i + 1}.`}
+                </span>
+                {name}
+              </li>
+            ))}
+          </ol>
         </div>
       }
       footer={
@@ -123,7 +188,7 @@ export default function MedicineEdit({
           {tried && issue && (
             <p
               role="alert"
-              className="text-center font-semibold text-[15px] text-[#b4402f] dark:text-[#ff9a8a]"
+              className="text-center font-semibold text-[14px] text-[#b4402f] dark:text-[#ff9a8a]"
             >
               {issue}
             </p>
@@ -132,58 +197,298 @@ export default function MedicineEdit({
             <button
               type="button"
               className="btn btn-soft press"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                if (step) {
+                  setStep(step - 1);
+                  setTried(false);
+                } else setOpen(false);
+              }}
             >
-              Cancel
+              {step ? 'Back' : 'Cancel'}
             </button>
             <button
               type="submit"
               form={formId}
               className="btn btn-primary press"
             >
-              {prev ? 'Save' : 'Add medicine'}
+              {step === 2
+                ? prev
+                  ? 'Save changes'
+                  : 'Add medicine'
+                : step === 1
+                  ? 'Review medicine'
+                  : 'Set schedule'}
+              {step < 2 && <Icon name="next" size={18} />}
             </button>
           </div>
         </div>
       }
     >
       <form
+        ref={form}
         id={formId}
-        className="grid gap-6 pb-4"
+        className="grid gap-5 pt-1 pb-2"
+        noValidate
         onSubmit={(e) => {
           e.preventDefault();
-          save();
+          next();
         }}
-        noValidate
       >
-        {!prev && (
-          <div className="grid gap-2 rounded-[22px] bg-milk p-3.5">
-            <p className="font-bold">Setting up insulin?</p>
-            <p className="text-[14px] text-soft">
-              Choose a starting point, then enter your prescribed doses.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                className="btn btn-soft btn-sm press"
-                onClick={() => setDraft(insulinDraft(d))}
-              >
-                Meal-time insulin
-              </button>
-              <button
-                type="button"
-                className="btn btn-soft btn-sm press"
-                onClick={() => setDraft(insulinDraft(d, true))}
-              >
-                Bedtime insulin
-              </button>
-            </div>
-          </div>
+        {step === 0 && (
+          <MedicineFields
+            d={d}
+            set={set}
+            names={meds.map((m) => m.name)}
+            parsed={(p) => setDraft(fromParsed(d, p))}
+            shorthand={!prev}
+          />
         )}
-        {!prev && <Shorthand onApply={(p) => setDraft(fromParsed(d, p))} />}
-        <MedForm d={d} set={set} names={meds.map((m) => m.name)} />
+        {step === 1 && <ScheduleFields d={d} set={set} />}
+        {step === 2 && (
+          <ReviewFields
+            d={d}
+            set={set}
+            edit={(n) => {
+              setStep(n);
+              setTried(false);
+            }}
+          />
+        )}
       </form>
     </Sheet>
+  );
+}
+
+function Optional({
+  title,
+  hint,
+  children,
+  open = false,
+}: {
+  title: string;
+  hint?: string;
+  children: ReactNode;
+  open?: boolean;
+}) {
+  return (
+    <details
+      className="group rounded-[20px] bg-milk px-3.5"
+      open={open || undefined}
+    >
+      <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 py-3 [&::-webkit-details-marker]:hidden">
+        <span className="min-w-0 flex-1">
+          <span className="block font-bold text-[15px]">{title}</span>
+          {hint && <span className="block text-[13px] text-soft">{hint}</span>}
+        </span>
+        <Icon name="plus" size={18} />
+      </summary>
+      <div className="grid gap-4 pt-1 pb-4">{children}</div>
+    </details>
+  );
+}
+
+function Amount({
+  d,
+  set,
+  label,
+}: {
+  d: Draft;
+  set: (p: Partial<Draft>) => void;
+  label?: string;
+}) {
+  const id = useId();
+  const fields = FORM_FIELDS[d.form];
+  return (
+    <Field
+      label={label ?? (d.insulin ? 'Units per dose' : fields.amountLabel)}
+      htmlFor={id}
+    >
+      <div className="flex items-center gap-3">
+        <input
+          id={id}
+          aria-label={
+            label ?? (d.insulin ? 'Units per dose' : fields.amountLabel)
+          }
+          className="field num min-w-0 flex-1"
+          inputMode={
+            ['drops', 'puff', 'capsule', 'patch'].includes(d.form)
+              ? 'numeric'
+              : 'decimal'
+          }
+          autoComplete="off"
+          placeholder="Enter prescribed amount"
+          value={d.amount || ''}
+          onChange={(e) =>
+            set({ amount: Number(e.target.value.replace(/[^\d.]/g, '')) })
+          }
+        />
+        <span className="min-w-12 text-[15px] text-soft">
+          {d.doseUnit === 'default' ? fields.noun : d.doseUnit}
+        </span>
+      </div>
+    </Field>
+  );
+}
+
+function MedicineFields({
+  d,
+  set,
+  names,
+  parsed,
+  shorthand,
+}: {
+  d: Draft;
+  set: (p: Partial<Draft>) => void;
+  names: string[];
+  parsed: (p: Parsed) => void;
+  shorthand: boolean;
+}) {
+  const id = useId();
+  const fields = FORM_FIELDS[d.form];
+  const type = d.insulin ? 'insulin' : d.form;
+  return (
+    <>
+      <Field label="Medicine name" htmlFor={`${id}-name`}>
+        <input
+          id={`${id}-name`}
+          name="med-name"
+          className="field"
+          value={d.name}
+          onChange={(e) => set({ name: e.target.value })}
+          list={`${id}-names`}
+          autoComplete="off"
+          autoCapitalize="words"
+          placeholder="Name on the label"
+          enterKeyHint="next"
+        />
+        <datalist id={`${id}-names`}>
+          {[...new Set(names)].map((name) => (
+            <option key={name} value={name} />
+          ))}
+        </datalist>
+      </Field>
+      <Field label="Medicine type">
+        <div
+          className="grid grid-cols-3 gap-2"
+          role="group"
+          aria-label="Medicine type"
+        >
+          {MEDICINE_TYPES.map((item) => (
+            <button
+              key={item.value}
+              type="button"
+              aria-pressed={type === item.value}
+              className={`press grid min-h-18 justify-items-center gap-1 rounded-[16px] px-1 py-2.5 font-semibold text-[13px] ${type === item.value ? 'bg-pip-wash text-pip-ink shadow-[inset_0_0_0_2px_var(--pip)]' : 'bg-milk text-ink'}`}
+              onClick={() => set(selectMedicineType(d, item.value))}
+            >
+              <Pill
+                form={item.form}
+                look={{
+                  shape: item.form === 'capsule' ? 'cap' : 'round',
+                  colors: [
+                    type === item.value ? '#17a58f' : '#8fc6e8',
+                    '#f6d57a',
+                  ],
+                }}
+                size={26}
+              />
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </Field>
+      {d.insulin ? (
+        <p className="rounded-[16px] bg-pip-wash px-3.5 py-3 text-[14px] text-pip-ink">
+          Next, choose meal times or set times and enter your prescribed units
+          for each dose.
+        </p>
+      ) : d.form === 'cream' ? (
+        <Field label={fields.amountLabel} htmlFor={`${id}-instructions`}>
+          <input
+            id={`${id}-instructions`}
+            className="field"
+            placeholder="Thin layer, or prescribed fingertip units"
+            value={d.instructions}
+            onChange={(e) => set({ instructions: e.target.value })}
+          />
+        </Field>
+      ) : (
+        <Amount d={d} set={set} />
+      )}
+      {d.form === 'injection' && !d.insulin && (
+        <Field label="Dose unit">
+          <Segmented
+            label="Injection dose unit"
+            value={d.doseUnit}
+            onChange={(doseUnit) => set({ doseUnit })}
+            wrap
+            options={[
+              { value: 'default', label: 'Injections' },
+              { value: 'ml', label: 'ml' },
+              { value: 'mg', label: 'mg' },
+              { value: 'mcg', label: 'mcg' },
+              { value: 'units', label: 'Units' },
+            ]}
+          />
+        </Field>
+      )}
+      {fields.siteLabel && (
+        <Field label={fields.siteLabel} htmlFor={`${id}-site`}>
+          <input
+            id={`${id}-site`}
+            className="field"
+            placeholder={fields.siteExample}
+            value={d.site}
+            onChange={(e) => set({ site: e.target.value })}
+          />
+        </Field>
+      )}
+      <Optional
+        title={d.insulin ? 'Concentration & notes' : 'Strength & notes'}
+        hint="Optional · copy the details on your label"
+        open={Boolean(d.strength || d.strengthLabel || d.notes)}
+      >
+        <Field
+          label={d.insulin ? 'Concentration (optional)' : 'Strength (optional)'}
+          htmlFor={`${id}-strength`}
+        >
+          <input
+            id={`${id}-strength`}
+            className="field bg-card!"
+            value={
+              d.strengthLabel ||
+              (d.strength
+                ? fmtStrength({ value: Number(d.strength), unit: d.unit })
+                : '')
+            }
+            onChange={(e) =>
+              set({ strengthLabel: e.target.value, strength: '' })
+            }
+            placeholder={d.insulin ? '100 units / ml' : fields.strengthExample}
+          />
+          <span className="text-[13px] text-soft">
+            For identifying the medicine. This does not change your dose.
+          </span>
+        </Field>
+        <Field label="Notes (optional)" htmlFor={`${id}-notes`}>
+          <textarea
+            id={`${id}-notes`}
+            className="field min-h-20 resize-none bg-card! py-3"
+            value={d.notes}
+            onChange={(e) => set({ notes: e.target.value })}
+            placeholder="Any instructions you want to remember"
+          />
+        </Field>
+      </Optional>
+      {shorthand && (
+        <Optional
+          title="Use prescription shorthand"
+          hint="Optional · fill the fields from a pattern"
+        >
+          <Shorthand onApply={parsed} />
+        </Optional>
+      )}
+    </>
   );
 }
 
@@ -194,219 +499,151 @@ export function Shorthand({ onApply }: { onApply: (p: Parsed) => void }) {
   const ok = understood(p);
   const words = echo(p);
   return (
-    <div className="grid gap-2 rounded-[22px] bg-pip-wash p-3.5">
-      <label
-        htmlFor={id}
-        className="font-bold font-display text-[15px] text-pip-ink"
-      >
-        Type it like the prescription
+    <div className="grid gap-2">
+      <label htmlFor={id} className="label">
+        Prescription shorthand
       </label>
       <input
         id={id}
         className="field bg-card!"
-        placeholder="Metformin 500mg 1-0-1 PC"
         value={text}
-        onChange={(e) => {
-          const v = e.target.value;
-          setText(v);
-          const next = parse(v);
-          if (understood(next)) onApply(next);
-        }}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Metformin 500mg 1-0-1 PC"
         autoComplete="off"
-        autoCapitalize="words"
         autoCorrect="off"
         spellCheck={false}
-        enterKeyHint="next"
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
             if (ok) onApply(p);
-            (
-              document.getElementById(`${id}-name`) ??
-              document.querySelector<HTMLInputElement>('[name="med-name"]')
-            )?.focus();
           }
         }}
       />
-      <output
-        htmlFor={id}
-        aria-live="polite"
-        className="min-h-6 text-[15px] leading-snug"
-      >
-        {text && words.length > 1 ? (
-          <span className={ok ? 'font-semibold text-ink' : 'text-soft'}>
-            {words.join(' · ')}
-            {ok ? '' : '. Add a pattern like 1-0-1 or BD.'}
-          </span>
-        ) : (
-          <span className="text-soft">
-            Try Metformin 500mg 1-0-1 PC, or Inj Apidra 14-8-6 units AC. Review
-            the details below.
-          </span>
-        )}
+      <output htmlFor={id} className="text-[13px] text-soft">
+        {text ? words.join(' · ') : 'Also supports Inj Apidra 14-8-6 units AC.'}
       </output>
+      <button
+        type="button"
+        className="btn btn-soft btn-sm press justify-self-start"
+        disabled={!ok}
+        onClick={() => onApply(p)}
+      >
+        Use these details
+      </button>
     </div>
   );
 }
 
-export function MedForm({
+function ScheduleFields({
   d,
   set,
-  names,
-  lean,
 }: {
   d: Draft;
   set: (p: Partial<Draft>) => void;
-  names: string[];
-  lean?: boolean;
 }) {
   const id = useId();
-  const unique = [...new Set(names)];
   const routines = useStore(routinesStore);
-  const scheduled = d.kind !== 'prn' && d.kind !== 'once';
+  const scheduled = d.kind !== 'once' && d.kind !== 'prn';
+  const mealPlan =
+    d.insulin &&
+    scheduled &&
+    d.variable &&
+    d.food === 'before' &&
+    d.routines.every((r) => ['breakfast', 'lunch', 'dinner'].includes(r)) &&
+    !d.times.length;
+  const fields = FORM_FIELDS[d.form];
+  const slots = [
+    ...ROUTINE_ORDER.filter((r) => d.routines.includes(r)).map((r) => ({
+      key: r,
+      label: ROUTINE_NAME[r],
+      time: fromMin(
+        ((anchorMin(
+          {
+            routine: r,
+            offsetMin:
+              d.offsets[r] ??
+              (d.before && r !== 'wake' && r !== 'bed' ? -d.beforeMin : 0),
+          },
+          routines,
+          dayKey(),
+        ) %
+          1440) +
+          1440) %
+          1440,
+      ),
+    })),
+    ...d.times.map((x, i) => ({
+      key: `time-${x.id}`,
+      label: `Clock time ${i + 1}`,
+      time: x.t,
+    })),
+  ];
   return (
     <>
-      <div className="grid gap-5 tab:grid-cols-[1fr_auto] tab:items-start">
-        <div className="grid gap-5">
-          <Field label="Name" htmlFor={`${id}-name`}>
-            <input
-              id={`${id}-name`}
-              name="med-name"
-              className="field"
-              value={d.name}
-              onChange={(e) => set({ name: e.target.value })}
-              autoComplete="off"
-              autoCapitalize="words"
-              enterKeyHint="next"
-              list={`${id}-names`}
-              placeholder="Metformin"
-              required
-            />
-            <datalist id={`${id}-names`}>
-              {unique.map((n) => (
-                <option key={n} value={n} />
-              ))}
-            </datalist>
-          </Field>
-          <Field label="Strength (optional)" htmlFor={`${id}-str`}>
-            <div className="flex flex-wrap items-center gap-2">
-              <input
-                id={`${id}-str`}
-                className="field num w-32 flex-none"
-                inputMode="decimal"
-                enterKeyHint="next"
-                value={d.strength}
-                onChange={(e) =>
-                  set({ strength: e.target.value.replace(/[^\d.]/g, '') })
-                }
-                placeholder="500"
-                autoComplete="off"
-              />
-              <Segmented
-                label="Unit"
-                wrap
-                value={d.unit}
-                onChange={(unit) => set({ unit })}
-                options={UNITS.map((u) => ({ value: u, label: u }))}
-              />
-            </div>
-          </Field>
-        </div>
-        <div
-          className="hidden size-36 place-items-center rounded-[28px] bg-milk tab:grid"
-          aria-hidden="true"
-        >
-          <Pill
-            form={d.form}
-            look={{ shape: d.shape, colors: d.colors }}
-            size={88}
-          />
-        </div>
-      </div>
-
-      <Field label="Form">
-        <Segmented
-          label="Form"
-          wrap
-          value={d.form}
-          onChange={(form) => set({ form, ...lookFor(form) })}
-          options={FORMS.map((f) => ({ value: f, label: FORM_NAME[f] }))}
-        />
-      </Field>
-
-      <div className="grid gap-5 tab:grid-cols-2">
-        <Field
-          label={d.variable && scheduled ? 'Dose measured in' : 'Each dose'}
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            {(!d.variable || !scheduled) && (
-              <input
-                aria-label="Amount per dose"
-                className="field num w-28"
-                inputMode="decimal"
-                value={d.amount || ''}
-                onChange={(e) =>
-                  set({ amount: Number(e.target.value.replace(/[^\d.]/g, '')) })
-                }
-                placeholder="Dose"
-              />
-            )}
-            <Segmented
-              label="Dose measured in"
-              wrap
-              value={d.doseUnit}
-              onChange={(doseUnit) => set({ doseUnit })}
-              options={[
-                { value: 'default', label: FORM_NAME[d.form] },
-                { value: 'units', label: 'Units' },
-                { value: 'ml', label: 'ml' },
-              ]}
-            />
-          </div>
-          <span className="text-[14px] text-soft">
-            {d.variable && scheduled
-              ? 'Set each reminder’s dose below.'
-              : d.doseUnit === 'default'
-                ? fmtDose(d.form, d.amount)
-                : `${fmtAmount(d.amount)} ${d.doseUnit}`}
-          </span>
-        </Field>
-        <Field label="Food">
+      {d.insulin && (
+        <Field label="How do you schedule this insulin?">
           <Segmented
-            label="Food"
-            wrap
-            value={d.food}
-            onChange={(food) =>
-              set({ food, before: food === 'before', offsets: {} })
+            label="Insulin schedule"
+            value={mealPlan ? 'meals' : 'times'}
+            onChange={(v) =>
+              set({
+                kind: 'daily',
+                routines:
+                  v === 'times' ? ['bed'] : ['breakfast', 'lunch', 'dinner'],
+                times: [],
+                food: v === 'times' ? 'none' : 'before',
+                before: v === 'meals',
+                variable: v === 'meals',
+                amount: 0,
+                amounts: {},
+                offsets: {},
+              })
             }
             options={[
-              { value: 'none', label: 'Any' },
-              { value: 'before', label: 'Before' },
-              { value: 'with', label: 'With' },
-              { value: 'after', label: 'After' },
-              { value: 'empty', label: 'Empty stomach' },
+              { value: 'meals', label: 'Meal times' },
+              { value: 'times', label: 'Set times' },
             ]}
           />
+          <p className="text-[13px] text-soft">
+            Use the schedule you were prescribed. Set times can include bedtime
+            or a clock time.
+          </p>
         </Field>
-      </div>
-
-      <Field label="How often">
+      )}
+      <Optional
+        title={d.form === 'patch' ? 'Change the patch' : 'Repeat'}
+        hint={
+          {
+            daily: 'Every day',
+            weekdays: 'On selected days',
+            interval: `Every ${d.everyDays} days`,
+            prn: 'When needed',
+            once: 'One time',
+            cycle: `${d.on} days on, ${d.off} off`,
+          }[d.kind]
+        }
+        open={d.kind !== 'daily'}
+      >
         <Segmented
           label="How often"
           wrap
           value={d.kind}
-          onChange={(kind) => set({ kind })}
+          onChange={(kind) =>
+            set({
+              kind,
+              ...(kind === 'once' || kind === 'prn' ? { variable: false } : {}),
+            })
+          }
           options={[
             { value: 'daily', label: 'Every day' },
             { value: 'weekdays', label: 'Some days' },
             { value: 'interval', label: 'Every few days' },
-            { value: 'cycle', label: 'On and off' },
-            { value: 'once', label: 'Once' },
             { value: 'prn', label: 'When needed' },
+            { value: 'once', label: 'Once' },
+            { value: 'cycle', label: 'On and off' },
           ]}
         />
-      </Field>
-
+      </Optional>
       {d.kind === 'weekdays' && (
         <Field label="Which days">
           <Chips
@@ -422,26 +659,30 @@ export function MedForm({
         </Field>
       )}
       {d.kind === 'interval' && (
-        <Field label="Every">
+        <Field
+          label={
+            d.form === 'patch' ? 'Time between changes' : 'Days between doses'
+          }
+        >
           <Stepper
             label="Every how many days"
             value={d.everyDays}
             onChange={(everyDays) => set({ everyDays })}
             min={2}
-            max={60}
+            max={365}
             format={(n) => `${n} days`}
           />
         </Field>
       )}
       {d.kind === 'cycle' && (
-        <div className="grid gap-5 tab:grid-cols-2">
+        <div className="grid grid-cols-2 gap-3">
           <Field label="Days on">
             <Stepper
               label="Days on"
               value={d.on}
               onChange={(on) => set({ on })}
               min={1}
-              max={90}
+              max={365}
             />
           </Field>
           <Field label="Days off">
@@ -450,15 +691,14 @@ export function MedForm({
               value={d.off}
               onChange={(off) => set({ off })}
               min={1}
-              max={90}
+              max={365}
             />
           </Field>
         </div>
       )}
       {(d.kind === 'interval' || d.kind === 'cycle') && (
-        <Field label="Starting" htmlFor={`${id}-start`}>
+        <Field label="Starting date">
           <DateField
-            id={`${id}-start`}
             label="Schedule starting date"
             value={d.start}
             onChange={(start) => set({ start })}
@@ -466,7 +706,7 @@ export function MedForm({
         </Field>
       )}
       {d.kind === 'once' && (
-        <Field label="When" htmlFor={`${id}-once`}>
+        <Field label="When">
           <DateTimeField
             label="One-time dose"
             value={d.once}
@@ -475,157 +715,177 @@ export function MedForm({
         </Field>
       )}
       {d.kind === 'prn' && (
-        <div className="grid gap-5 tab:grid-cols-2">
-          <Field label="At least">
-            <Stepper
-              label="Hours between doses"
-              value={d.gap}
-              onChange={(gap) => set({ gap })}
-              min={1}
-              max={48}
-              format={(n) => `${n} h apart`}
+        <>
+          <p className="text-[14px] text-soft">
+            No scheduled reminders. Log a dose whenever you use it.
+          </p>
+          <Optional
+            title="Dose limits"
+            hint="Optional · only if specified on your prescription"
+            open={d.limitGap || d.limitMax}
+          >
+            <Switch
+              on={d.limitGap}
+              onChange={(limitGap) => set({ limitGap })}
+              label="Minimum time between doses"
             />
-          </Field>
-          <Field label="Up to">
-            <Stepper
-              label="Most doses a day"
-              value={d.max}
-              onChange={(max) => set({ max })}
-              min={1}
-              max={12}
-              format={(n) => `${n} a day`}
-            />
-          </Field>
-        </div>
-      )}
-
-      {scheduled && (
-        <Field
-          label="At"
-          hint={
-            d.routines.length || d.times.length
-              ? scheduleText(toMed(d).schedule)
-              : 'Doses follow your routines, so moving breakfast moves them too.'
-          }
-        >
-          <Chips
-            label="Routines"
-            values={d.routines}
-            onChange={(routines) => set({ routines })}
-            options={ROUTINE_ORDER.map((r) => ({
-              value: r,
-              label: ROUTINE_NAME[r],
-            }))}
-          />
-          <div className="flex flex-wrap items-center gap-2">
-            {d.times.map(({ id: key, t }, i) => (
-              <span
-                key={key}
-                className="flex items-center gap-1 rounded-[14px] bg-milk p-1 pl-1"
-              >
-                <TimeField
-                  label={`Clock time ${i + 1}`}
-                  className="min-h-11 w-36 bg-card!"
-                  value={t}
-                  onChange={(t) =>
-                    set({
-                      times: d.times.map((x, j) => (j === i ? { ...x, t } : x)),
-                    })
+            {d.limitGap && (
+              <Field label="Minimum gap in hours">
+                <input
+                  aria-label="Hours between doses"
+                  className="field num bg-card!"
+                  inputMode="decimal"
+                  placeholder="As prescribed"
+                  value={d.gap || ''}
+                  onChange={(e) =>
+                    set({ gap: Number(e.target.value.replace(/[^\d.]/g, '')) })
                   }
                 />
-                <button
-                  type="button"
-                  aria-label="Remove time"
-                  className="press grid size-10 place-items-center rounded-[10px] text-soft"
-                  onClick={() =>
-                    set({ times: d.times.filter((_, j) => j !== i) })
-                  }
-                >
-                  <Icon name="close" size={18} />
-                </button>
-              </span>
-            ))}
-            <button
-              type="button"
-              className="btn btn-soft btn-sm press"
-              onClick={() =>
-                set({
-                  times: [...d.times, { id: Date.now(), t: '09:00' }],
-                })
-              }
-            >
-              <Icon name="clock" size={18} />
-              Add a clock time
-            </button>
-          </div>
-          {d.food === 'before' &&
-            d.routines.some((r) => r !== 'wake' && r !== 'bed') && (
-              <div className="grid gap-2 rounded-[18px] bg-milk p-3">
-                <span className="label">Before meals</span>
-                <Stepper
-                  label="Minutes before meals"
-                  value={d.beforeMin}
-                  onChange={(beforeMin) => set({ beforeMin, offsets: {} })}
-                  min={0}
-                  max={120}
-                  step={5}
-                  format={(n) => `${n} min before`}
-                />
-                <span className="text-[14px] text-soft">
-                  Use the timing on your prescription. Insulin timing depends on
-                  the type you take.
-                </span>
-              </div>
+              </Field>
             )}
-          <Switch
-            on={d.variable}
-            onChange={(variable) =>
-              set({
-                variable,
-                amounts: Object.fromEntries([
-                  ...d.routines.map((r) => [
-                    r,
-                    d.amounts[r] ?? String(d.amount),
-                  ]),
-                  ...d.times.map((x) => [
-                    `time-${x.id}`,
-                    d.amounts[`time-${x.id}`] ?? String(d.amount),
-                  ]),
-                ]),
-              })
-            }
-            label="Different dose at each reminder"
-            hint="For example, 14 units at breakfast, 8 at lunch and 6 at dinner"
-          />
+            <Switch
+              on={d.limitMax}
+              onChange={(limitMax) => set({ limitMax })}
+              label="Maximum doses per day"
+            />
+            {d.limitMax && (
+              <Field label="Daily dose limit">
+                <input
+                  aria-label="Most doses a day"
+                  className="field num bg-card!"
+                  inputMode="numeric"
+                  placeholder="As prescribed"
+                  value={d.max || ''}
+                  onChange={(e) =>
+                    set({ max: Number(e.target.value.replace(/[^\d]/g, '')) })
+                  }
+                />
+              </Field>
+            )}
+          </Optional>
+        </>
+      )}
+      {d.insulin && (!d.variable || !scheduled) && <Amount d={d} set={set} />}
+      {scheduled && (
+        <>
+          <Field label={mealPlan ? 'Meals' : 'Reminder times'}>
+            <Chips
+              label="Routines"
+              values={d.routines}
+              onChange={(selected) => set({ routines: selected })}
+              options={ROUTINE_ORDER.filter(
+                (r) =>
+                  !mealPlan || ['breakfast', 'lunch', 'dinner'].includes(r),
+              ).map((r) => ({ value: r, label: ROUTINE_NAME[r] }))}
+            />
+          </Field>
+          {!mealPlan && (
+            <div className="grid gap-2">
+              {d.times.map((x, i) => (
+                <div key={x.id} className="flex items-center gap-2">
+                  <TimeField
+                    label={`Clock time ${i + 1}`}
+                    value={x.t}
+                    onChange={(t) =>
+                      set({
+                        times: d.times.map((item) =>
+                          item.id === x.id ? { ...item, t } : item,
+                        ),
+                      })
+                    }
+                    className="flex-1"
+                  />
+                  <button
+                    type="button"
+                    aria-label={`Remove clock time ${i + 1}`}
+                    className="press grid size-11 flex-none place-items-center rounded-[14px] bg-milk text-soft"
+                    onClick={() =>
+                      set({ times: d.times.filter((item) => item.id !== x.id) })
+                    }
+                  >
+                    <Icon name="close" size={18} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="btn btn-soft btn-sm press justify-self-start"
+                onClick={() =>
+                  set({ times: [...d.times, { id: Date.now(), t: '09:00' }] })
+                }
+              >
+                <Icon name="clock" size={18} />
+                Add a clock time
+              </button>
+            </div>
+          )}
+          {hasFoodTiming(d.form) && (
+            <Optional
+              title="Food timing"
+              hint={
+                d.food === 'none'
+                  ? 'Optional · if specified on the label'
+                  : `${d.food} food`
+              }
+              open={d.food !== 'none'}
+            >
+              <Segmented
+                label="Food"
+                value={d.food}
+                onChange={(food) =>
+                  set({ food, before: food === 'before', offsets: {} })
+                }
+                wrap
+                options={[
+                  { value: 'none', label: 'Any time' },
+                  { value: 'before', label: 'Before' },
+                  { value: 'with', label: 'With' },
+                  { value: 'after', label: 'After' },
+                  { value: 'empty', label: 'Empty stomach' },
+                ]}
+              />
+            </Optional>
+          )}
+          {(mealPlan ||
+            (d.before &&
+              d.routines.some((r) => r !== 'wake' && r !== 'bed'))) && (
+            <Field label="Reminder before meals">
+              <Stepper
+                label="Minutes before meals"
+                value={d.beforeMin}
+                onChange={(beforeMin) => set({ beforeMin, offsets: {} })}
+                min={0}
+                max={120}
+                step={5}
+                format={(n) => (n ? `${n} min before` : 'At the meal')}
+              />
+              <p className="text-[13px] text-soft">
+                Use your prescribed timing; it varies by medicine.
+              </p>
+            </Field>
+          )}
+          {!mealPlan &&
+            (slots.length > 1 || d.variable) &&
+            d.form !== 'cream' && (
+              <Switch
+                on={d.variable}
+                onChange={(variable) =>
+                  set({
+                    variable,
+                    amounts: Object.fromEntries(
+                      slots.map((slot) => [
+                        slot.key,
+                        d.amounts[slot.key] ?? String(d.amount || ''),
+                      ]),
+                    ),
+                  })
+                }
+                label="Different amounts at each reminder"
+              />
+            )}
           {d.variable && (
             <div className="grid gap-2">
-              {[
-                ...ROUTINE_ORDER.filter((r) => d.routines.includes(r)).map(
-                  (r) => ({
-                    key: r,
-                    label: ROUTINE_NAME[r],
-                    time: fromMin(
-                      anchorMin(
-                        {
-                          routine: r,
-                          offsetMin:
-                            d.offsets[r] ??
-                            (d.before && r !== 'wake' && r !== 'bed'
-                              ? -d.beforeMin
-                              : 0),
-                        },
-                        routines,
-                        dayKey(),
-                      ),
-                    ),
-                  }),
-                ),
-                ...d.times.map((x) => ({
-                  key: `time-${x.id}`,
-                  label: 'Clock time',
-                  time: x.t,
-                })),
-              ].map((slot) => (
+              {slots.map((slot) => (
                 <div
                   key={slot.key}
                   className="flex items-center gap-3 rounded-[18px] bg-milk p-3"
@@ -637,7 +897,7 @@ export function MedForm({
                     >
                       {slot.label}
                     </label>
-                    <span className="num text-[14px] text-soft">
+                    <span className="num text-[13px] text-soft">
                       {fmtTime(slot.time)}
                     </span>
                   </div>
@@ -646,8 +906,8 @@ export function MedForm({
                     aria-label={`${slot.label} dose`}
                     className="field num w-22 bg-card! text-center"
                     inputMode="decimal"
-                    placeholder="Dose"
                     value={d.amounts[slot.key] ?? ''}
+                    placeholder="Dose"
                     onChange={(e) =>
                       set({
                         amounts: {
@@ -657,162 +917,208 @@ export function MedForm({
                       })
                     }
                   />
-                  <span className="text-[14px] text-soft">
-                    {d.doseUnit === 'default'
-                      ? FORM_NAME[d.form].toLowerCase()
-                      : d.doseUnit}
+                  <span className="text-[13px] text-soft">
+                    {d.insulin
+                      ? 'units'
+                      : d.doseUnit === 'default'
+                        ? fields.noun
+                        : d.doseUnit}
                   </span>
                 </div>
               ))}
             </div>
           )}
-        </Field>
-      )}
-
-      {!lean && (
-        <>
-          {scheduled && (
-            <div className="grid gap-3">
-              <Switch
-                on={d.course}
-                onChange={(course) => set({ course })}
-                label="For a set time"
-                hint={
-                  d.course
-                    ? `Ends on its own after ${d.courseDays} days`
-                    : 'Like a course of antibiotics'
-                }
-                icon="calendar"
-              />
-              {d.course && (
-                <div className="flex flex-wrap items-end gap-4 pl-13">
-                  <Field label="For">
-                    <Stepper
-                      label="Course length in days"
-                      value={d.courseDays}
-                      onChange={(courseDays) => set({ courseDays })}
-                      min={1}
-                      max={365}
-                      format={(n) => `${n} days`}
-                    />
-                  </Field>
-                  <Field label="Starting" htmlFor={`${id}-cstart`}>
-                    <DateField
-                      id={`${id}-cstart`}
-                      label="Course starting date"
-                      className="w-48"
-                      value={d.start}
-                      onChange={(start) => set({ start })}
-                    />
-                  </Field>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="grid gap-3">
-            <Switch
-              on={d.stock}
-              onChange={(stock) => set({ stock })}
-              label="Count what's left"
-              hint={
-                d.stock
-                  ? `A reminder when ${d.refill} days are left`
-                  : 'Get a nudge before you run out'
-              }
-              icon="refill"
-            />
-            {d.stock && (
-              <div className="grid gap-4 pl-13 tab:grid-cols-3">
-                <Field label="Left now">
-                  <Stepper
-                    label="Left now"
-                    value={d.count}
-                    onChange={(count) => set({ count })}
-                    max={999}
-                  />
-                </Field>
-                <Field label="Remind at">
-                  <Stepper
-                    label="Refill reminder, days left"
-                    value={d.refill}
-                    onChange={(refill) => set({ refill })}
-                    min={1}
-                    max={60}
-                    format={(n) => `${n} days`}
-                  />
-                </Field>
-                <Field label="A strip holds">
-                  <Stepper
-                    label="Strip size"
-                    value={d.pack}
-                    onChange={(pack) => set({ pack })}
-                    min={1}
-                    max={200}
-                  />
-                </Field>
-              </div>
-            )}
-          </div>
-
-          <Field
-            label={
-              d.form === 'tablet' || d.form === 'capsule'
-                ? 'Looks like'
-                : 'Colour'
+          <Optional
+            title="Course length"
+            hint={
+              d.course
+                ? `${d.courseDays} days`
+                : 'Optional · for a treatment with an end date'
             }
+            open={d.course}
           >
-            <div className="flex flex-wrap items-center gap-4">
-              <span
-                className="grid size-16 place-items-center rounded-[20px] bg-milk tab:hidden"
-                aria-hidden="true"
-              >
-                <Pill
-                  form={d.form}
-                  look={{ shape: d.shape, colors: d.colors }}
-                  size={40}
-                />
-              </span>
-              {d.form === 'tablet' && (
-                <Segmented
-                  label="Shape"
-                  value={d.shape === 'cap' ? 'round' : d.shape}
-                  onChange={(shape) => set({ shape })}
-                  options={[
-                    { value: 'round', label: 'Round' },
-                    { value: 'oval', label: 'Oval' },
-                  ]}
-                />
-              )}
-            </div>
-            <ColorPick
-              colors={d.colors}
-              onChange={(colors) =>
-                set({
-                  colors: d.form === 'capsule' ? colors : colors.slice(0, 1),
-                })
-              }
-              two={d.form === 'capsule'}
+            <Switch
+              on={d.course}
+              onChange={(course) => set({ course })}
+              label="End after a set number of days"
             />
-          </Field>
-
-          <Field label="Notes" htmlFor={`${id}-notes`}>
-            <textarea
-              id={`${id}-notes`}
-              className="field min-h-24 resize-none py-3"
-              value={d.notes}
-              onChange={(e) => set({ notes: e.target.value })}
-              placeholder="Prescribed by, what it's for"
-              autoCapitalize="sentences"
-              enterKeyHint="done"
-            />
-          </Field>
+            {d.course && (
+              <>
+                <Field label="Number of days">
+                  <Stepper
+                    label="Course length in days"
+                    value={d.courseDays}
+                    onChange={(courseDays) => set({ courseDays })}
+                    min={1}
+                    max={365}
+                  />
+                </Field>
+                <Field label="Starting">
+                  <DateField
+                    label="Course starting date"
+                    value={d.start}
+                    onChange={(start) => set({ start })}
+                  />
+                </Field>
+              </>
+            )}
+          </Optional>
         </>
       )}
     </>
   );
 }
 
+function ReviewFields({
+  d,
+  set,
+  edit,
+}: {
+  d: Draft;
+  set: (p: Partial<Draft>) => void;
+  edit: (step: number) => void;
+}) {
+  const med = toMed(d);
+  const fields = FORM_FIELDS[d.form];
+  const stockUnit = d.insulin
+    ? 'units'
+    : d.form === 'injection'
+      ? d.doseUnit === 'default'
+        ? 'injections'
+        : d.doseUnit
+      : fields.stockUnit;
+  return (
+    <>
+      <div className="grid gap-3 rounded-[22px] bg-milk p-4">
+        <div className="flex items-start gap-3">
+          <Pill form={d.form} look={med.look} size={40} />
+          <div className="min-w-0 flex-1">
+            <h3 className="wrap-anywhere font-bold text-[21px]">{med.name}</h3>
+            <p className="text-[14px] text-soft">{doseLine(med)}</p>
+          </div>
+          <button
+            type="button"
+            aria-label="Edit medicine details"
+            className="press grid size-11 flex-none place-items-center rounded-[12px] bg-card"
+            onClick={() => edit(0)}
+          >
+            <Icon name="edit" size={18} />
+          </button>
+        </div>
+      </div>
+      <div className="grid gap-3 rounded-[22px] bg-pip-wash p-4">
+        <div className="flex items-start gap-2">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-bold text-[16px]">
+              {d.form === 'patch' ? 'Patch changes' : 'Schedule'}
+            </h3>
+            <p className="text-[14px]">{scheduleText(med.schedule)}</p>
+          </div>
+          <button
+            type="button"
+            aria-label="Edit medicine schedule"
+            className="press grid size-11 flex-none place-items-center rounded-[12px] bg-card"
+            onClick={() => edit(1)}
+          >
+            <Icon name="edit" size={18} />
+          </button>
+        </div>
+        {'at' in med.schedule &&
+          med.schedule.at.map((a) => (
+            <div
+              key={anchorText(a)}
+              className="flex items-center justify-between gap-3 border-t border-line pt-2 text-[14px]"
+            >
+              <span>{anchorText(a)}</span>
+              <strong className="num text-right">
+                {medicineDose(med, a.amount ?? med.amount)}
+              </strong>
+            </div>
+          ))}
+        {d.course && (
+          <p className="text-[13px]">
+            For {d.courseDays} days, starting {d.start}
+          </p>
+        )}
+      </div>
+      {(stockUnit || d.stock) && (
+        <Optional
+          title="Refill reminders"
+          hint="Optional · count your remaining supply"
+          open={d.stock}
+        >
+          <Switch
+            on={d.stock}
+            onChange={(stock) => set({ stock })}
+            label="Track remaining supply"
+            hint={`Count in ${stockUnit || 'doses'}`}
+          />
+          {d.stock && (
+            <>
+              <Field label={`Remaining ${stockUnit || 'doses'}`}>
+                <input
+                  aria-label="Remaining supply"
+                  className="field num bg-card!"
+                  inputMode="decimal"
+                  value={d.count}
+                  onChange={(e) =>
+                    set({
+                      count: Number(e.target.value.replace(/[^\d.]/g, '')),
+                    })
+                  }
+                />
+              </Field>
+              <Field label="Remind when this many days remain">
+                <Stepper
+                  label="Refill reminder, days left"
+                  value={d.refill}
+                  onChange={(refill) => set({ refill })}
+                  min={1}
+                  max={60}
+                  format={(n) => `${n} days`}
+                />
+              </Field>
+              <Field label={`Refill amount (${stockUnit || 'doses'})`}>
+                <input
+                  aria-label="Refill amount"
+                  className="field num bg-card!"
+                  inputMode="decimal"
+                  value={d.pack}
+                  onChange={(e) =>
+                    set({ pack: Number(e.target.value.replace(/[^\d.]/g, '')) })
+                  }
+                />
+              </Field>
+            </>
+          )}
+        </Optional>
+      )}
+      {(d.form === 'tablet' || d.form === 'capsule') && (
+        <Optional title="Appearance" hint="Optional · recognise it at a glance">
+          {d.form === 'tablet' && (
+            <Segmented
+              label="Shape"
+              value={d.shape === 'cap' ? 'round' : d.shape}
+              onChange={(shape) => set({ shape })}
+              options={[
+                { value: 'round', label: 'Round' },
+                { value: 'oval', label: 'Oval' },
+              ]}
+            />
+          )}
+          <ColorPick
+            colors={d.colors}
+            two={d.form === 'capsule'}
+            onChange={(colors) => set({ colors })}
+          />
+        </Optional>
+      )}
+      {med.notes && (
+        <p className="whitespace-pre-wrap text-[14px] text-soft">{med.notes}</p>
+      )}
+    </>
+  );
+}
 const COLOR_NAME: Record<string, string> = {
   '#ffffff': 'White',
   '#f6d57a': 'Cream yellow',

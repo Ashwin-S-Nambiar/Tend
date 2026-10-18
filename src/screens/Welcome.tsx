@@ -212,8 +212,8 @@ export default function Welcome() {
               {i === 2 && (
                 <>
                   <p className="text-[16px] opacity-90">
-                    Add each medicine with its own schedule. Insulin can have a
-                    different dose for every meal, or a single bedtime dose.
+                    Choose the medicine type, set its schedule, then review it.
+                    You can add as many medicines as you need.
                   </p>
                   <div className="grid gap-2">
                     {meds.map((med) => (
@@ -242,9 +242,8 @@ export default function Welcome() {
                   </div>
                   {!meds.length && (
                     <p className="text-[14px] opacity-90">
-                      For example: Apidra, 14–8–6 units before meals, and
-                      Lantus, 24 units at bedtime. Enter your own prescribed
-                      doses.
+                      Tablets, insulin, creams, patches and more. Each gets just
+                      the details it needs.
                     </p>
                   )}
                 </>

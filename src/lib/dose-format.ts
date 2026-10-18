@@ -60,6 +60,7 @@ export const FOOD_TEXT: Record<Food, string> = {
 };
 
 export function medicineDose(med: Medicine, amount = med.amount) {
+  if (med.form === 'cream' && med.instructions) return med.instructions;
   return med.doseUnit
     ? `${fmtAmount(amount)} ${med.doseUnit}`
     : fmtDose(med.form, amount);
@@ -67,7 +68,8 @@ export function medicineDose(med: Medicine, amount = med.amount) {
 
 export function doseLine(med: Medicine, withFood = true, amount?: number) {
   const parts: string[] = [];
-  if (med.strength) parts.push(fmtStrength(med.strength));
+  if (med.strengthLabel) parts.push(med.strengthLabel);
+  else if (med.strength) parts.push(fmtStrength(med.strength));
   const varies =
     'at' in med.schedule &&
     med.schedule.at.some(
@@ -78,6 +80,7 @@ export function doseLine(med: Medicine, withFood = true, amount?: number) {
       ? `${med.schedule.at.map((a) => medicineDose(med, a.amount ?? med.amount)).join(' / ')}`
       : medicineDose(med, amount),
   );
+  if (med.site) parts.push(med.site);
   if (withFood && med.food) parts.push(FOOD_TEXT[med.food]);
   return parts.join(' · ');
 }
@@ -148,7 +151,13 @@ export function scheduleText(s: Schedule) {
     case 'once':
       return `Once, ${fmtDay(s.when.slice(0, 10), { day: 'numeric', month: 'short' })} at ${fmtTime(s.when)}`;
     case 'prn':
-      return `When needed, ${s.minGapH} h apart, up to ${s.maxPerDay} a day`;
+      return [
+        'When needed',
+        s.minGapH ? `${s.minGapH} h apart` : '',
+        s.maxPerDay ? `up to ${s.maxPerDay} a day` : '',
+      ]
+        .filter(Boolean)
+        .join(', ');
   }
 }
 

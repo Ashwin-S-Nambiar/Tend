@@ -13,7 +13,7 @@ export type Schedule =
   | { kind: 'interval'; everyDays: number; start: string; at: Anchor[] }
   | { kind: 'once'; when: string }
   | { kind: 'cycle'; on: number; off: number; start: string; at: Anchor[] }
-  | { kind: 'prn'; minGapH: number; maxPerDay: number };
+  | { kind: 'prn'; minGapH?: number; maxPerDay?: number };
 
 export type Unit = 'mg' | 'mcg' | 'g' | 'ml' | 'IU' | 'units';
 
@@ -37,7 +37,11 @@ export type Medicine = {
   strength?: { value: number; unit: Unit };
   form: Form;
   amount: number;
-  doseUnit?: 'units' | 'ml';
+  doseUnit?: 'units' | 'ml' | 'mg' | 'mcg';
+  insulin?: boolean;
+  strengthLabel?: string;
+  instructions?: string;
+  site?: string;
   food?: Food;
   look: { shape: Shape; colors: string[] };
   schedule: Schedule;
