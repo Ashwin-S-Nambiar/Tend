@@ -184,8 +184,8 @@ export default function You() {
             <Switch
               on={sound}
               onChange={(v) => soundStore.set(v)}
-              label="Sounds"
-              hint="Soft chimes when you log a dose"
+              label="In-app sounds"
+              hint="Chimes when you log a dose. Reminder sound follows your device settings."
               icon={sound ? 'sound' : 'mute'}
             />
           </Card>

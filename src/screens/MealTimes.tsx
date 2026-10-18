@@ -53,10 +53,10 @@ function RoutineRows({ field = 'weekday' }: { field?: 'weekday' | 'weekend' }) {
           <label
             key={r}
             htmlFor={`${id}-${r}`}
-            className="flex min-h-15 items-center gap-3 rounded-2xl bg-milk py-2 pr-2 pl-3"
+            className="flex min-h-15 flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl bg-milk py-2 pr-2 pl-3"
           >
             <SceneIcon scene={ROUTINE_SCENE[r]} />
-            <span className="min-w-0 flex-1">
+            <span className="min-w-max flex-1">
               <span className="block font-semibold text-[16px]">
                 {ROUTINE_NAME[r]}
               </span>
@@ -69,7 +69,7 @@ function RoutineRows({ field = 'weekday' }: { field?: 'weekday' | 'weekend' }) {
             <TimeField
               id={`${id}-${r}`}
               label={`${ROUTINE_NAME[r]} time`}
-              className="min-h-11 w-38 flex-none bg-card! px-3 font-bold font-display text-[16px]"
+              className="ml-auto min-h-11 w-28 flex-none bg-card! px-3 font-bold font-display text-[16px] tab:w-38"
               value={value}
               onChange={(value) => {
                 set(
