@@ -669,7 +669,7 @@ function MedTile({
       </span>
       {info && (
         <>
-          <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-(--line)">
+          <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-line">
             <span
               className="block h-full rounded-full"
               style={{
@@ -728,7 +728,7 @@ function Night({
       <div className="relative z-10 mx-auto flex w-full max-w-120 flex-col items-center justify-end gap-3 px-6 pb-[calc(40px+var(--sab))] text-center text-ink tab:justify-center">
         <Pip
           mood="sleep"
-          className="size-44 text-[var(--star)]"
+          className="size-44 text-star"
           label="Pip asleep"
           poke
         />

@@ -1,7 +1,7 @@
 import {
   type ReactNode,
-  useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -39,6 +39,7 @@ import {
   hasFoodTiming,
   MEDICINE_TYPES,
 } from '../lib/medicine-fields.ts';
+import { enter } from '../lib/motion.ts';
 import { replan } from '../lib/push.ts';
 import { back } from '../lib/route.ts';
 import {
@@ -99,6 +100,7 @@ export default function MedicineEdit({
   const formId = useId();
   const form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const previousStep = useRef(step);
   const d = draft ?? (prev ? fromMed(prev) : blank());
   const routines = DEFAULT_ROUTINES.map((fallback) => ({
     ...(savedRoutines.find((r) => r.id === fallback.id) ?? fallback),
@@ -120,8 +122,11 @@ export default function MedicineEdit({
   const set = (patch: Partial<Draft>) => setDraft({ ...d, ...patch });
   const issue = step === 0 ? detailsProblem(d) : problem(d);
   useTitle(prev ? `Edit ${prev.name} · Tend` : 'Add medicine · Tend');
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!STEPS[step]) return;
+    if (previousStep.current !== step && form.current)
+      enter(form.current, step > previousStep.current ? 1 : -1);
+    previousStep.current = step;
     heading.current?.focus({ preventScroll: true });
     form.current?.closest('.scroller')?.scrollTo({ top: 0 });
   }, [step]);
@@ -179,7 +184,7 @@ export default function MedicineEdit({
         <div className="grid gap-4 pt-1 pb-2">
           <div className="flex items-center gap-3">
             <span
-              className="grid size-12 flex-none place-items-center rounded-[16px] bg-pip-wash"
+              className="grid size-12 flex-none place-items-center rounded-2xl bg-pip-wash"
               aria-hidden="true"
             >
               <Pill
@@ -442,7 +447,7 @@ function MedicineFields({
                 <button
                   key={name}
                   type="button"
-                  className="press min-h-11 max-w-full rounded-[12px] bg-pip-wash px-3 text-left font-semibold text-[14px] text-pip-ink wrap-anywhere"
+                  className="press min-h-11 max-w-full rounded-xl bg-pip-wash px-3 text-left font-semibold text-[14px] text-pip-ink wrap-anywhere"
                   aria-label={`Use medicine name ${name}`}
                   onPointerDown={(e) => e.preventDefault()}
                   onClick={() => {
@@ -468,7 +473,7 @@ function MedicineFields({
               key={item.value}
               type="button"
               aria-pressed={type === item.value}
-              className={`press grid min-h-18 justify-items-center gap-1 rounded-[16px] px-1 py-2.5 font-semibold text-[13px] ${type === item.value ? 'bg-pip-wash text-pip-ink shadow-[inset_0_0_0_2px_var(--pip)]' : 'bg-milk text-ink'}`}
+              className={`press grid min-h-18 justify-items-center gap-1 rounded-2xl px-1 py-2.5 font-semibold text-[13px] ${type === item.value ? 'bg-pip-wash text-pip-ink shadow-[inset_0_0_0_2px_var(--pip)]' : 'bg-milk text-ink'}`}
               onClick={() => set(selectMedicineType(d, item.value))}
             >
               <Pill
@@ -488,7 +493,7 @@ function MedicineFields({
         </div>
       </Field>
       {d.insulin ? (
-        <p className="rounded-[16px] bg-pip-wash px-3.5 py-3 text-[14px] text-pip-ink">
+        <p className="rounded-2xl bg-pip-wash px-3.5 py-3 text-[14px] text-pip-ink">
           Next, choose meal times or set times and enter your prescribed units
           for each dose.
         </p>
@@ -986,7 +991,7 @@ function ScheduleFields({
                 .map((slot) => (
                   <div
                     key={slot.key}
-                    className="grid gap-2 rounded-[18px] bg-milk p-3"
+                    className="grid gap-2 rounded-btn bg-milk p-3"
                   >
                     <div className="flex items-center gap-3">
                       <div className="min-w-0 flex-1">
@@ -1123,7 +1128,7 @@ function ReviewFields({
           <button
             type="button"
             aria-label="Edit medicine details"
-            className="press grid size-11 flex-none place-items-center rounded-[12px] bg-card"
+            className="press grid size-11 flex-none place-items-center rounded-xl bg-card"
             onClick={() => edit(0)}
           >
             <Icon name="edit" size={18} />
@@ -1141,7 +1146,7 @@ function ReviewFields({
           <button
             type="button"
             aria-label="Edit medicine schedule"
-            className="press grid size-11 flex-none place-items-center rounded-[12px] bg-card"
+            className="press grid size-11 flex-none place-items-center rounded-xl bg-card"
             onClick={() => edit(1)}
           >
             <Icon name="edit" size={18} />

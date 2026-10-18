@@ -118,7 +118,7 @@ export function DosePanel({ due }: { due: string }) {
       ref={panel}
       tabIndex={-1}
       aria-label={slot ? `${slot.label} dose` : 'Dose not found'}
-      className="surface fade-in relative grid gap-3 rounded-[24px] p-5 shadow-(--shadow)"
+      className="surface fade-in relative grid gap-3 rounded-3xl p-5 shadow-(--shadow)"
     >
       <button
         type="button"
@@ -240,7 +240,7 @@ function Body({
                 aria-checked={on(d.medId)}
                 aria-label={`Include ${med.name}`}
                 onClick={() => pick.toggle(d.medId)}
-                className="press grid size-14 flex-none place-items-center rounded-[16px] bg-milk"
+                className="press grid size-14 flex-none place-items-center rounded-2xl bg-milk"
               >
                 <span
                   className={`grid size-7 place-items-center rounded-[9px] transition-colors duration-150 ${on(d.medId) ? 'bg-pip-deep text-on-pip' : 'shadow-[inset_0_0_0_2px_var(--line-strong)]'}`}

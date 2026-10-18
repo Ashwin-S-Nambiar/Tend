@@ -121,7 +121,8 @@ export default function App() {
         {!missing && mode === 'desk' && <Sidebar current={screen} />}
         <div className="flex min-w-0 flex-1 flex-col">
           <main
-            className="relative flex min-h-0 flex-1 [view-transition-name:screen]"
+            className="relative flex min-h-0 flex-1 overflow-hidden outline-none [view-transition-name:screen]"
+            tabIndex={-1}
             id="main"
           >
             <Main route={route} panel={panel} />
@@ -132,6 +133,8 @@ export default function App() {
           <aside
             className="scroller hidden w-[clamp(320px,26vw,400px)] flex-none py-6 pr-6 lap:block"
             aria-label="Details"
+            data-context-panel
+            style={{ viewTransitionName: 'context' }}
           >
             {ctx}
           </aside>

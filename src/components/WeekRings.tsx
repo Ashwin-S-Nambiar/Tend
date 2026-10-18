@@ -115,7 +115,7 @@ export default function WeekRings({
             aria-current={d.today ? 'date' : undefined}
             disabled={d.future}
             onClick={() => navigate(`/day/${d.day}`)}
-            className="press grid min-h-11 justify-items-center gap-1 rounded-[12px] py-1 disabled:cursor-default"
+            className="press grid min-h-11 justify-items-center gap-1 rounded-xl py-1 disabled:cursor-default"
           >
             <Ring {...d} size={size} />
             {labels && (

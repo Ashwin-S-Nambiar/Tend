@@ -94,7 +94,7 @@ export function TimePicker({
           <button
             type="button"
             key={n}
-            className={`press min-h-11 min-w-12 rounded-[12px] px-3 font-bold ${minute === n ? 'bg-pip-wash text-pip-ink' : 'bg-milk'}`}
+            className={`press min-h-11 min-w-12 rounded-xl px-3 font-bold ${minute === n ? 'bg-pip-wash text-pip-ink' : 'bg-milk'}`}
             onClick={() => {
               setM(pad(n));
               change(h, pad(n));
@@ -275,7 +275,7 @@ function Calendar({
               })}
               aria-pressed={value === day}
               aria-current={today === day ? 'date' : undefined}
-              className={`press num min-h-11 rounded-[12px] font-semibold ${value === day ? 'bg-pip-deep text-on-pip' : today === day ? 'bg-pip-wash text-pip-ink' : 'hover-fine:bg-milk'}`}
+              className={`press num min-h-11 rounded-xl font-semibold ${value === day ? 'bg-pip-deep text-on-pip' : today === day ? 'bg-pip-wash text-pip-ink' : 'hover-fine:bg-milk'}`}
               onClick={() => onChange(day)}
               onKeyDown={(e) => {
                 const offset = {

@@ -1,5 +1,6 @@
 import Icon, { type IconName } from '../components/Icon.tsx';
 import Pip from '../components/Pip.tsx';
+import SelectionIndicator from '../components/SelectionIndicator.tsx';
 import { haptic } from '../lib/haptics.ts';
 import { navigate, SCREEN_PATH, type Screen } from '../lib/route.ts';
 
@@ -37,20 +38,23 @@ export function TabBar({ current }: { current: Screen | null }) {
   return (
     <nav
       aria-label="Main"
-      className="surface grid flex-none grid-cols-4 px-2 pt-1.5 pb-[max(8px,var(--sab))] shadow-[0_-1px_0_var(--line)] tab:hidden land:hidden"
+      className="surface relative isolate grid flex-none grid-cols-4 px-2 pt-1.5 pb-[max(8px,var(--sab))] shadow-[0_-1px_0_var(--line)] tab:hidden land:hidden"
     >
+      <SelectionIndicator
+        value={current}
+        selector='[aria-current="page"] .nav-icon'
+        className="bg-pip-wash! rounded-full!"
+      />
       {ITEMS.map((i) => (
         <a
           key={i.id}
           {...link(i.id, current)}
           aria-current={i.id === current ? 'page' : undefined}
-          className={`press control grid min-h-13 place-items-center content-center gap-1 rounded-[14px] font-semibold text-[12px] no-underline ${
+          className={`nav-link relative z-1 control grid min-h-13 place-items-center content-center gap-1 rounded-[14px] font-semibold text-[12px] no-underline ${
             i.id === current ? 'text-pip-ink' : 'text-soft'
           }`}
         >
-          <span
-            className={`grid h-7 w-14 place-items-center rounded-full transition-colors duration-200 ${i.id === current ? 'bg-pip-wash' : ''}`}
-          >
+          <span className="nav-icon grid h-7 w-14 place-items-center rounded-full">
             <Icon name={i.icon} size={22} />
           </span>
           {i.label}
@@ -70,8 +74,13 @@ export function Rail({
   return (
     <nav
       aria-label="Main"
-      className={`surface flex h-full flex-col items-center gap-1.5 overflow-y-auto shadow-[1px_0_0_var(--line)] ${slim ? 'w-[calc(68px+var(--sal))] py-3 pl-(--sal)' : 'w-24 py-6'}`}
+      className={`surface relative isolate flex h-full flex-col items-center gap-1.5 overflow-y-auto shadow-[1px_0_0_var(--line)] ${slim ? 'w-[calc(68px+var(--sal))] py-3 pl-(--sal)' : 'w-24 py-6'}`}
     >
+      <SelectionIndicator
+        value={current}
+        selector='a[aria-current="page"]'
+        className="bg-pip-wash! rounded-[14px]!"
+      />
       {!slim && <Pip mood="idle" className="mb-3 size-12" track />}
       {ITEMS.map((i) => (
         <a
@@ -79,9 +88,9 @@ export function Rail({
           {...link(i.id, current)}
           data-tip={slim ? i.label : undefined}
           data-key={i.key}
-          className={`press control grid w-[calc(100%-16px)] place-items-center gap-1 rounded-[14px] font-semibold text-[12.5px] no-underline transition-colors duration-150 ${
+          className={`nav-link relative z-1 control grid w-[calc(100%-16px)] place-items-center gap-1 rounded-[14px] font-semibold text-[12.5px] no-underline transition-colors duration-150 ${
             slim ? 'min-h-11' : 'min-h-16 py-2'
-          } ${i.id === current ? 'bg-pip-wash text-pip-ink' : 'text-soft hover-fine:text-ink'}`}
+          } ${i.id === current ? 'text-pip-ink' : 'text-soft hover-fine:text-ink'}`}
         >
           <Icon name={i.icon} size={slim ? 22 : 24} />
           {slim ? <span className="sr-only">{i.label}</span> : i.label}
@@ -93,7 +102,7 @@ export function Rail({
         data-tip="Add medicine"
         data-key="N"
         onClick={() => navigate('/medicine/new')}
-        className={`press mt-2 grid place-items-center rounded-[16px] bg-pip-deep text-on-pip ${slim ? 'size-11' : 'size-13'}`}
+        className={`press mt-2 grid place-items-center rounded-2xl bg-pip-deep text-on-pip ${slim ? 'size-11' : 'size-13'}`}
       >
         <Icon name="plus" size={24} />
       </button>
@@ -118,14 +127,19 @@ export function Sidebar({ current }: { current: Screen | null }) {
         <Pip mood="idle" className="size-11" track />
         Tend
       </a>
-      <div className="grid gap-1">
+      <div className="relative isolate grid gap-1">
+        <SelectionIndicator
+          value={current}
+          selector='a[aria-current="page"]'
+          className="bg-pip-wash! rounded-[14px]!"
+        />
         {ITEMS.map((i) => (
           <a
             key={i.id}
             {...link(i.id, current)}
-            className={`press control flex min-h-12 items-center gap-3 rounded-[14px] px-3.5 font-semibold text-[16px] no-underline transition-colors duration-150 ${
+            className={`nav-link relative z-1 control flex min-h-12 items-center gap-3 rounded-[14px] px-3.5 font-semibold text-[16px] no-underline transition-colors duration-150 ${
               i.id === current
-                ? 'bg-pip-wash text-pip-ink'
+                ? 'text-pip-ink'
                 : 'text-soft hover-fine:bg-milk hover-fine:text-ink'
             }`}
           >

@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { flushSync } from 'react-dom';
+import { enter, reducedMotion } from './motion.ts';
 
 export type Screen = 'today' | 'medicines' | 'history' | 'you';
 
@@ -90,54 +91,137 @@ function notify() {
 let depth = Number(history.state?.depth ?? 0);
 let active: ViewTransition | null = null;
 
-function still() {
-  return matchMedia('(prefers-reduced-motion: reduce)').matches;
+type Motion = 'tab' | 'forward' | 'back' | 'context' | 'fade' | 'none';
+let pending: (() => void) | null = null;
+const scrolls = new Map<string, number[]>();
+const split = () => matchMedia('(min-width: 1024px)').matches;
+
+function regionKey(path: string) {
+  const route = parse(path);
+  if (['new', 'edit'].includes(route.name)) return '/medicines';
+  if (route.name === 'dose') return '/';
+  if (split() && route.name === 'medicine') return '/medicines';
+  if (split() && route.name === 'day') return '/history';
+  return path;
 }
 
-function transition(update: () => void, dir: 'forward' | 'back' | 'none') {
+function remember(path: string) {
+  scrolls.set(
+    regionKey(path),
+    [...document.querySelectorAll<HTMLElement>('#main .scroller')].map(
+      (el) => el.scrollTop,
+    ),
+  );
+}
+
+function restore(path: string) {
+  const positions = scrolls.get(regionKey(path));
+  document.querySelectorAll<HTMLElement>('#main .scroller').forEach((el, i) => {
+    el.scrollTop = positions?.[i] ?? 0;
+  });
+}
+
+function transition(update: () => void, motion: Motion) {
+  const interrupted = active !== null;
   active?.skipTransition();
-  if (!document.startViewTransition || dir === 'none' || document.hidden) {
-    update();
+  pending?.();
+  const root = document.documentElement;
+  if (root.dataset.dir === 'theme') delete root.dataset.dir;
+  const run = () => {
+    if (pending === run) pending = null;
+    else return;
+    flushSync(update);
+    restore(location.pathname);
+    if (!document.querySelector('dialog[open]'))
+      document.getElementById('main')?.focus({ preventScroll: true });
+  };
+  pending = run;
+  if (
+    !document.startViewTransition ||
+    motion === 'none' ||
+    document.hidden ||
+    interrupted
+  ) {
+    run();
+    if (motion !== 'none' && !document.hidden) {
+      const region = document.querySelector<HTMLElement>(
+        motion === 'context' ? '[data-context-panel]' : '#main',
+      );
+      if (region)
+        enter(region, motion === 'forward' ? 1 : motion === 'back' ? -1 : 0);
+    }
     return;
   }
-  document.documentElement.dataset.dir = still() ? 'fade' : dir;
-  const vt = document.startViewTransition(() => flushSync(update));
+  root.dataset.motion = reducedMotion() ? 'fade' : motion;
+  const vt = document.startViewTransition(run);
   active = vt;
   vt.ready.catch(() => {});
   vt.updateCallbackDone.catch(() => {});
   vt.finished
     .catch(() => {})
     .then(() => {
-      if (active === vt) active = null;
+      if (active !== vt) return;
+      active = null;
+      delete root.dataset.motion;
     });
 }
 
-function animates(from: Route, to: Route) {
-  const a = screenOf(from);
-  const b = screenOf(to);
-  if (to.name === 'dose' || to.name === 'new' || to.name === 'edit')
-    return false;
-  if (from.name === 'dose' || from.name === 'new' || from.name === 'edit')
-    return false;
-  return a !== b || from.name !== to.name;
+function motionFor(
+  from: Route,
+  to: Route,
+  direction?: 'forward' | 'back',
+): Motion {
+  const modal = (r: Route) =>
+    r.name === 'new' || r.name === 'edit' || (r.name === 'dose' && !split());
+  if (modal(from) || modal(to)) return 'none';
+  if (from.name === 'welcome' || to.name === 'welcome') return 'fade';
+  if (screenOf(from) !== screenOf(to)) return 'tab';
+  if (
+    split() &&
+    ['medicine', 'day', 'dose'].some(
+      (name) => from.name === name || to.name === name,
+    )
+  )
+    return 'context';
+  if (from.name === to.name) return 'fade';
+  if (direction) return direction;
+  const level = (r: Route) =>
+    ['medicine', 'day', 'routines'].includes(r.name) ? 1 : 0;
+  return level(to) < level(from)
+    ? 'back'
+    : level(to) > level(from)
+      ? 'forward'
+      : 'fade';
 }
 
-addEventListener('popstate', () => {
+addEventListener('popstate', (event) => {
+  pending = null;
   const from = cached;
+  remember(seen);
   const nextDepth = Number(history.state?.depth ?? 0);
   const dir = nextDepth < depth ? 'back' : 'forward';
   depth = nextDepth;
   const to = parse(location.pathname);
-  transition(notify, animates(from, to) ? dir : 'none');
+  const same = JSON.stringify(from) === JSON.stringify(to);
+  transition(
+    notify,
+    same ||
+      (event as PopStateEvent & { hasUAVisualTransition?: boolean })
+        .hasUAVisualTransition
+      ? 'none'
+      : motionFor(from, to, dir),
+  );
 });
 
 export function navigate(
   path: string,
   opts: { replace?: boolean; dir?: 'forward' | 'back' } = {},
 ) {
+  pending?.();
   const to = parse(new URL(path, location.href).pathname);
   const from = read();
   if (path === location.pathname && !opts.replace) return;
+  remember(location.pathname);
   const go = () => {
     if (opts.replace)
       history.replaceState({ ...history.state, depth }, '', path);
@@ -151,9 +235,7 @@ export function navigate(
     }
     notify();
   };
-  const order = (r: Route) => SCREEN_ORDER.indexOf(screenOf(r) ?? 'today');
-  const dir = opts.dir ?? (order(to) < order(from) ? 'back' : 'forward');
-  transition(go, animates(from, to) ? dir : 'none');
+  transition(go, motionFor(from, to, opts.dir));
 }
 
 export function back(fallback: string) {

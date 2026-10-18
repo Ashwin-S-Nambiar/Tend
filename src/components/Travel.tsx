@@ -46,7 +46,7 @@ export function TravelCard() {
   const gap = zoneGap(t.home, t.here);
   return (
     <section
-      className="surface fade-in grid gap-3 rounded-[24px] p-4 shadow-(--shadow)"
+      className="surface fade-in grid gap-3 rounded-3xl p-4 shadow-(--shadow)"
       aria-labelledby="travel-h"
     >
       <div className="flex items-start gap-3">

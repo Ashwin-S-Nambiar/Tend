@@ -7,9 +7,17 @@ import {
   useRef,
 } from 'react';
 
-const DRAWER = 'cubic-bezier(0.32, 0.72, 0, 1)';
-const OUT = 'cubic-bezier(0.23, 1, 0.32, 1)';
-const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+import {
+  cancelAnimations,
+  EASE,
+  presentation,
+  project,
+  rubberband,
+  type Spring,
+  spring,
+  reducedMotion as still,
+} from '../lib/motion.ts';
+
 const wide = () =>
   matchMedia('(min-width: 600px) and (min-height: 501px)').matches;
 
@@ -39,6 +47,7 @@ export default function Sheet({
   detents?: boolean;
 }) {
   const base = useRef(0);
+  const travel = useRef<Spring | null>(null);
   const id = useId();
   const dlg = useRef<HTMLDialogElement>(null);
   const panel = useRef<HTMLDivElement>(null);
@@ -54,6 +63,7 @@ export default function Sheet({
   closed.current = onClosed;
   const drag = useRef<{
     y0: number;
+    start: number;
     dy: number;
     samples: { t: number; y: number }[];
     pid: number;
@@ -69,42 +79,62 @@ export default function Sheet({
     closed.current?.();
   }, []);
 
+  const setY = useCallback(
+    (y: number) => {
+      const p = panel.current;
+      const s = scrim.current;
+      if (!p || !s) return;
+      p.style.transform = `translateY(${y}px)`;
+      const h = p.offsetHeight || 1;
+      const from = detents ? Math.round(h * 0.45) : 0;
+      s.style.opacity = String(
+        Math.max(0, 1 - Math.max(0, y - from) / (h - from || 1)),
+      );
+    },
+    [detents],
+  );
+
+  const motion = useCallback(() => {
+    travel.current ??= spring(setY);
+    return travel.current;
+  }, [setY]);
+
   const animateOut = useCallback(
-    (fromY = 0) => {
+    (_fromY?: number, velocity?: number) => {
       const p = panel.current;
       const s = scrim.current;
       if (!p || !s || closing.current) return;
       closing.current = true;
-      if (still()) {
-        p.animate([{ opacity: 1 }, { opacity: 0 }], {
-          duration: 160,
-          fill: 'forwards',
+      if (!wide() && !still()) {
+        motion().to(p.offsetHeight + 12, {
+          velocity,
+          precision: 12,
+          onComplete: finish,
         });
-        s.animate([{ opacity: 1 }, { opacity: 0 }], {
-          duration: 160,
-          fill: 'forwards',
-        }).onfinish = finish;
         return;
       }
+      const current = presentation(p);
+      cancelAnimations(p);
+      cancelAnimations(s);
       p.animate(
-        wide()
-          ? [
-              { opacity: 1, transform: 'translateY(0) scale(1)' },
-              { opacity: 0, transform: 'translateY(8px) scale(0.98)' },
-            ]
-          : [
-              { transform: `translateY(${fromY}px)` },
-              { transform: 'translateY(100%)' },
-            ],
-        { duration: 200, easing: OUT, fill: 'forwards' },
+        [
+          { opacity: current.opacity, transform: current.transform },
+          {
+            opacity: 0,
+            transform: still()
+              ? current.transform
+              : 'translateY(10px) scale(0.98)',
+          },
+        ],
+        { duration: still() ? 100 : 180, easing: EASE, fill: 'forwards' },
       );
       s.animate([{ opacity: getComputedStyle(s).opacity }, { opacity: 0 }], {
-        duration: 200,
-        easing: OUT,
+        duration: still() ? 100 : 180,
+        easing: EASE,
         fill: 'forwards',
       }).onfinish = finish;
     },
-    [finish],
+    [finish, motion],
   );
 
   const requestClose = useCallback(() => {
@@ -125,45 +155,39 @@ export default function Sheet({
       p.focus({ preventScroll: true });
       for (const a of p.getAnimations()) a.cancel();
       for (const a of s.getAnimations()) a.cancel();
-      if (still()) {
-        p.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160 });
-        s.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160 });
-      } else if (wide()) {
+      p.style.opacity = '';
+      s.style.opacity = '';
+      if (still() || wide()) {
+        p.style.transform = '';
         p.animate(
-          [
-            { opacity: 0, transform: 'translateY(12px) scale(0.97)' },
-            { opacity: 1, transform: 'translateY(0) scale(1)' },
-          ],
-          { duration: 260, easing: OUT },
+          still()
+            ? [{ opacity: 0 }, { opacity: 1 }]
+            : [
+                { opacity: 0, transform: 'translateY(10px) scale(0.98)' },
+                { opacity: 1, transform: 'translateY(0) scale(1)' },
+              ],
+          { duration: still() ? 100 : 240, easing: EASE },
         );
         s.animate([{ opacity: 0 }, { opacity: 1 }], {
-          duration: 260,
-          easing: OUT,
+          duration: still() ? 100 : 240,
+          easing: EASE,
         });
       } else {
         const half = detents ? Math.round(p.offsetHeight * 0.45) : 0;
         base.current = half;
-        p.style.transform = half ? `translateY(${half}px)` : '';
         if (body.current) body.current.style.overflowY = half ? 'hidden' : '';
-        p.animate(
-          [
-            { transform: 'translateY(100%)' },
-            { transform: `translateY(${half}px)` },
-          ],
-          {
-            duration: 380,
-            easing: DRAWER,
-          },
-        );
-        s.animate([{ opacity: 0 }, { opacity: 1 }], {
-          duration: 380,
-          easing: DRAWER,
-        });
+        motion().set(p.offsetHeight + 12);
+        motion().to(half);
       }
       if (pushHistory && history.state?.sheet !== id) {
         history.pushState({ ...(history.state ?? {}), sheet: id }, '');
         pushed.current = true;
       }
+    } else if (open && d.open && closing.current) {
+      closing.current = false;
+      cancelAnimations(p);
+      cancelAnimations(s);
+      if (!wide()) motion().to(base.current);
     } else if (!open && d.open) {
       animateOut();
       if (pushed.current && history.state?.sheet === id) {
@@ -172,7 +196,7 @@ export default function Sheet({
       }
       pushed.current = false;
     }
-  }, [open, id, animateOut, pushHistory, detents]);
+  }, [open, id, animateOut, pushHistory, detents, motion]);
 
   useEffect(() => {
     const onPop = () => {
@@ -187,6 +211,9 @@ export default function Sheet({
 
   useEffect(
     () => () => {
+      travel.current?.stop();
+      if (panel.current) cancelAnimations(panel.current);
+      if (scrim.current) cancelAnimations(scrim.current);
       if (dlg.current?.open) dlg.current.close();
     },
     [],
@@ -197,20 +224,8 @@ export default function Sheet({
       body.current.style.overflowY = base.current > 0 ? 'hidden' : '';
   }
 
-  function setY(y: number) {
-    const p = panel.current;
-    const s = scrim.current;
-    if (!p || !s) return;
-    p.style.transform = `translateY(${y}px)`;
-    const h = p.offsetHeight || 1;
-    const from = detents ? Math.round(h * 0.45) : 0;
-    s.style.opacity = String(
-      Math.max(0, 1 - Math.max(0, y - from) / (h - from || 1)),
-    );
-  }
-
   function down(e: React.PointerEvent, fromBody: boolean) {
-    if (wide() || e.button !== 0) return;
+    if (wide() || e.button !== 0 || !open) return;
     const t = e.target as HTMLElement;
     if (
       t.closest('button, a, input, select, textarea, [data-nodrag]') &&
@@ -223,9 +238,17 @@ export default function Sheet({
         (base.current === 0 && (body.current?.scrollTop ?? 0) > 0))
     )
       return;
+    const current = panel.current
+      ? presentation(panel.current).y
+      : base.current;
+    if (!fromBody && panel.current) {
+      cancelAnimations(panel.current);
+      motion().set(current, motion().velocity);
+    }
     drag.current = {
       y0: e.clientY,
-      dy: 0,
+      start: current,
+      dy: current,
       samples: [{ t: performance.now(), y: e.clientY }],
       pid: e.pointerId,
       armed: !fromBody,
@@ -237,7 +260,7 @@ export default function Sheet({
   function move(e: React.PointerEvent) {
     const g = drag.current;
     if (!g || g.pid !== e.pointerId) return;
-    let dy = e.clientY - g.y0;
+    const dy = e.clientY - g.y0;
     if (!g.armed) {
       if (Math.abs(dy) < 6) return;
       if (
@@ -248,22 +271,20 @@ export default function Sheet({
         return;
       }
       g.armed = true;
-      g.y0 = e.clientY;
-      dy = 0;
+      g.start = panel.current ? presentation(panel.current).y : base.current;
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     }
-    const at = base.current + dy;
-    const y = at >= 0 ? at : -Math.sqrt(-at) * 2;
+    const at = g.start + dy;
+    const y = at >= 0 ? at : rubberband(at, panel.current?.offsetHeight ?? 600);
     g.dy = y;
     g.samples.push({ t: performance.now(), y: e.clientY });
     const cut = performance.now() - 90;
     while (g.samples.length > 2 && (g.samples[0]?.t ?? 0) < cut)
       g.samples.shift();
-    for (const a of panel.current?.getAnimations() ?? []) a.cancel();
-    setY(y);
+    motion().set(y);
   }
 
-  function up(e: React.PointerEvent) {
+  function up(e: React.PointerEvent, cancelled = false) {
     const g = drag.current;
     drag.current = null;
     if (!g || g.pid !== e.pointerId || !g.armed) return;
@@ -272,19 +293,18 @@ export default function Sheet({
     if (!p || !s) return;
     const a = g.samples[0];
     const b = g.samples[g.samples.length - 1];
-    const v = a && b && b.t > a.t ? (b.y - a.y) / (b.t - a.t) : 0;
+    const v = a && b && b.t > a.t ? ((b.y - a.y) / (b.t - a.t)) * 1000 : 0;
     const h = p.offsetHeight;
     const half = detents ? Math.round(h * 0.45) : 0;
-    const projected = g.dy + v * 140;
-    const shut = detents
-      ? projected > h * 0.72 ||
-        (base.current > 0 && g.dy > half + 24 && v > 0.5)
-      : g.dy > h * 0.3 || (g.dy > 24 && v > 0.5);
+    const projected = g.dy + project(v);
+    const shut =
+      !cancelled &&
+      v >= -50 &&
+      g.dy > 24 &&
+      (detents ? projected > h * 0.72 : projected > h * 0.3);
     if (shut) {
       p.style.transform = `translateY(${g.dy}px)`;
-      animateOut(g.dy);
-      p.style.transform = '';
-      s.style.opacity = '';
+      animateOut(g.dy, v);
       if (pushed.current && history.state?.sheet === id) {
         pushed.current = false;
         history.back();
@@ -292,24 +312,13 @@ export default function Sheet({
       cb.current();
       return;
     }
-    const to =
-      detents && Math.abs(projected - half) < Math.abs(projected) ? half : 0;
-    p.animate(
-      [
-        { transform: `translateY(${g.dy}px)` },
-        { transform: `translateY(${to}px)` },
-      ],
-      {
-        duration: 320,
-        easing: DRAWER,
-      },
-    );
-    s.animate([{ opacity: s.style.opacity || 1 }, { opacity: 1 }], {
-      duration: 320,
-    });
+    const to = cancelled
+      ? base.current
+      : detents && Math.abs(projected - half) < Math.abs(projected)
+        ? half
+        : 0;
     base.current = to;
-    p.style.transform = to ? `translateY(${to}px)` : '';
-    s.style.opacity = '';
+    motion().to(to, { velocity: cancelled ? 0 : v });
     lockBody();
   }
 
@@ -378,10 +387,10 @@ export default function Sheet({
             onPointerDown={(e) => down(e, false)}
             onPointerMove={move}
             onPointerUp={up}
-            onPointerCancel={up}
+            onPointerCancel={(e) => up(e, true)}
           >
             <div className="flex justify-center pt-2.5 pb-1.5 tab:hidden">
-              <span className="h-[5px] w-10 rounded-full bg-(--line-strong)" />
+              <span className="h-1.25 w-10 rounded-full bg-(--line-strong)" />
             </div>
             {header && (
               <div className="px-5 pb-1 tab:px-7 tab:pt-6">{header}</div>
@@ -393,7 +402,7 @@ export default function Sheet({
             onPointerDown={(e) => down(e, true)}
             onPointerMove={move}
             onPointerUp={up}
-            onPointerCancel={up}
+            onPointerCancel={(e) => up(e, true)}
           >
             {children}
           </div>

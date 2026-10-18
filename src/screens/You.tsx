@@ -41,7 +41,7 @@ function Row({
     <button
       type="button"
       onClick={onClick}
-      className="press flex min-h-14 w-full items-center gap-3 rounded-[18px] px-1 text-left"
+      className="press flex min-h-14 w-full items-center gap-3 rounded-btn px-1 text-left"
     >
       <span className="grid size-10 flex-none place-items-center rounded-[13px] bg-milk">
         <Icon name={icon} size={20} />
@@ -354,7 +354,7 @@ function DoctorCard({ open, onClose }: { open: boolean; onClose: () => void }) {
       <p className="mb-3 text-soft">As of {date}</p>
       <ul className="m-0 grid list-none gap-2 p-0 select-text">
         {active.map((m) => (
-          <li key={m.id} className="flex gap-3 rounded-[16px] bg-milk p-3">
+          <li key={m.id} className="flex gap-3 rounded-2xl bg-milk p-3">
             <span className="grid size-10 flex-none place-items-center rounded-[13px] bg-card">
               <Pill look={m.look} form={m.form} />
             </span>

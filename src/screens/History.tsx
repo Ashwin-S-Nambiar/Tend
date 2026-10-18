@@ -73,7 +73,7 @@ export default function History({ selected }: { selected?: string }) {
                 onClick={() =>
                   navigate(`/day/${d.day}`, { replace: Boolean(selected) })
                 }
-                className={`press grid min-h-11 justify-items-center gap-1.5 rounded-[16px] py-2 disabled:cursor-default ${d.day === pick ? 'bg-pip-wash' : ''}`}
+                className={`press grid min-h-11 justify-items-center gap-1.5 rounded-2xl py-2 disabled:cursor-default ${d.day === pick ? 'bg-pip-wash' : ''}`}
               >
                 <span
                   className={`text-[13px] ${d.today ? 'font-bold' : 'font-semibold text-soft'}`}
@@ -139,7 +139,7 @@ function PerMedicine() {
             </span>
             <div className="min-w-0">
               <b className="block wrap-anywhere font-semibold">{med.name}</b>
-              <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-(--line)">
+              <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-line">
                 <span
                   className="block h-full rounded-full bg-pip"
                   style={{ width: `${pct ?? 0}%` }}

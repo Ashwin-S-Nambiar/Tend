@@ -35,7 +35,7 @@ export default function PipLab() {
           {MOODS.map((m) => (
             <div
               key={m}
-              className="surface grid justify-items-center gap-1 rounded-[18px] p-3 text-[13px] text-soft"
+              className="surface grid justify-items-center gap-1 rounded-btn p-3 text-[13px] text-soft"
             >
               <Pip mood={m} className="size-20" />
               {m}
@@ -46,13 +46,13 @@ export default function PipLab() {
           {SCENES.map((s) => (
             <div
               key={s}
-              className="relative h-48 overflow-hidden rounded-[24px]"
+              className="relative h-48 overflow-hidden rounded-3xl"
               data-scene-dark={s === 'night' ? '' : undefined}
             >
               <SceneArt scene={s} />
               <Pip
                 mood={s === 'night' ? 'sleep' : 'due'}
-                className="absolute top-3 right-3 size-24 text-(--star)"
+                className="absolute top-3 right-3 size-24 text-star"
               />
             </div>
           ))}
