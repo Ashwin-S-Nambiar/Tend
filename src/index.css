@@ -83,16 +83,6 @@
   color-scheme: light;
 }
 
-:root[data-type="b"] {
-  --display:
-    "Bricolage Grotesque", "Bricolage Grotesque Fallback", system-ui, sans-serif;
-  --ui: "Figtree", "Figtree Fallback", system-ui, sans-serif;
-}
-:root[data-type="c"] {
-  --display: "Fredoka", "Fredoka Fallback", ui-rounded, system-ui, sans-serif;
-  --ui: "Onest", "Onest Fallback", system-ui, sans-serif;
-}
-
 :root[data-dark],
 [data-scene-dark] {
   --milk: #0e1528;
