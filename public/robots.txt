@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dose/
+Disallow: /medicine/
+Disallow: /day/
+
+Sitemap: https://tend.ashwin.co.in/sitemap.xml
