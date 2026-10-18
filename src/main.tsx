@@ -3,7 +3,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { load } from './lib/db.ts';
-import { checkPush, replan } from './lib/push.ts';
+import { checkPush, replan, watchPermission } from './lib/push.ts';
 import { initTips } from './lib/tip.ts';
 
 const type = new URLSearchParams(location.search).get('type');
@@ -27,18 +27,31 @@ if (root) {
 }
 
 initTips();
+watchPermission();
 
-load().then(() => {
-  replan();
-  const reveal = () =>
-    requestAnimationFrame(() =>
-      document.documentElement.classList.add('ready'),
-    );
-  Promise.race([
-    document.fonts.ready,
-    new Promise((r) => setTimeout(r, 600)),
-  ]).then(reveal);
-});
+const loaded = load().then(replan);
+const standalone = document.documentElement.classList.contains('standalone');
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const hold = standalone
+  ? new Promise((r) => setTimeout(r, still ? 300 : 1250))
+  : Promise.resolve();
+Promise.race([
+  Promise.all([
+    loaded,
+    hold,
+    Promise.race([
+      document.fonts.ready,
+      new Promise((r) => setTimeout(r, 600)),
+    ]),
+  ]),
+  new Promise((r) => setTimeout(r, 2500)),
+]).then(() =>
+  requestAnimationFrame(() => {
+    const root = document.documentElement;
+    root.classList.add('ready', 'splashed');
+    setTimeout(() => document.getElementById('splash')?.remove(), 400);
+  }),
+);
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   addEventListener('load', () => {

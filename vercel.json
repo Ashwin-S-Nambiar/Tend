@@ -23,7 +23,7 @@
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
     },
     {
-      "source": "/fonts/(.*)",
+      "source": "/(fonts|splash)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

@@ -5,15 +5,15 @@ import { useTitle } from '../lib/title.ts';
 export default function NotFound() {
   useTitle('Not found · Tend');
   return (
-    <div className="relative isolate flex min-w-0 flex-1 flex-col items-center justify-center gap-2.5 overflow-hidden bg-dusk-wash px-6 pb-[calc(24px+var(--sab))] text-center">
+    <div className="relative isolate flex min-w-0 flex-1 flex-col items-center justify-center gap-2.5 land:gap-1 overflow-hidden bg-dusk-wash px-6 pb-[calc(24px+var(--sab))] text-center">
       <Pip
         mood="lost"
-        className="size-40"
+        className="size-40 land:size-24"
         label="Pip looking around, lost"
         poke
       />
       <p
-        className="font-black font-display text-[96px] text-dusk leading-[0.9] tracking-[-0.04em]"
+        className="font-black font-display text-[96px] text-dusk land:text-[64px] leading-[0.9] tracking-[-0.04em]"
         aria-hidden="true"
       >
         404
