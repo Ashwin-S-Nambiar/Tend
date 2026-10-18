@@ -7,6 +7,7 @@ import { SceneIcon } from '../components/Scene.tsx';
 import { Card, H2, IconButton } from '../components/ui.tsx';
 import { Ring, useWeek } from '../components/WeekRings.tsx';
 import { useData } from '../lib/db.ts';
+import { medicineDose } from '../lib/dose-format.ts';
 import { useNow } from '../lib/hooks.ts';
 import { back, navigate } from '../lib/route.ts';
 import { dosesOn, latestLog } from '../lib/schedule.ts';
@@ -211,6 +212,11 @@ export function DayPanel({ date, page }: { date?: string; page?: boolean }) {
                 {med && <Pill look={med.look} form={med.form} size={20} />}
                 <span className="min-w-0 flex-1 wrap-anywhere">
                   {med?.name ?? 'Removed medicine'}
+                  {med && (
+                    <span className="num block text-[13px] text-soft">
+                      {medicineDose(med, l?.amount ?? d.amount ?? med.amount)}
+                    </span>
+                  )}
                 </span>
                 <span
                   className={`num ${l?.status === 'taken' ? 'font-semibold text-pip-ink' : 'text-soft'}`}

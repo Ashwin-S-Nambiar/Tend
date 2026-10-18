@@ -51,12 +51,17 @@ export function useKeyboardInset() {
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
+    const root = document.documentElement;
     const update = () => {
-      const kb = Math.round(innerHeight - vv.height - vv.offsetTop);
-      document.documentElement.style.setProperty(
-        '--kb',
-        `${kb >= 80 ? kb : 0}px`,
+      // Android resizes the layout viewport; iOS only resizes the visual viewport.
+      // Use the visible rectangle directly so sheets never count the keyboard twice.
+      root.style.setProperty('--visible-height', `${Math.round(vv.height)}px`);
+      root.style.setProperty('--visible-top', `${Math.round(vv.offsetTop)}px`);
+      const inset = Math.max(
+        0,
+        Math.round(innerHeight - vv.height - vv.offsetTop),
       );
+      root.style.setProperty('--kb', `${inset >= 80 ? inset : 0}px`);
     };
     vv.addEventListener('resize', update);
     vv.addEventListener('scroll', update);

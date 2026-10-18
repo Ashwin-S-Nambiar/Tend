@@ -167,7 +167,7 @@ async function logAll(key, status) {
     await put(
       d,
       'logs',
-      open.map((x) => ({ medId: x.medId, due: x.due, status: 'taken', at: local(now, entry.zone) })),
+      open.map((x) => ({ medId: x.medId, due: x.due, status: 'taken', amount: x.amount, at: local(now, entry.zone) })),
     );
     const meds = [];
     for (const x of open) {

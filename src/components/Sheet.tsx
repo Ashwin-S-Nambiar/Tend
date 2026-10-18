@@ -327,9 +327,12 @@ export default function Sheet({
       aria-label={label}
       onCancel={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         requestClose();
       }}
       onKeyDown={(e) => {
+        if ((e.target as HTMLElement).closest('dialog') !== e.currentTarget)
+          return;
         if (e.key !== 'Tab' || !panel.current) return;
         const items = [
           ...panel.current.querySelectorAll<HTMLElement>(
@@ -359,12 +362,16 @@ export default function Sheet({
       />
       <div
         className="pointer-events-none fixed inset-0 flex items-end justify-center tab:items-center tab:p-6"
-        style={{ paddingBottom: 'var(--kb)' }}
+        style={{
+          top: 'var(--visible-top, 0px)',
+          bottom: 'auto',
+          height: 'var(--visible-height, 100dvh)',
+        }}
       >
         <div
           ref={panel}
           tabIndex={-1}
-          className={`pointer-events-auto relative flex max-h-[86dvh] ${detents ? 'h-[86dvh] tab:h-auto' : ''} min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-t-[30px] ${bg} shadow-[0_-10px_40px_rgba(14,21,40,0.18)] land:max-h-[94dvh] tab:max-h-[min(760px,88dvh)] tab:rounded-[28px] ${width} tab:shadow-[0_20px_60px_rgba(14,21,40,0.24)]`}
+          className={`pointer-events-auto relative flex max-h-[calc(var(--visible-height,100dvh)*0.86)] ${detents ? 'h-[calc(var(--visible-height,100dvh)*0.86)] tab:h-auto' : ''} min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-t-[30px] ${bg} shadow-[0_-10px_40px_rgba(14,21,40,0.18)] land:max-h-[calc(var(--visible-height,100dvh)*0.94)] tab:max-h-[min(760px,calc(var(--visible-height,100dvh)*0.88))] tab:rounded-[28px] ${width} tab:shadow-[0_20px_60px_rgba(14,21,40,0.24)]`}
         >
           <div
             className="flex-none cursor-grab touch-none select-none"

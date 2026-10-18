@@ -7,6 +7,7 @@ import { PillChip } from './PillLook.tsx';
 export default function MedRow({
   med,
   state,
+  amount,
   extra,
   tone = 'card',
   withFood = true,
@@ -15,6 +16,7 @@ export default function MedRow({
   trailing,
 }: {
   med: Medicine;
+  amount?: number;
   state?: DoseState;
   extra?: string;
   tone?: 'card' | 'milk';
@@ -38,7 +40,7 @@ export default function MedRow({
           {med.name}
         </span>
         <span className="num block text-[14px] text-soft leading-snug">
-          {doseLine(med, withFood)}
+          {doseLine(med, withFood, amount)}
           {extra ? ` · ${extra}` : ''}
         </span>
       </span>

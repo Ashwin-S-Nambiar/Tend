@@ -29,6 +29,7 @@
         try {
           const t = JSON.parse(localStorage.getItem('tend:theme') || '"system"');
           const dark = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
           if (dark) {
             document.documentElement.setAttribute('data-dark', '');
             document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0e1528');

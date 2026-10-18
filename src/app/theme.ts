@@ -16,6 +16,7 @@ export function useTheme() {
   const dark = theme === 'dark' || (theme === 'system' && system);
   useEffect(() => {
     const root = document.documentElement;
+    root.style.colorScheme = dark ? 'dark' : 'light';
     root.classList.add('themed');
     if (dark) root.dataset.dark = '';
     else delete root.dataset.dark;

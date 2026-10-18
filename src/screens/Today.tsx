@@ -287,6 +287,7 @@ export default function Today() {
                   <MedRow
                     key={d.medId}
                     med={med}
+                    amount={d.amount}
                     index={i}
                     state={doseState(logs, d, nowKey())}
                     onClick={() => navigate(`/dose/${focus.key}`)}
@@ -417,6 +418,7 @@ function DueCard({
                 >
                   <MedRow
                     med={med}
+                    amount={d.amount}
                     index={i}
                     state={st}
                     extra={c?.total ? `day ${c.n} of ${c.total}` : undefined}
