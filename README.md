@@ -27,7 +27,7 @@ the screenshots use sample medicines, doses and logs. they demonstrate the app, 
 <p align="center">
   <img src="./docs/screenshots/today-phone.webp" width="32%" alt="Today on a phone: breakfast medicines with Take both, and separate before-meal insulin reminders later in the day">
   &nbsp;
-  <img src="./docs/screenshots/dose-phone.webp" width="32%" alt="The dose sheet: individual medicine checkboxes, Taken, Snooze, Other time and Skip">
+  <img src="./docs/screenshots/dose-phone.webp" width="32%" alt="The dose sheet: individual medicine checkboxes, Taken, Snooze for 10 minutes, Log time and Skip">
   &nbsp;
   <img src="./docs/screenshots/night-phone.webp" width="32%" alt="After the last dose: Pip asleep under a moon and stars, with tomorrow's next reminder">
 </p>
@@ -36,7 +36,7 @@ the screenshots use sample medicines, doses and logs. they demonstrate the app, 
 - **different doses at different times.** meal-time insulin can have separate prescribed unit amounts at breakfast, lunch and dinner. bedtime insulin can be a separate medicine. meal offsets are editable, and each dose shows its resulting reminder time. Tend does not calculate or recommend doses.
 - **a form that fits the medicine.** tablets, capsules, liquids, insulin, other injections, inhalers, drops, creams and patches get relevant fields and units. no tablet count for a cream, or food timing for a patch.
 - **flexible schedules.** every day, chosen weekdays, every few days, on and off cycles, once, or when needed. prescribed minimum gaps and daily limits are optional. courses end on their own and show their current day.
-- **logging that forgives.** take a group at once, one medicine, or log another time. snooze, skip, or swipe a row to skip just that one. actions have Undo. a dose you never logged says not logged.
+- **logging that forgives.** take a group at once, one medicine, or choose Log time to enter another time. snooze, skip, or swipe a row to skip just that one. actions have Undo. a dose you never logged says not logged.
 - **refill reminders.** optionally count your remaining tablets, ml, puffs, patches or insulin units. logging a dose reduces the supply by that dose's amount. a refill adds the saved refill quantity.
 - **edit, archive or delete.** open a medicine to change it. its menu can archive it while keeping history, or delete it and its logs with a brief Undo. closing a new-medicine sheet stays in Medicines, including when opened from Today.
 - **history without streaks.** a ring for each day of the week, the times for any day, and a percentage per medicine over 30 days.
@@ -91,6 +91,8 @@ opening Tend or reconnecting refreshes the server plan for an existing subscript
 
 on iPhones, web push requires adding Tend to the home screen. notification action buttons vary by browser; tapping a notification always opens its dose sheet. onboarding distinguishes permission from completed reminder setup: success shows a check mark and **Let's go**; a failed connection offers retry or continuing into the app.
 
+reminder sound follows your browser and device notification settings. **You → In-app sounds** controls Tend's own chimes when you log a dose; it does not change notification sound.
+
 ### installed app updates
 
 the home-screen app loads the deployed website. fresh navigations try the network first, with the cached page as an offline or slow-network fallback. scripts and styles have unique filenames, and service worker updates activate without reinstalling.
@@ -105,11 +107,11 @@ after deployment, close Tend from recent apps and reopen it online. an already-o
 - **opens straight in.** installed, Tend launches on a still Pip in cream or navy to match the theme, then shows the app in a single frame once medicines and fonts are loaded. there's no second splash, fade or hold, so nothing moves between launch and the finished screen.
 - **motion follows the task.** tabs crossfade without moving navigation. subpages open and return in opposite directions. desktop details animate within their own pane. selection indicators move between controls, and sheets and swipe rows start from their current position with gesture velocity carried into a damped spring.
 - **small feedback.** presses respond immediately, switches settle gently, optional sections expand in place, and toast messages enter and leave briefly. reduced motion uses short fades and immediate spring settling.
-- **a layout for the available space.** bottom tabs on phones, a rail on tablets and landscape phones, a context pane from 1024 px, and a sidebar from 1440 px. the main list keeps its scroll position when you return from a detail page.
+- **a layout for the available space.** bottom tabs on phones, a rail on tablets and landscape phones, a context pane from 1024 px, and a sidebar from 1440 px. short action labels, wrapping buttons, and cycle counters that stack when needed keep controls readable in narrow panes. the main list keeps its scroll position when you return from a detail page.
 - **app-owned pickers.** dates, times and medicine-name suggestions use Tend's own controls. sheets and onboarding fit above the keyboard while retaining the page canvas behind it.
 - **lost pages.** a mistyped link gets a real 404: Pip wobbles and looks around, because the page isn't on your schedule. it's a static copy of the in-app not-found screen, so it shows even before the app loads.
 - **night.** follows the system until you choose. theme changes crossfade, and logging the last bedtime dose gives Today a navy sky and a sleeping Pip.
-- **sound and touch.** quiet chimes are synthesized with Web Audio rather than shipped as files. Android haptics mark meaningful actions, and the sound preference is remembered.
+- **sound and touch.** quiet chimes are synthesized with Web Audio rather than shipped as files. Android haptics mark meaningful actions, and the In-app sounds preference is remembered.
 
 ## the stack
 
