@@ -1,6 +1,9 @@
 import { useSyncExternalStore } from 'react';
 import { flushSync } from 'react-dom';
 import { enter, reducedMotion } from './motion.ts';
+import { type NavigationMotion, navigationMotion } from './navigation.ts';
+
+export { screenOf } from './navigation.ts';
 
 export type Screen = 'today' | 'medicines' | 'history' | 'you';
 
@@ -45,28 +48,6 @@ export function parse(path: string): Route {
   return { name: 'missing' };
 }
 
-export function screenOf(r: Route): Screen | null {
-  switch (r.name) {
-    case 'today':
-    case 'dose':
-      return 'today';
-    case 'medicines':
-    case 'medicine':
-    case 'new':
-    case 'edit':
-      return 'medicines';
-    case 'history':
-    case 'day':
-      return 'history';
-    case 'routines':
-      return 'you';
-    case 'you':
-      return 'you';
-    default:
-      return null;
-  }
-}
-
 export const SCREEN_PATH: Record<Screen, string> = {
   today: '/',
   medicines: '/medicines',
@@ -91,7 +72,7 @@ function notify() {
 let depth = Number(history.state?.depth ?? 0);
 let active: ViewTransition | null = null;
 
-type Motion = 'tab' | 'forward' | 'back' | 'context' | 'fade' | 'none';
+type Motion = NavigationMotion;
 let pending: (() => void) | null = null;
 const scrolls = new Map<string, number[]>();
 const split = () => matchMedia('(min-width: 1024px)').matches;
@@ -166,34 +147,6 @@ function transition(update: () => void, motion: Motion) {
     });
 }
 
-function motionFor(
-  from: Route,
-  to: Route,
-  direction?: 'forward' | 'back',
-): Motion {
-  const modal = (r: Route) =>
-    r.name === 'new' || r.name === 'edit' || (r.name === 'dose' && !split());
-  if (modal(from) || modal(to)) return 'none';
-  if (from.name === 'welcome' || to.name === 'welcome') return 'fade';
-  if (screenOf(from) !== screenOf(to)) return 'tab';
-  if (
-    split() &&
-    ['medicine', 'day', 'dose'].some(
-      (name) => from.name === name || to.name === name,
-    )
-  )
-    return 'context';
-  if (from.name === to.name) return 'fade';
-  if (direction) return direction;
-  const level = (r: Route) =>
-    ['medicine', 'day', 'routines'].includes(r.name) ? 1 : 0;
-  return level(to) < level(from)
-    ? 'back'
-    : level(to) > level(from)
-      ? 'forward'
-      : 'fade';
-}
-
 addEventListener('popstate', (event) => {
   pending = null;
   const from = cached;
@@ -209,7 +162,7 @@ addEventListener('popstate', (event) => {
       (event as PopStateEvent & { hasUAVisualTransition?: boolean })
         .hasUAVisualTransition
       ? 'none'
-      : motionFor(from, to, dir),
+      : navigationMotion(from, to, { split: split(), direction: dir }),
   );
 });
 
@@ -235,7 +188,10 @@ export function navigate(
     }
     notify();
   };
-  transition(go, motionFor(from, to, opts.dir));
+  transition(
+    go,
+    navigationMotion(from, to, { split: split(), direction: opts.dir }),
+  );
 }
 
 export function back(fallback: string) {

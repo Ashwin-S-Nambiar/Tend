@@ -1,157 +1,208 @@
-# tend
-
-a gentle medicine reminder that lives on your phone. tell it when your day happens and what you take, and pip, a small teal capsule, taps you on the shoulder at each scheduled time.
-
-<p>
-  <img src="docs/today-phone.webp" width="24%" alt="Today on a phone: a sunrise card says Time for 2 medicines with Vitamin D3 and Metformin, a Take both button, and separate meal-time insulin reminders below" />
-  <img src="docs/dose-phone.webp" width="24%" alt="The dose sheet risen from the bottom: Pip, the two medicines with checkboxes, and Taken, both above Snooze 10 min, Other time and Skip" />
-  <img src="docs/night-phone.webp" width="24%" alt="Night screen: navy sky with a crescent moon and stars, Pip asleep, All done for today and the next dose tomorrow" />
-  <img src="docs/welcome-phone.webp" width="24%" alt="Onboarding on sunrise yellow: Pip smiling above Hi, I'm Pip and a Let's set up button" />
+<p align="center">
+  <a href="https://tend.ashwin.co.in">
+    <img src="./docs/screenshots/today-desktop.webp" width="100%" alt="Tend on desktop: today's breakfast medicines, upcoming insulin reminders, a week of dose logs and refill reminders">
+  </a>
 </p>
 
-<img src="docs/today-desktop.webp" alt="Tend on a 1440 wide screen: a sidebar with keyboard keys, Today with the morning scene, upcoming reminders and medicine cards, and a right column with week rings and refill reminders" />
+<p align="center">
+  <a href="https://tend.ashwin.co.in"><strong>tend.ashwin.co.in</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#what-it-does">what it does</a>
+  &nbsp;·&nbsp;
+  <a href="#the-design">the design</a>
+  &nbsp;·&nbsp;
+  <a href="#running-it">running it</a>
+</p>
+
+<br>
+
+the source of **[tend.ashwin.co.in](https://tend.ashwin.co.in)**, a gentle medicine reminder that lives on your phone. add what you take and when, and pip, a small teal capsule, taps you on the shoulder at each scheduled time.
+
+reminders can follow meals, waking or bedtime, or stay at a fixed clock time. a medicine can have a different dose at each reminder. medicines and logs stay on your device; a small server receives the reminder timestamps and sends the web pushes.
+
+the screenshots use sample medicines, doses and logs. they demonstrate the app, not a treatment plan.
 
 ## what it does
 
-- **reminders around your day.** set relevant meal or sleep times while adding a medicine, with the resulting reminder time shown beside its dose. a dose can follow breakfast or bedtime, or stay at a fixed clock time. changing breakfast moves its linked doses; weekends can have their own times. manage shared times later under You → Meal & sleep times.
-- **flexible schedules.** every day, chosen weekdays, every few days, on and off cycles, once, and when needed, with an optional prescribed minimum gap and daily maximum. courses end on their own and show "day 3 of 5".
-- **a form that fits the medicine.** choose a type, set the schedule, then review before saving. tablets, capsules, liquids, insulin, other injections, inhalers, drops, creams and patches get the fields and units they need. onboarding goes straight from welcome to adding medicines, then reminder permission, using the same editor throughout.
-- **different doses at different times.** insulin can follow breakfast, lunch and dinner with separate unit amounts, or use set times such as bedtime. meal offsets are editable; the app does not calculate or recommend doses.
-- **type it like the prescription.** `Metformin 500mg 1-0-1 PC`, `Syp Calpol 5ml TDS x 3 days`, `Tab Dolo 650mg SOS`, or `Inj Apidra 14-8-6 units AC`. an optional shortcut previews the interpretation; choose “Use these details” to fill the form, then review it before saving.
-- **logging that forgives.** take a whole routine at once, one medicine, or at another time (long-press). snooze, skip, swipe a row to skip just that one. every action has undo. a dose you never logged says not logged, never missed.
-- **stock.** a count per medicine that drops when you take it, a refill nudge at a chosen number of days of supply, and a refilled button that adds your saved refill amount. counts use tablets, ml, puffs, patches or insulin units as appropriate.
-- **edit, archive or delete.** the Medicines list puts each dose and frequency on separate lines. open a medicine to edit it, or use its menu to archive it while keeping history. deleting removes the medicine and its logs, with a brief undo. closing a new-medicine sheet stays in Medicines, including when it was opened from Today.
-- **history without streaks.** a ring per day for the week, the times for any day, and a gentle percentage per medicine over 30 days.
-- **travel mode.** doses follow the local clock by default. keep home time instead and every routine stays on your home zone abroad, for medicines that need a steady gap, with the time here shown beside it. tend notices a new zone and asks.
-- **for the doctor.** a my medicines card to share or copy, an `.ics` export with alerts for anyone who won't install, and a json backup and restore.
-- **everything stays on the phone.** medicines and logs live in indexeddb. the reminder server only ever sees an anonymous device id and some times.
+<p align="center">
+  <img src="./docs/screenshots/today-phone.webp" width="32%" alt="Today on a phone: breakfast medicines with Take both, and separate before-meal insulin reminders later in the day">
+  &nbsp;
+  <img src="./docs/screenshots/dose-phone.webp" width="32%" alt="The dose sheet: individual medicine checkboxes, Taken, Snooze, Other time and Skip">
+  &nbsp;
+  <img src="./docs/screenshots/night-phone.webp" width="32%" alt="After the last dose: Pip asleep under a moon and stars, with tomorrow's next reminder">
+</p>
+
+- **times around your day.** set relevant meal and sleep times while adding a medicine. changing breakfast moves its linked reminders; fixed clock reminders stay put. weekends can have their own times. shared times live under You → Meal & sleep times.
+- **different doses at different times.** meal-time insulin can have separate prescribed unit amounts at breakfast, lunch and dinner. bedtime insulin can be a separate medicine. meal offsets are editable, and each dose shows its resulting reminder time. Tend does not calculate or recommend doses.
+- **a form that fits the medicine.** tablets, capsules, liquids, insulin, other injections, inhalers, drops, creams and patches get relevant fields and units. no tablet count for a cream, or food timing for a patch.
+- **flexible schedules.** every day, chosen weekdays, every few days, on and off cycles, once, or when needed. prescribed minimum gaps and daily limits are optional. courses end on their own and show their current day.
+- **logging that forgives.** take a group at once, one medicine, or log another time. snooze, skip, or swipe a row to skip just that one. actions have Undo. a dose you never logged says not logged.
+- **refill reminders.** optionally count your remaining tablets, ml, puffs, patches or insulin units. logging a dose reduces the supply by that dose's amount. a refill adds the saved refill quantity.
+- **edit, archive or delete.** open a medicine to change it. its menu can archive it while keeping history, or delete it and its logs with a brief Undo. closing a new-medicine sheet stays in Medicines, including when opened from Today.
+- **history without streaks.** a ring for each day of the week, the times for any day, and a percentage per medicine over 30 days.
+- **travel.** follow the local clock or keep reminders on your home time zone. Tend notices a new zone and asks.
+- **share and keep.** a medicines card to share or copy, an `.ics` calendar export with alerts, and a JSON backup and restore. no account or caregiver server.
+- **installable.** add Tend to your home screen, use its cached shell offline, and receive web push reminders where the browser supports them.
 
 ### adding a medicine
 
-<p>
-  <img src="docs/add-medicine-phone.webp" width="32%" alt="Medicine step: one consistent picker for tablets, insulin, cream and six other medicine types, with a tablet dose field" />
-  <img src="docs/insulin-schedule-phone.webp" width="32%" alt="Schedule step: editable breakfast, lunch and dinner times alongside Apidra doses of 14, 8 and 6 units, with the resulting reminder time beneath each meal" />
-  <img src="docs/review-medicine-phone.webp" width="32%" alt="Review step: medicine details and each reminder's dose appear together before Add medicine, with refill tracking kept optional" />
+onboarding goes from welcome to medicines to reminder permission. add as many medicines as you need, using the same editor as the main app.
+
+1. **medicine.** enter the name and type, then the relevant dose or application details. strength, concentration, notes and prescription shorthand are optional.
+2. **schedule.** choose meals, waking, bedtime or clock times. edit the shared times this medicine uses, with its dose and reminder time shown together. weekday and weekend differences are explicit.
+3. **review.** check the doses and actual reminder times. shared-time changes apply only when saved, with a note about other affected medicines. Cancel discards them and Undo restores them. refill tracking and pill appearance stay optional.
+
+<p align="center">
+  <img src="./docs/screenshots/add-medicine-phone.webp" width="32%" alt="Medicine step: the name, medicine type and relevant dose fields">
+  &nbsp;
+  <img src="./docs/screenshots/insulin-schedule-phone.webp" width="32%" alt="Schedule step: editable meal times, separate insulin unit amounts and the reminder time beneath each meal">
+  &nbsp;
+  <img src="./docs/screenshots/review-medicine-phone.webp" width="32%" alt="Review step: medicine details, per-reminder amounts and actual times before saving">
 </p>
 
-1. **medicine.** enter the name and choose the type. only the relevant dose and application fields appear. strength, concentration, notes and prescription shorthand are optional.
-2. **schedule.** choose meals, waking, bedtime or fixed clock times. edit only the meal and sleep times this medicine uses; each row shows the dose and resulting reminder time, including weekend differences. repeated daily schedules stay compact; expand Repeat for other frequencies. food timing appears for oral medicines, and insulin offers meal times or set times. doses and timings come from the prescription.
-3. **review.** check the dose and actual reminder times before saving. changes to shared meal times apply only when saved, with a note about other affected medicines; cancelling discards them and Undo restores them. refill tracking and pill appearance are optional. the same steps work in onboarding and when editing a saved medicine.
+prescription shorthand is an optional shortcut. patterns such as `Metformin 500mg 1-0-1 PC`, `Syp Calpol 5ml TDS x 3 days`, or `Inj Apidra 14-8-6 units AC` produce a preview. choose **Use these details**, then review the filled form before saving.
 
-| type | fields that fit it |
-|---|---|
-| tablet / capsule | number per dose; optional strength and food timing; appearance if useful |
-| liquid | ml per dose; optional concentration such as mg per 5 ml |
-| insulin | prescribed units at each reminder; meal or set times; adjustable meal offset; optional concentration |
-| other injection | prescribed amount and dose unit; optional concentration |
-| inhaler | puffs per dose; regular or when-needed schedule; optional prescribed limits |
-| drops | drops per application; optional eye, ear or other application site |
-| cream / gel | optional application amount in words and treatment area; no pill count or food controls |
-| patch | patches per change and the prescribed change schedule; optional label strength and site instructions |
+### keys
 
-The field choices follow medicine-use guidance from the NHS for [insulin](https://www.nhs.uk/medicines/insulin/rapid-acting-insulin/how-and-when-to-take-rapid-acting-insulin/), [topical treatments](https://www.nhs.uk/medicines/mometasone-for-skin/how-and-when-to-use-mometasone-for-skin/), [patches](https://www.nhs.uk/medicines/buprenorphine-for-pain/how-and-when-to-use-buprenorphine/), [inhalers](https://www.nhs.uk/medicines/salbutamol-inhaler/how-and-when-to-use-salbutamol-inhalers/) and [drops](https://www.nhs.uk/medicines/dexamethasone-eye-drops/how-and-when-to-use-dexamethasone-eye-drops/). These are reminder fields, not dose calculations. The screenshot entries are examples.
+| key | does |
+| --- | --- |
+| `T` | take what is due |
+| `Z` | snooze 10 minutes |
+| `S` | skip what is due |
+| `Enter` | open the due dose |
+| `N` | add a medicine |
+| `1` to `4` | Today, Medicines, History, You |
+| `⌘ Z` / `Ctrl Z` | Undo |
+| `Esc` | close a sheet or panel |
 
-[See the Medicines list](docs/medicines-phone.webp) · [See meal & sleep settings](docs/meal-times-phone.webp) · [See the cream editor](docs/cream-phone.webp) · [See multiple medicines in onboarding](docs/welcome-medicines-phone.webp) · [See medicine details on desktop](docs/medicine-desktop.webp)
+## how reminders work
 
-### left out on purpose
+a web page cannot reliably schedule future local notifications. Tend calculates the times on the device and uses a small Cloudflare Worker to send a push at each one.
 
-- interaction checks. that is medical advice, there is no free licensed data, and most indian brands are missing.
-- name lookup. rxnorm is us only, so previously added names are suggested as you type, using Tend-styled buttons inside the editor.
-- caregiver alerts. they need accounts. maybe later.
-- alarms that break silent mode. the web can't.
-- streaks.
+1. the phone calculates the next 14 days of reminders and sends a push subscription, reminder keys and timestamps. no medicine names or dose amounts go to the server.
+2. one Durable Object per device keeps that plan and sets an alarm for the next reminder.
+3. the alarm sends an encrypted web push, schedules a follow-up 30 minutes later if nothing is logged, then arms the next alarm.
+4. the browser's service worker reads the local notification plan and supplies the medicine names, per-reminder doses and Taken and Snooze actions. hide names in You and notifications use a generic message.
+5. Taken logs the dose in IndexedDB and cancels the follow-up. Snooze asks for another push in ten minutes. tapping the notification opens its dose sheet.
 
-## how reminders work without an app
+saved meal-time changes, weekend toggles and restored backups rebuild the local plan and sync fresh timestamps when reminders are enabled. doses and meal offsets are resolved on the device, so the current interface changes require no Cloudflare Worker API change or separate deployment.
 
-a web page can't schedule a local notification (chrome's notification triggers have sat behind a flag since 2022), so a tiny server sends a web push at each scheduled time.
+on iPhones, web push requires adding Tend to the home screen. notification action buttons vary by browser; tapping a notification always opens its dose sheet. onboarding distinguishes permission from completed reminder setup: success shows a check mark and **Let's go**; a failed connection offers retry or continuing into the app.
 
-1. the phone works out the next 14 days of reminder times itself and sends `PUT /plan/<device>` with the push subscription and a list of `{ key: "2026-10-17T08:00", at }`. no names, no doses.
-2. a cloudflare worker routes each device to its own sqlite-backed durable object, which stores the list and calls `setAlarm()` for the earliest one.
-3. the alarm sends the push (rfc 8291 `aes128gcm` encryption and an es256 vapid token, all web crypto, about 100 lines in `worker/src/push.ts`, checked byte for byte against the rfc's example), queues one follow-up 30 minutes later, and re-arms for the next item.
-4. the service worker wakes, reads the plan it saved in indexeddb, and writes the notification on the phone: "Morning medicines", "Metformin 500 mg and Vitamin D3, after food." with taken and snooze buttons. each reminder uses its own dose amount. hide names in settings and it says "Time for your 8:00 medicines".
-5. taken logs straight into indexeddb and tells the server to drop the follow-up. snooze re-arms in ten minutes. a tap opens `/dose/<key>`.
+### installed app updates
 
-saved changes to meal and sleep times, including switching weekend times on or off and restoring a backup, rebuild the local notification plan and sync fresh timestamps when reminders are enabled. the Cloudflare Worker API is unchanged: per-dose amounts and meal offsets are resolved on the device, so these interface changes do not need a separate Worker deployment.
+the home-screen app loads the deployed website. fresh navigations try the network first, with the cached page as an offline or slow-network fallback. scripts and styles have unique filenames, and service worker updates activate without reinstalling.
 
-the free plan covers it: alarms count as requests and each `setAlarm()` is one row write, about 15 of each per person a day against 100,000. no cron triggers are used.
-
-iphones get pushes only once tend is on the home screen, and without action buttons, so a tap lands on the dose sheet. onboarding shows the add to home screen steps there. permission and reminder setup have separate progress states: successful setup shows a check mark and “Let’s go”; a stalled connection offers retry or continue.
-
-## installed app updates
-
-the Android home-screen app loads the deployed website. Tend tries the network first on each fresh navigation and falls back to its cached page offline or after a slow connection. new scripts and styles have unique filenames, and the service worker activates updates without requiring a reinstall.
-
-after a deployment finishes, close Tend from recent apps and reopen it while online to load the latest version. returning to an already-open screen can keep its existing code running. medicines, logs and settings stay stored on the device during normal updates.
-
-## pip
-
-pip is one svg with two quadratic-curve eyes. each eye blends between a pill (a short stroke with round caps) and an arc, so happy is a smile of arches and asleep is a pair of cups. gaze, size and the curve run on closed-form springs at 120 hz, written straight to the nodes, never through react. pip blinks, glances about, follows the pointer, squashes when poked, and stops its loop when off screen or the tab is hidden. under reduced motion the poses just fade.
+after deployment, close Tend from recent apps and reopen it online. an already-open screen can keep its existing code running. normal updates preserve medicines, logs and settings.
 
 ## the design
 
-- **headspace's warmth with our own parts.** one round character, soft scenes instead of photos, big rounded controls, very few words. the house rule of one physical object is waived for this one.
-- **teal means log it.** `#0e8576` is the only colour on controls and it means due now. the four routine scenes (sunrise, noon, dusk, night) are backgrounds only. taken isn't green and not logged isn't red.
-- **a night mode that earns it.** the bedtime dose gets checked in a dark room, so dark follows the system, and once bedtime is logged today turns navy and pip goes to sleep whatever the theme.
-- **type.** gabarito for greetings, titles, times and buttons, rethink sans for names, doses and everything you read. both ofl, self-hosted as latin and latin-ext woff2, preloaded, with arial fallbacks tuned by size-adjust and ascent, descent and line-gap overrides so nothing jumps when they load.
-- **one layout per size.** a bottom tab bar on phones, a rail in landscape and on tablets, a context panel from 1024 where the dose and medicine details open, and a sidebar with keys from 1440.
-- **pickers belong to the app.** time and date controls use Tend sheets, colours and touch targets instead of opening a separate native picker. medicine-name suggestions stay inside the sheet too, without Chrome's native datalist popup above the keyboard. on touch-enabled Chrome, the keyboard overlays a stable page canvas while the app and sheets fit above it using keyboard insets; other browsers use the visual viewport. this also applies in onboarding and the installed PWA.
-- **installed, it feels installed.** standalone with no url bar, an animated pip splash with matching ios launch images, and theme colours for the status bar.
-
-## keyboard
-
-| key | does |
-|---|---|
-| `t` | take what is due |
-| `z` | snooze 10 minutes |
-| `s` | skip what is due |
-| `enter` | open the due dose |
-| `n` | add a medicine |
-| `1` to `4` | today, medicines, history, you |
-| `⌘ z` | undo |
-| `esc` | close a sheet or panel |
+- **warm and quiet.** cream surfaces, round controls, simple scenes and one small character. teal is the action colour; sunrise, noon, dusk and night belong to the scenes.
+- **pip.** an SVG capsule with spring-driven eyes and gaze, a blink, a poke and a few distinct poses. its loop stops when hidden or off screen, and reduced motion uses static poses and fades.
+- **type.** gabarito for headings, times and buttons; rethink sans for the things you read. both are self-hosted and preloaded, with tuned fallback metrics to keep the layout steady while fonts load.
+- **motion follows the task.** tabs crossfade without moving navigation. subpages open and return in opposite directions. desktop details animate within their own pane. selection indicators move between controls, and sheets and swipe rows start from their current position with gesture velocity carried into a damped spring.
+- **small feedback.** presses respond immediately, switches settle gently, optional sections expand in place, and toast messages enter and leave briefly. reduced motion uses short fades and immediate spring settling.
+- **a layout for the available space.** bottom tabs on phones, a rail on tablets and landscape phones, a context pane from 1024 px, and a sidebar from 1440 px. the main list keeps its scroll position when you return from a detail page.
+- **app-owned pickers.** dates, times and medicine-name suggestions use Tend's own controls. sheets and onboarding fit above the keyboard while retaining the page canvas behind it.
+- **night.** follows the system until you choose. theme changes crossfade, and logging the last bedtime dose gives Today a navy sky and a sleeping Pip.
+- **sound and touch.** quiet chimes are synthesized with Web Audio rather than shipped as files. Android haptics mark meaningful actions, and the sound preference is remembered.
 
 ## the stack
 
-react 19, vite 8, tailwind 4, typescript 7, biome 2 with a pre-commit hook, node 24. no ui or animation libraries: sheets, swipes, springs and view transitions are hand written. the reminder server is a cloudflare worker with a durable object. sounds are synthesised in web audio and haptics are named `navigator.vibrate` patterns.
+| layer | choices |
+| --- | --- |
+| app | React 19, TypeScript 7, Vite 8 |
+| style | Tailwind 4, custom SVG icons, Gabarito and Rethink Sans |
+| motion | native view transitions, Web Animations and a small spring utility; no animation library |
+| storage | IndexedDB for medicines, logs and notification plans; localStorage for preferences and shared times |
+| reminders | web push, a Cloudflare Worker and one Durable Object per device |
+| offline | a service worker, manifest, icons and launch screens |
+| tooling | Biome, Node's test runner and Playwright for browser checks |
 
 ## running it
 
+Node 24.
+
 ```sh
+git clone https://github.com/Ashwin-S-Nambiar/Tend.git
+cd Tend
 npm install
 npm run dev          # http://localhost:5173
-npm test             # scheduling, doses, saved-data editing, shorthand and time zones
-npm run build
+```
 
+```sh
+npm run check        # lint, format and import order
+npm run typecheck
+npm test             # tests/: scheduling, doses, editing, navigation and time zones
+npm run build
+npm run preview
+```
+
+### reminder server
+
+```sh
 cd worker
 npm install
-npm run keys         # prints a vapid key pair
-npm test             # rfc 8291 and vapid checks
+npm run keys         # generate a VAPID key pair
+npm test             # tests/: RFC 8291 encryption and VAPID checks
 npm run dev          # http://localhost:8787
 ```
 
-for reminders locally, put the private key in `worker/.dev.vars` as `VAPID_PRIVATE='{...}'` with `VAPID_PUBLIC=...`, and in `.env.local` set `VITE_PUSH_URL=http://localhost:8787` and `VITE_VAPID_PUBLIC=...`. the service worker only registers in a production build, so use `npm run build && npx vite preview`.
+put the private key in `worker/.dev.vars` as `VAPID_PRIVATE='{...}'`, alongside `VAPID_PUBLIC` and `VAPID_SUBJECT`. set `VITE_PUSH_URL=http://localhost:8787` and `VITE_VAPID_PUBLIC` in the app's `.env.local`. the service worker registers only in production builds, so use `npm run build && npm run preview` to check local push setup.
 
-the live worker is `tend-push` on workers.dev. its public key sits in `wrangler.toml` and `.env.production` (both public by design: they end up in the browser anyway), and the private key is a worker secret. a new key pair means `wrangler secret put VAPID_PRIVATE`, both public copies updated, `npm run deploy`, and everyone turning reminders on again.
+the live worker is `tend-push`. its public key is in `worker/wrangler.toml` and `.env.production`; the private key is a Worker secret. changing key pairs requires updating both public copies, the `VAPID_PRIVATE` secret and the deployment, then enabling reminders again on each device.
 
-`node scripts/og.mjs` renders `public/og.jpg` from `scripts/og.html`.
+`node scripts/og.mjs` renders the social share image from `scripts/og.html`.
 
 ## the shape of it
 
-```
+```text
 src/
-  app/          layout modes, nav (tab bar, rail, sidebar), theme, shortcuts
-  screens/      Welcome, Today, DoseSheet, Medicines, MedicineDetail, MedicineEdit,
-                History, MealTimes, You, NotFound, PipLab (dev only, /pip)
-  components/   Pip, Scene, Sheet, SwipeRow, MedRow, WeekRings, ...
-  lib/          schedule, medicine-draft, medicine-fields, shorthand, dose-format, db, push,
-                actions, today, route, sound, haptics, ics, backup
-public/         sw.js, manifest, icons, splash, fonts with their licences
-worker/         the reminder server
+  app/          responsive navigation, theme and keyboard shortcuts
+  screens/      welcome, today, medicines, history, meal times and settings
+  components/   Pip, scenes, sheets, pickers, selection indicators and controls
+  lib/          scheduling, medicine drafts, shorthand, storage, push and motion
+tests/          app logic and navigation regressions
+public/         service worker, manifest, icons, launch screens and fonts
+worker/
+  src/          reminder API, Durable Objects and web push
+  tests/        encryption and VAPID regressions
+docs/
+  screenshots/  images used in this README
+scripts/        social share image rendering
 ```
 
 ## known rough edges
 
-- the icon set and every line of copy are still waiting on a final pick.
-- an installed android app shows chrome's own splash for a moment before pip's.
-- if nobody opens the app for 14 days the plan runs dry. the last reminder says so.
-- not yet checked on real phones, with voiceover or talkback, or at the largest text sizes.
+- **reminders need the app occasionally.** the server plan covers 14 days. if Tend stays unopened beyond that, it runs dry; the last reminder asks you to reopen it.
+- **browser support varies.** iPhone push needs a home-screen install. the web cannot guarantee exact delivery, bypass silent mode or provide every native notification action.
+- **your data stays in this browser.** clearing site data removes it. export a backup before moving devices or clearing storage.
+- **Android owns part of the experience.** its launch splash and Gboard's keyboard animation need checking on physical devices; desktop emulation does not reproduce them fully.
+- **accessibility needs more device testing.** VoiceOver, TalkBack and the largest system text sizes still need a physical-device pass.
+
+<details>
+<summary><strong>more screenshots</strong></summary>
+
+<br>
+
+![Medicine details on desktop: the list alongside Apidra's individual meal doses, reminder offsets, logs and Edit action](./docs/screenshots/medicine-desktop.webp)
+
+<p align="center">
+  <img src="./docs/screenshots/medicines-phone.webp" width="32%" alt="The Medicines list with dose and frequency on separate lines">
+  &nbsp;
+  <img src="./docs/screenshots/meal-times-phone.webp" width="32%" alt="Meal and sleep times under You, with shared times and a weekend option">
+  &nbsp;
+  <img src="./docs/screenshots/cream-phone.webp" width="32%" alt="Adding a cream: application instructions and treatment area instead of tablet fields">
+</p>
+
+<p align="center">
+  <img src="./docs/screenshots/welcome-phone.webp" width="32%" alt="Welcome: Pip on a sunrise-yellow background">
+  &nbsp;
+  <img src="./docs/screenshots/welcome-medicines-phone.webp" width="32%" alt="Onboarding with separate meal-time and bedtime insulin medicines and Add another medicine">
+</p>
+
+</details>
+
+## references
+
+the medicine field choices draw on NHS guidance for [insulin](https://www.nhs.uk/medicines/insulin/rapid-acting-insulin/how-and-when-to-take-rapid-acting-insulin/), [topical treatments](https://www.nhs.uk/medicines/mometasone-for-skin/how-and-when-to-use-mometasone-for-skin/), [patches](https://www.nhs.uk/medicines/buprenorphine-for-pain/how-and-when-to-use-buprenorphine/), [inhalers](https://www.nhs.uk/medicines/salbutamol-inhaler/how-and-when-to-use-salbutamol-inhalers/) and [drops](https://www.nhs.uk/medicines/dexamethasone-eye-drops/how-and-when-to-use-dexamethasone-eye-drops/). Tend records a prescribed plan; it does not provide treatment advice.

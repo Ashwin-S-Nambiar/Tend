@@ -9,6 +9,7 @@ import { Ring, useWeek } from '../components/WeekRings.tsx';
 import { useData } from '../lib/db.ts';
 import { medicineDose } from '../lib/dose-format.ts';
 import { useNow } from '../lib/hooks.ts';
+import { useContentMotion } from '../lib/motion.ts';
 import { back, navigate } from '../lib/route.ts';
 import { dosesOn, latestLog } from '../lib/schedule.ts';
 import { routinesStore } from '../lib/settings.ts';
@@ -26,6 +27,7 @@ import { medById, slotsOn } from '../lib/today.ts';
 
 export default function History({ selected }: { selected?: string }) {
   const [offset, setOffset] = useState(0);
+  const days = useContentMotion(offset);
   const week = useWeek(offset);
   const { panel } = useLayout();
   const { meds } = useData();
@@ -62,7 +64,7 @@ export default function History({ selected }: { selected?: string }) {
               className={offset === 0 ? 'invisible' : ''}
             />
           </div>
-          <div className="grid grid-cols-7 gap-1">
+          <div ref={days} className="grid grid-cols-7 gap-1">
             {week.map((d) => (
               <button
                 key={d.day}

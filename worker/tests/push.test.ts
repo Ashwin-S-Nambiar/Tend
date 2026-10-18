@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { b64u, encrypt, unb64u, vapidHeader } from './push.ts';
+import { b64u, encrypt, unb64u, vapidHeader } from '../src/push.ts';
 
 test('matches the RFC 8291 example', async () => {
   const body = await encrypt(

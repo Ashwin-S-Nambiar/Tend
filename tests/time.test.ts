@@ -8,7 +8,7 @@ import {
   setZone,
   zonedInstant,
   zoneGap,
-} from './time.ts';
+} from '../src/lib/time.ts';
 
 afterEach(() => setZone(undefined));
 
