@@ -3,7 +3,7 @@ import { doseLine, FOOD_TEXT } from './dose-format.ts';
 import { groupsOn, plan } from './schedule.ts';
 import { deviceId, hideNamesStore, routinesStore } from './settings.ts';
 import { createStore } from './store.ts';
-import { addDays, dayKey, fmtTime } from './time.ts';
+import { activeZone, addDays, dayKey, deviceZone, fmtTime } from './time.ts';
 import { slotsOn } from './today.ts';
 import type { Medicine } from './types.ts';
 
@@ -161,6 +161,7 @@ function entries(): PlanEntry[] {
   const { meds } = data();
   const routines = routinesStore.get();
   const hide = hideNamesStore.get();
+  const away = activeZone() !== deviceZone();
   const today = dayKey();
   const out: PlanEntry[] = [];
   for (let i = 0; i < 15; i++) {
@@ -181,8 +182,11 @@ function entries(): PlanEntry[] {
           : `${joinNames(list.map((m) => (m.strength ? `${m.name} ${doseLine(m, false).split(' · ')[0]}` : m.name)))}${food}.`;
       out.push({
         key: g.key,
+        zone: activeZone(),
         title: hide ? 'Tend' : `${g.label} medicines`,
-        body: hide ? `Time for your ${fmtTime(g.key)} medicines` : named,
+        body: hide
+          ? `Time for your ${fmtTime(g.key)}${away ? ' home time' : ''} medicines`
+          : named,
         doses: g.doses.map((d) => ({
           medId: d.medId,
           due: d.due,

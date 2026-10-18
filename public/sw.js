@@ -1,4 +1,4 @@
-const SHELL = 'tend-shell-v1';
+const SHELL = 'tend-shell-v2';
 const CORE = ['/', '/icon.svg', '/fonts/gabarito-latin.woff2', '/fonts/rethink-sans-latin.woff2', '/badge.png'];
 
 self.addEventListener('install', (e) => {
@@ -87,9 +87,13 @@ function get(d, store, key) {
   });
 }
 
-function local(date) {
+function local(date, zone) {
   const p = (n) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}T${p(date.getHours())}:${p(date.getMinutes())}`;
+  if (!zone) return `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}T${p(date.getHours())}:${p(date.getMinutes())}`;
+  const v = {};
+  for (const x of new Intl.DateTimeFormat('en-US', { timeZone: zone, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' }).formatToParts(date))
+    v[x.type] = Number(x.value);
+  return `${v.year}-${p(v.month)}-${p(v.day)}T${p(v.hour % 24)}:${p(v.minute)}`;
 }
 
 async function openDoses(entry) {
@@ -97,7 +101,7 @@ async function openDoses(entry) {
   const out = [];
   for (const dose of entry.doses) {
     const log = await get(d, 'logs', [dose.medId, dose.due]);
-    if (!log || (log.status === 'snoozed' && (!log.snoozeUntil || log.snoozeUntil <= local(new Date())))) out.push(dose);
+    if (!log || (log.status === 'snoozed' && (!log.snoozeUntil || log.snoozeUntil <= local(new Date(), entry.zone)))) out.push(dose);
   }
   return out;
 }
@@ -163,7 +167,7 @@ async function logAll(key, status) {
     await put(
       d,
       'logs',
-      open.map((x) => ({ medId: x.medId, due: x.due, status: 'taken', at: local(now) })),
+      open.map((x) => ({ medId: x.medId, due: x.due, status: 'taken', at: local(now, entry.zone) })),
     );
     const meds = [];
     for (const x of open) {
@@ -172,7 +176,7 @@ async function logAll(key, status) {
     }
     if (meds.length) await put(d, 'meds', meds);
   } else {
-    const until = local(new Date(now.getTime() + 10 * 60000));
+    const until = local(new Date(now.getTime() + 10 * 60000), entry.zone);
     await put(
       d,
       'logs',

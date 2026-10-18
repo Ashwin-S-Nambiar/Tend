@@ -4,6 +4,7 @@ import Icon, { type IconName } from '../components/Icon.tsx';
 import { Pill } from '../components/PillLook.tsx';
 import Pip from '../components/Pip.tsx';
 import Sheet from '../components/Sheet.tsx';
+import { TravelSettings } from '../components/Travel.tsx';
 import { Card, H2, Segmented, Switch } from '../components/ui.tsx';
 import { exportBackup, importBackup } from '../lib/backup.ts';
 import { useData } from '../lib/db.ts';
@@ -153,6 +154,7 @@ export default function You() {
               hint="When you wake, eat and sleep"
               onClick={() => navigate('/routines')}
             />
+            <TravelSettings />
           </Card>
         </section>
 

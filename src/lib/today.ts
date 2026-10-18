@@ -86,7 +86,8 @@ export function useToday() {
       slots.length > 0 &&
       slots.every((s) => s.state === 'done' || s.state === 'unlogged');
     const night =
-      allDone && (bedSlot ? bedSlot.state === 'done' : now.getHours() >= 21);
+      allDone &&
+      (bedSlot ? bedSlot.state === 'done' : nowKey(now).slice(11) >= '21:00');
     const tomorrow = nextGroup(active, routines, logs, now);
     return {
       ready,

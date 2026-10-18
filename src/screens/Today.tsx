@@ -10,6 +10,12 @@ import Pip, { type Mood } from '../components/Pip.tsx';
 import { SceneArt, SceneIcon } from '../components/Scene.tsx';
 import SwipeRow from '../components/SwipeRow.tsx';
 import TimeSheet from '../components/TimeSheet.tsx';
+import {
+  hereSuffix,
+  TravelCard,
+  TravelChip,
+  useTravel,
+} from '../components/Travel.tsx';
 import { Card, H2, IconButton } from '../components/ui.tsx';
 import WeekRings from '../components/WeekRings.tsx';
 import { skip, snooze, take, takePrn } from '../lib/actions.ts';
@@ -109,6 +115,7 @@ export default function Today() {
         <h1 className="mt-0.5 font-extrabold text-[clamp(28px,4vw,40px)] leading-[1.05] tracking-[-0.02em]">
           {greeting(t.now.getHours())}
         </h1>
+        <TravelChip />
       </div>
       {mode === 'tab' && (
         <div className="w-70">
@@ -305,6 +312,7 @@ export default function Today() {
         }`}
       >
         {header}
+        <TravelCard />
         {card}
         {laterList}
         {prn}
@@ -349,10 +357,11 @@ function DueCard({
     : n === 1
       ? (first?.name ?? '1 medicine')
       : plural(n, 'medicine');
+  const { keeping } = useTravel();
   const meta =
     slot.state === 'snoozed' && slot.until
       ? `${slot.label} · snoozed to ${fmtTime(slot.until)}`
-      : `${slot.label} · ${due ? 'due' : 'at'} ${time}`;
+      : `${slot.label} · ${due ? 'due' : 'at'} ${time}${hereSuffix(slot.key, keeping)}`;
   const allTaken = open.length === 0;
   const press = useLongPress(() => setLate(true));
   const nightCard = slot.scene === 'night';
