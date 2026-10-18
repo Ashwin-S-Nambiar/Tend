@@ -8,17 +8,15 @@ const ITEMS: {
   label: string;
   icon: IconName;
   key: string;
-  tabs?: boolean;
 }[] = [
-  { id: 'today', label: 'Today', icon: 'today', key: '1', tabs: true },
-  { id: 'medicines', label: 'Medicines', icon: 'meds', key: '2', tabs: true },
-  { id: 'history', label: 'History', icon: 'history', key: '3', tabs: true },
-  { id: 'routines', label: 'Routines', icon: 'routines', key: '4' },
-  { id: 'you', label: 'You', icon: 'you', key: '5', tabs: true },
+  { id: 'today', label: 'Today', icon: 'today', key: '1' },
+  { id: 'medicines', label: 'Medicines', icon: 'meds', key: '2' },
+  { id: 'history', label: 'History', icon: 'history', key: '3' },
+  { id: 'you', label: 'You', icon: 'you', key: '4' },
 ];
 
-function go(id: Screen, current: Screen | null) {
-  if (id === current) return;
+function go(id: Screen) {
+  if (location.pathname === SCREEN_PATH[id]) return;
   haptic.tap();
   navigate(SCREEN_PATH[id]);
 }
@@ -30,29 +28,28 @@ function link(id: Screen, current: Screen | null) {
     onClick: (e: React.MouseEvent) => {
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
       e.preventDefault();
-      go(id, current);
+      go(id);
     },
   };
 }
 
 export function TabBar({ current }: { current: Screen | null }) {
-  const on = current === 'routines' ? 'you' : current;
   return (
     <nav
       aria-label="Main"
       className="surface grid flex-none grid-cols-4 px-2 pt-1.5 pb-[max(8px,var(--sab))] shadow-[0_-1px_0_var(--line)] tab:hidden land:hidden"
     >
-      {ITEMS.filter((i) => i.tabs).map((i) => (
+      {ITEMS.map((i) => (
         <a
           key={i.id}
-          {...link(i.id, on)}
-          aria-current={i.id === on ? 'page' : undefined}
+          {...link(i.id, current)}
+          aria-current={i.id === current ? 'page' : undefined}
           className={`press control grid min-h-13 place-items-center content-center gap-1 rounded-[14px] font-semibold text-[12px] no-underline ${
-            i.id === on ? 'text-pip-ink' : 'text-soft'
+            i.id === current ? 'text-pip-ink' : 'text-soft'
           }`}
         >
           <span
-            className={`grid h-7 w-14 place-items-center rounded-full transition-colors duration-200 ${i.id === on ? 'bg-pip-wash' : ''}`}
+            className={`grid h-7 w-14 place-items-center rounded-full transition-colors duration-200 ${i.id === current ? 'bg-pip-wash' : ''}`}
           >
             <Icon name={i.icon} size={22} />
           </span>
@@ -114,7 +111,7 @@ export function Sidebar({ current }: { current: Screen | null }) {
         href="/"
         onClick={(e) => {
           e.preventDefault();
-          go('today', current);
+          go('today');
         }}
         className="flex items-center gap-2 px-2 font-display font-extrabold text-[26px] text-ink no-underline"
       >

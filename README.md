@@ -13,9 +13,9 @@ a gentle medicine reminder that lives on your phone. tell it when your day happe
 
 ## what it does
 
-- **routines, not alarms.** you set when you wake, eat and sleep once. a dose hangs off a routine ("15 min before breakfast", "at bedtime") or a clock time, so moving breakfast moves every morning dose. weekends can have their own times. before-meal and meal-time medicines keep their separate reminder times.
+- **reminders around your day.** set relevant meal or sleep times while adding a medicine, with the resulting reminder time shown beside its dose. a dose can follow breakfast or bedtime, or stay at a fixed clock time. changing breakfast moves its linked doses; weekends can have their own times. manage shared times later under You → Meal & sleep times.
 - **flexible schedules.** every day, chosen weekdays, every few days, on and off cycles, once, and when needed, with an optional prescribed minimum gap and daily maximum. courses end on their own and show "day 3 of 5".
-- **a form that fits the medicine.** choose a type, set the schedule, then review before saving. tablets, capsules, liquids, insulin, other injections, inhalers, drops, creams and patches get the fields and units they need. add several medicines during onboarding with the same editor.
+- **a form that fits the medicine.** choose a type, set the schedule, then review before saving. tablets, capsules, liquids, insulin, other injections, inhalers, drops, creams and patches get the fields and units they need. onboarding goes straight from welcome to adding medicines, then reminder permission, using the same editor throughout.
 - **different doses at different times.** insulin can follow breakfast, lunch and dinner with separate unit amounts, or use set times such as bedtime. meal offsets are editable; the app does not calculate or recommend doses.
 - **type it like the prescription.** `Metformin 500mg 1-0-1 PC`, `Syp Calpol 5ml TDS x 3 days`, `Tab Dolo 650mg SOS`, or `Inj Apidra 14-8-6 units AC`. an optional shortcut previews the interpretation; choose “Use these details” to fill the form, then review it before saving.
 - **logging that forgives.** take a whole routine at once, one medicine, or at another time (long-press). snooze, skip, swipe a row to skip just that one. every action has undo. a dose you never logged says not logged, never missed.
@@ -30,13 +30,13 @@ a gentle medicine reminder that lives on your phone. tell it when your day happe
 
 <p>
   <img src="docs/add-medicine-phone.webp" width="32%" alt="Medicine step: one consistent picker for tablets, insulin, cream and six other medicine types, with a tablet dose field" />
-  <img src="docs/insulin-schedule-phone.webp" width="32%" alt="Schedule step: Apidra has separate breakfast, lunch and dinner doses of 14, 8 and 6 units with an adjustable before-meal reminder" />
+  <img src="docs/insulin-schedule-phone.webp" width="32%" alt="Schedule step: editable breakfast, lunch and dinner times alongside Apidra doses of 14, 8 and 6 units, with the resulting reminder time beneath each meal" />
   <img src="docs/review-medicine-phone.webp" width="32%" alt="Review step: medicine details and each reminder's dose appear together before Add medicine, with refill tracking kept optional" />
 </p>
 
 1. **medicine.** enter the name and choose the type. only the relevant dose and application fields appear. strength, concentration, notes and prescription shorthand are optional.
-2. **schedule.** choose routines or clock times. repeated daily schedules stay compact; expand Repeat for other frequencies. food timing appears for oral medicines, and insulin offers meal times or set times. doses and timings come from the prescription.
-3. **review.** check the dose at each reminder before saving. refill tracking and pill appearance are optional. the same steps work in onboarding and when editing a saved medicine.
+2. **schedule.** choose meals, waking, bedtime or fixed clock times. edit only the meal and sleep times this medicine uses; each row shows the dose and resulting reminder time, including weekend differences. repeated daily schedules stay compact; expand Repeat for other frequencies. food timing appears for oral medicines, and insulin offers meal times or set times. doses and timings come from the prescription.
+3. **review.** check the dose and actual reminder times before saving. changes to shared meal times apply only when saved, with a note about other affected medicines; cancelling discards them and Undo restores them. refill tracking and pill appearance are optional. the same steps work in onboarding and when editing a saved medicine.
 
 | type | fields that fit it |
 |---|---|
@@ -51,7 +51,7 @@ a gentle medicine reminder that lives on your phone. tell it when your day happe
 
 The field choices follow medicine-use guidance from the NHS for [insulin](https://www.nhs.uk/medicines/insulin/rapid-acting-insulin/how-and-when-to-take-rapid-acting-insulin/), [topical treatments](https://www.nhs.uk/medicines/mometasone-for-skin/how-and-when-to-use-mometasone-for-skin/), [patches](https://www.nhs.uk/medicines/buprenorphine-for-pain/how-and-when-to-use-buprenorphine/), [inhalers](https://www.nhs.uk/medicines/salbutamol-inhaler/how-and-when-to-use-salbutamol-inhalers/) and [drops](https://www.nhs.uk/medicines/dexamethasone-eye-drops/how-and-when-to-use-dexamethasone-eye-drops/). These are reminder fields, not dose calculations. The screenshot entries are examples.
 
-[See the Medicines list](docs/medicines-phone.webp) · [See the cream editor](docs/cream-phone.webp) · [See multiple medicines in onboarding](docs/welcome-medicines-phone.webp) · [See medicine details on desktop](docs/medicine-desktop.webp)
+[See the Medicines list](docs/medicines-phone.webp) · [See meal & sleep settings](docs/meal-times-phone.webp) · [See the cream editor](docs/cream-phone.webp) · [See multiple medicines in onboarding](docs/welcome-medicines-phone.webp) · [See medicine details on desktop](docs/medicine-desktop.webp)
 
 ### left out on purpose
 
@@ -70,6 +70,8 @@ a web page can't schedule a local notification (chrome's notification triggers h
 3. the alarm sends the push (rfc 8291 `aes128gcm` encryption and an es256 vapid token, all web crypto, about 100 lines in `worker/src/push.ts`, checked byte for byte against the rfc's example), queues one follow-up 30 minutes later, and re-arms for the next item.
 4. the service worker wakes, reads the plan it saved in indexeddb, and writes the notification on the phone: "Morning medicines", "Metformin 500 mg and Vitamin D3, after food." with taken and snooze buttons. each reminder uses its own dose amount. hide names in settings and it says "Time for your 8:00 medicines".
 5. taken logs straight into indexeddb and tells the server to drop the follow-up. snooze re-arms in ten minutes. a tap opens `/dose/<key>`.
+
+saved changes to meal and sleep times, including switching weekend times on or off and restoring a backup, rebuild the local notification plan and sync fresh timestamps when reminders are enabled. the Cloudflare Worker API is unchanged: per-dose amounts and meal offsets are resolved on the device, so these interface changes do not need a separate Worker deployment.
 
 the free plan covers it: alarms count as requests and each `setAlarm()` is one row write, about 15 of each per person a day against 100,000. no cron triggers are used.
 
@@ -104,7 +106,7 @@ pip is one svg with two quadratic-curve eyes. each eye blends between a pill (a 
 | `s` | skip what is due |
 | `enter` | open the due dose |
 | `n` | add a medicine |
-| `1` to `5` | today, medicines, history, routines, you |
+| `1` to `4` | today, medicines, history, you |
 | `⌘ z` | undo |
 | `esc` | close a sheet or panel |
 
@@ -139,8 +141,8 @@ the live worker is `tend-push` on workers.dev. its public key sits in `wrangler.
 src/
   app/          layout modes, nav (tab bar, rail, sidebar), theme, shortcuts
   screens/      Welcome, Today, DoseSheet, Medicines, MedicineDetail, MedicineEdit,
-                History, Routines, You, NotFound, PipLab (dev only, /pip)
-  components/   Pip, Scene, Sheet, SwipeRow, MedRow, DayRing, WeekRings, ...
+                History, MealTimes, You, NotFound, PipLab (dev only, /pip)
+  components/   Pip, Scene, Sheet, SwipeRow, MedRow, WeekRings, ...
   lib/          schedule, medicine-draft, medicine-fields, shorthand, dose-format, db, push,
                 actions, today, route, sound, haptics, ics, backup
 public/         sw.js, manifest, icons, splash, fonts with their licences

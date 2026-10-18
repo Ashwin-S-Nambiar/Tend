@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { flushSync } from 'react-dom';
 
-export type Screen = 'today' | 'medicines' | 'history' | 'routines' | 'you';
+export type Screen = 'today' | 'medicines' | 'history' | 'you';
 
 export type Route =
   | { name: 'welcome' }
@@ -30,7 +30,7 @@ export function parse(path: string): Route {
   if (p === '/medicines') return { name: 'medicines' };
   if (p === '/medicine/new') return { name: 'new' };
   if (p === '/history') return { name: 'history' };
-  if (p === '/routines') return { name: 'routines' };
+  if (p === '/meal-times' || p === '/routines') return { name: 'routines' };
   if (p === '/you') return { name: 'you' };
   if (p === '/pip' && import.meta.env.DEV) return { name: 'pip' };
   let m = p.match(/^\/dose\/(next|\d{4}-\d{2}-\d{2}T\d{2}:\d{2})$/);
@@ -58,7 +58,7 @@ export function screenOf(r: Route): Screen | null {
     case 'day':
       return 'history';
     case 'routines':
-      return 'routines';
+      return 'you';
     case 'you':
       return 'you';
     default:
@@ -70,17 +70,10 @@ export const SCREEN_PATH: Record<Screen, string> = {
   today: '/',
   medicines: '/medicines',
   history: '/history',
-  routines: '/routines',
   you: '/you',
 };
 
-export const SCREEN_ORDER: Screen[] = [
-  'today',
-  'medicines',
-  'history',
-  'routines',
-  'you',
-];
+export const SCREEN_ORDER: Screen[] = ['today', 'medicines', 'history', 'you'];
 
 function read() {
   if (location.pathname !== seen) {

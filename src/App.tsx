@@ -11,12 +11,12 @@ import { onboardedStore } from './lib/settings.ts';
 import { useStore } from './lib/store.ts';
 import DoseSheet, { DosePanel } from './screens/DoseSheet.tsx';
 import History, { DayPanel } from './screens/History.tsx';
+import MealTimes from './screens/MealTimes.tsx';
 import MedicineDetail from './screens/MedicineDetail.tsx';
 import MedicineEdit from './screens/MedicineEdit.tsx';
 import Medicines from './screens/Medicines.tsx';
 import NotFound from './screens/NotFound.tsx';
 import PipLab from './screens/PipLab.tsx';
-import Routines from './screens/Routines.tsx';
 import Today, { TodayPanel } from './screens/Today.tsx';
 import Welcome from './screens/Welcome.tsx';
 import You from './screens/You.tsx';
@@ -45,7 +45,7 @@ function Main({ route, panel }: { route: Route; panel: boolean }) {
         <DayPanel date={route.date} page />
       );
     case 'routines':
-      return <Routines />;
+      return <MealTimes />;
     case 'you':
       return <You />;
     default:

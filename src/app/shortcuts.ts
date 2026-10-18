@@ -51,7 +51,7 @@ export function useShortcuts(route: Route) {
       if (e.metaKey || e.ctrlKey || e.altKey || typing(e.target)) return;
       if (document.querySelector('dialog[open]')) return;
       const n = Number(e.key);
-      if (n >= 1 && n <= 5) {
+      if (n >= 1 && n <= SCREEN_ORDER.length) {
         const s = SCREEN_ORDER[n - 1];
         if (s) navigate(SCREEN_PATH[s]);
         return;

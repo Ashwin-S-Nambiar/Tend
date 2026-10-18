@@ -72,8 +72,8 @@ export default function You() {
   useTitle('Settings · Tend');
 
   const reminderHint: Record<string, string> = {
-    on: 'One reminder per routine, and a follow-up 30 min later if nothing is logged.',
-    off: 'Get a tap on the shoulder at each routine.',
+    on: 'Reminders at each scheduled time, with a follow-up 30 min later if nothing is logged.',
+    off: 'Get a tap on the shoulder at each scheduled time.',
     denied:
       'Notifications are blocked for this site. Allow them in your browser settings.',
     install:
@@ -150,9 +150,9 @@ export default function You() {
           <Card className="grid gap-1">
             <Row
               icon="routines"
-              label="Routines"
+              label="Meal & sleep times"
               hint="When you wake, eat and sleep"
-              onClick={() => navigate('/routines')}
+              onClick={() => navigate('/meal-times')}
             />
             <TravelSettings />
           </Card>
@@ -381,7 +381,7 @@ const KEYS: [string, string][] = [
   ['S', 'Skip what is due'],
   ['Enter', 'Open the due dose'],
   ['N', 'Add a medicine'],
-  ['1 to 5', 'Today, Medicines, History, Routines, You'],
+  ['1 to 4', 'Today, Medicines, History, You'],
   ['⌘ Z', 'Undo'],
   ['Esc', 'Close a sheet'],
 ];

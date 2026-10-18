@@ -249,3 +249,6 @@ export function watchPermission() {
     if (!document.hidden) checkPush();
   });
 }
+
+// Every saved change, including weekend toggles and backup restores, moves the plan.
+routinesStore.subscribe(replan);
