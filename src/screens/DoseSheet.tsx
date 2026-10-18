@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Icon from '../components/Icon.tsx';
 import MedRow from '../components/MedRow.tsx';
 import Pip from '../components/Pip.tsx';
@@ -51,21 +51,25 @@ function useSlot(due: string) {
   }, [due, meds, logs, routines, now]);
 }
 
-export default function DoseSheet({ due }: { due: string }) {
-  const slot = useSlot(due);
-  const { ready } = useData();
-  const [open, setOpen] = useState(true);
-  const [skipped, setSkipped] = useState<Set<string>>(() => new Set());
-  const pick = {
-    off: skipped,
+function usePick() {
+  const [off, setOff] = useState<Set<string>>(() => new Set());
+  return {
+    off,
     toggle: (id: string) =>
-      setSkipped((s) => {
+      setOff((s) => {
         const n = new Set(s);
         if (n.has(id)) n.delete(id);
         else n.add(id);
         return n;
       }),
   };
+}
+
+export default function DoseSheet({ due }: { due: string }) {
+  const slot = useSlot(due);
+  const { ready } = useData();
+  const [open, setOpen] = useState(true);
+  const pick = usePick();
   useTitle(slot ? `${slot.label} dose · Tend` : 'Dose · Tend');
   if (!ready) return null;
   return (
@@ -78,7 +82,7 @@ export default function DoseSheet({ due }: { due: string }) {
       header={slot ? <Head slot={slot} /> : undefined}
       footer={
         slot ? (
-          <Foot slot={slot} off={skipped} close={() => setOpen(false)} />
+          <Foot slot={slot} off={pick.off} close={() => setOpen(false)} />
         ) : undefined
       }
     >
@@ -88,6 +92,54 @@ export default function DoseSheet({ due }: { due: string }) {
         <Missing close={() => setOpen(false)} />
       )}
     </Sheet>
+  );
+}
+
+const close = () => back('/');
+
+export function DosePanel({ due }: { due: string }) {
+  const slot = useSlot(due);
+  const { ready } = useData();
+  const pick = usePick();
+  const panel = useRef<HTMLElement>(null);
+  useTitle(slot ? `${slot.label} dose · Tend` : 'Dose · Tend');
+  useEffect(() => {
+    panel.current?.focus({ preventScroll: true });
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !document.querySelector('dialog[open]'))
+        close();
+    };
+    addEventListener('keydown', onKey);
+    return () => removeEventListener('keydown', onKey);
+  }, []);
+  if (!ready) return null;
+  return (
+    <section
+      ref={panel}
+      tabIndex={-1}
+      aria-label={slot ? `${slot.label} dose` : 'Dose not found'}
+      className="surface fade-in relative grid gap-3 rounded-[24px] p-5 shadow-(--shadow)"
+    >
+      <button
+        type="button"
+        aria-label="Close"
+        data-tip="Close"
+        data-key="Esc"
+        onClick={close}
+        className="press absolute top-3 right-3 grid size-11 place-items-center rounded-[14px] text-soft hover-fine:bg-milk"
+      >
+        <Icon name="close" size={20} />
+      </button>
+      {slot ? (
+        <>
+          <Head slot={slot} />
+          <Body slot={slot} pick={pick} />
+          <Foot slot={slot} off={pick.off} close={close} />
+        </>
+      ) : (
+        <Missing close={close} />
+      )}
+    </section>
   );
 }
 

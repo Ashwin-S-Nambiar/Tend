@@ -320,6 +320,7 @@ function DoctorCard({ open, onClose }: { open: boolean; onClose: () => void }) {
       open={open}
       onClose={onClose}
       label="My medicines card"
+      detents
       size="lg"
       header={
         <h2 className="pt-1 pb-1 font-extrabold text-[24px]">My medicines</h2>
