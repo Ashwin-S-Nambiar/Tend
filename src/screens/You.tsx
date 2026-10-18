@@ -279,6 +279,8 @@ export default function You() {
                 <a
                   className="text-pip-ink underline underline-offset-3"
                   href="https://ashwin.co.in"
+                  target="_blank"
+                  rel="noopener"
                 >
                   Ashwin
                 </a>

@@ -52,7 +52,7 @@ export function RoutineRows({
           <label
             key={r}
             htmlFor={`${id}-${r}`}
-            className={`flex min-h-15 items-center gap-3 rounded-[16px] py-2 pr-2 pl-3 ${tone === 'glass' ? 'bg-white/70' : 'bg-milk'}`}
+            className={`flex items-center gap-3 rounded-[16px] pr-2 pl-3 ${tone === 'glass' ? 'min-h-13 bg-white/70 py-1' : 'min-h-15 bg-milk py-2'}`}
           >
             <SceneIcon scene={ROUTINE_SCENE[r]} />
             <span className="min-w-0 flex-1">

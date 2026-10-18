@@ -26,13 +26,6 @@ const STEPS: { next: string; back: string; mood: Mood }[] = [
   { next: 'Allow reminders', back: 'Not now', mood: 'nudge' },
 ];
 
-const POSE = [
-  { x: 0, y: 30, s: 1.25 },
-  { x: -0.3, y: 0, s: 0.62 },
-  { x: 0.3, y: 0, s: 0.62 },
-  { x: 0, y: 30, s: 1 },
-];
-
 const standalone = () =>
   matchMedia('(display-mode: standalone)').matches ||
   (navigator as Navigator & { standalone?: boolean }).standalone === true;
@@ -52,15 +45,42 @@ export default function Welcome() {
     for (const m of meta) m.setAttribute('content', '#ffc845');
   }, []);
 
+  const last = useRef<DOMRect | null>(null);
+
   useLayoutEffect(() => {
     const el = pip.current;
-    const box = stage.current;
-    if (!el || !box) return;
-    const p = POSE[step] ?? POSE[0];
-    if (!p) return;
-    const w = box.clientWidth;
-    el.style.transform = `translate(${p.x * w}px, ${p.y}px) scale(${p.s})`;
-  }, [step]);
+    if (!el) return;
+    const now = el.getBoundingClientRect();
+    const was = last.current;
+    last.current = now;
+    if (
+      !was ||
+      !now.width ||
+      matchMedia('(prefers-reduced-motion: reduce)').matches
+    )
+      return;
+    const dx = was.left + was.width / 2 - (now.left + now.width / 2);
+    const dy = was.top + was.height / 2 - (now.top + now.height / 2);
+    const k = was.width / now.width;
+    if (Math.abs(dx) < 1 && Math.abs(dy) < 1 && Math.abs(k - 1) < 0.01) return;
+    el.animate(
+      [
+        { transform: `translate(${dx}px, ${dy}px) scale(${k})` },
+        { transform: 'none' },
+      ],
+      { duration: 520, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' },
+    );
+  });
+
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      last.current = pip.current?.getBoundingClientRect() ?? null;
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     heading.current[step]?.focus({ preventScroll: true });
@@ -110,28 +130,27 @@ export default function Welcome() {
 
   return (
     <div
-      className="welcome fixed inset-0 flex flex-col overflow-hidden bg-[#ffc845] text-[#1d2430]"
+      className="welcome fixed inset-0 flex flex-col overflow-hidden bg-[#ffc845] pr-(--sar) pl-(--sal) text-[#1d2430] land:flex-row"
       data-step={step}
     >
       <div
-        className="relative mx-auto flex min-h-0 w-full max-w-130 flex-1 flex-col px-5.5 pt-[calc(16px+var(--sat))]"
         ref={stage}
+        className="welcome-stage relative grid min-h-24 flex-[1_1_0] place-items-center pt-[calc(12px+var(--sat))] pb-2 land:flex-[0_0_38%] land:pb-[var(--sab)]"
       >
-        <div
-          ref={pip}
-          className="welcome-pip pointer-events-none absolute top-[calc(12px+var(--sat))] left-1/2 z-10 -ml-20 size-40 origin-top"
-        >
+        <div ref={pip} className="welcome-pip pointer-events-none">
           <Pip
             mood={guide ? 'idle' : (s?.mood ?? 'hello')}
             className="size-full"
             track={step === 1}
           />
         </div>
-        <div className="relative min-h-0 flex-1">
+      </div>
+      <div className="mx-auto flex min-h-0 w-full max-w-130 flex-[0_1_auto] flex-col land:flex-1 land:justify-center land:pt-(--sat)">
+        <div className="welcome-steps relative min-h-0 shrink overflow-y-auto overscroll-contain px-5.5">
           {[0, 1, 2, 3].map((i) => (
             <section
               key={i}
-              className="welcome-step absolute inset-0 grid content-end gap-3 overflow-y-auto pt-48 pb-2"
+              className="welcome-step grid content-end gap-3 pt-1 pb-2"
               data-pos={i === step ? 'here' : i < step ? 'prev' : 'next'}
               aria-hidden={i !== step}
               inert={i !== step}
@@ -213,40 +232,44 @@ export default function Welcome() {
             </section>
           ))}
         </div>
-      </div>
-      <div className="mx-auto grid w-full max-w-130 flex-none gap-2.5 px-5.5 pt-3 pb-[calc(20px+var(--sab))]">
-        <div className="flex justify-center gap-1" aria-hidden="true">
-          {[0, 1, 2, 3].map((i) => (
-            <i key={i} className="step-dot" data-on={i === step || undefined} />
-          ))}
+        <div className="grid flex-none gap-2.5 px-5.5 pt-3 pb-[calc(20px+var(--sab))] land:pb-[calc(12px+var(--sab))]">
+          <div className="flex justify-center gap-1" aria-hidden="true">
+            {[0, 1, 2, 3].map((i) => (
+              <i
+                key={i}
+                className="step-dot"
+                data-on={i === step || undefined}
+              />
+            ))}
+          </div>
+          <p className="sr-only" aria-live="polite">
+            Step {step + 1} of 4
+          </p>
+          {guide ? (
+            <button
+              type="button"
+              className="btn press bg-[#0e8576] text-white"
+              onClick={finish}
+            >
+              Got it
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn press bg-[#0e8576] text-white"
+              onClick={next}
+            >
+              {label}
+            </button>
+          )}
+          <button
+            type="button"
+            className="press min-h-11 font-bold font-display text-[15px] opacity-90"
+            onClick={prev}
+          >
+            {guide ? 'Later' : (s?.back ?? '')}
+          </button>
         </div>
-        <p className="sr-only" aria-live="polite">
-          Step {step + 1} of 4
-        </p>
-        {guide ? (
-          <button
-            type="button"
-            className="btn press bg-[#0e8576] text-white"
-            onClick={finish}
-          >
-            Got it
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="btn press bg-[#0e8576] text-white"
-            onClick={next}
-          >
-            {label}
-          </button>
-        )}
-        <button
-          type="button"
-          className="press min-h-11 font-bold font-display text-[15px] opacity-90"
-          onClick={prev}
-        >
-          {guide ? 'Later' : (s?.back ?? '')}
-        </button>
       </div>
     </div>
   );

@@ -150,7 +150,7 @@ export default function Today() {
         <span id="later">Later today</span>
       </H2>
       <div
-        className={`grid gap-2 ${mode === 'lap' || mode === 'desk' ? 'grid-cols-3' : mode === 'tab' ? 'grid-cols-2' : ''}`}
+        className={`grid gap-2 ${wide ? 'grid-cols-[repeat(auto-fill,minmax(250px,1fr))]' : ''}`}
       >
         {t.later.map((s) => (
           <SlotRow key={s.key} slot={s} meds={t.meds} />
@@ -365,107 +365,113 @@ function DueCard({
 
   return (
     <article
-      className={`fade-in relative isolate grid content-end gap-3 overflow-hidden rounded-[28px] p-4 ${
+      className={`fade-in relative isolate grid content-between gap-4 overflow-hidden rounded-[28px] p-4 ${
         compact ? 'h-full' : big ? 'min-h-[min(360px,44dvh)] p-6' : 'min-h-60'
       }`}
       data-scene-dark={nightCard ? '' : undefined}
       aria-labelledby={`card-${slot.key}`}
     >
       <SceneArt scene={slot.scene} />
-      <Pip
-        mood={pipMood}
-        className={`absolute top-4 right-3 ${big ? 'top-5 right-8 size-38' : compact ? 'size-24' : 'size-26'}`}
-        poke
-      />
-      <div className="relative grid gap-0.5 pr-24">
-        <p className="font-bold font-display text-[14px] opacity-80">{meta}</p>
-        <h2
-          id={`card-${slot.key}`}
-          className={`font-extrabold leading-[1.08] ${big ? 'text-[30px]' : 'text-[24px]'}`}
-        >
-          {title}
-        </h2>
-      </div>
-      {!compact && (
-        <div className={`relative grid gap-1.5 ${big ? 'grid-cols-2' : ''}`}>
-          {slot.doses.map((d, i) => {
-            const med = medById(meds, d.medId);
-            if (!med) return null;
-            const c = courseDay(med, slot.day);
-            return (
-              <MedRow
-                key={d.medId}
-                med={med}
-                index={i}
-                state={doseState(logs, d, nk)}
-                extra={c?.total ? `day ${c.n} of ${c.total}` : undefined}
-                onClick={() => navigate(`/dose/${slot.key}`)}
-              />
-            );
-          })}
+      <div className="relative flex items-start gap-3">
+        <div className="grid min-w-0 flex-1 gap-0.5 pt-1">
+          <p className="font-bold font-display text-[14px] opacity-80">
+            {meta}
+          </p>
+          <h2
+            id={`card-${slot.key}`}
+            className={`font-extrabold leading-[1.08] ${big ? 'text-[30px]' : 'text-[24px]'}`}
+          >
+            {title}
+          </h2>
         </div>
-      )}
-      <div className={`relative flex gap-2 ${big ? 'flex-wrap' : ''}`}>
-        <button
-          type="button"
-          className={`btn press min-w-0 flex-1 ${due ? 'btn-primary' : 'btn-ghost'} ${big ? 'max-w-70' : ''}`}
-          disabled={allTaken}
-          data-key="T"
-          {...press.handlers}
-          onClick={() => onTake(slot)}
-          aria-describedby={`hint-${slot.key}`}
-        >
-          {allTaken
-            ? `Taken at ${fmtTime(nk)}`
-            : due
-              ? takeLabel(open.length)
-              : 'Take early'}
-          {big && !allTaken && <kbd className="kbd">T</kbd>}
-        </button>
-        <span id={`hint-${slot.key}`} className="sr-only">
-          Long-press for taken at another time
-        </span>
-        {big ? (
-          <>
+        <Pip
+          mood={pipMood}
+          className={`-mt-1 -mr-1 flex-none ${big ? 'mr-4 size-32' : compact ? 'size-20' : 'size-22'}`}
+          poke
+        />
+      </div>
+      <div className="relative grid gap-3">
+        {!compact && (
+          <div className={`relative grid gap-1.5 ${big ? 'grid-cols-2' : ''}`}>
+            {slot.doses.map((d, i) => {
+              const med = medById(meds, d.medId);
+              if (!med) return null;
+              const c = courseDay(med, slot.day);
+              return (
+                <MedRow
+                  key={d.medId}
+                  med={med}
+                  index={i}
+                  state={doseState(logs, d, nk)}
+                  extra={c?.total ? `day ${c.n} of ${c.total}` : undefined}
+                  onClick={() => navigate(`/dose/${slot.key}`)}
+                />
+              );
+            })}
+          </div>
+        )}
+        <div className={`relative flex gap-2 ${big ? 'flex-wrap' : ''}`}>
+          <button
+            type="button"
+            className={`btn press min-w-0 flex-1 ${due ? 'btn-primary' : 'btn-ghost'} ${big ? 'max-w-70' : ''}`}
+            disabled={allTaken}
+            data-key="T"
+            {...press.handlers}
+            onClick={() => onTake(slot)}
+            aria-describedby={`hint-${slot.key}`}
+          >
+            {allTaken
+              ? `Taken at ${fmtTime(nk)}`
+              : due
+                ? takeLabel(open.length)
+                : 'Take early'}
+            {big && !allTaken && <kbd className="kbd">T</kbd>}
+          </button>
+          <span id={`hint-${slot.key}`} className="sr-only">
+            Long-press for taken at another time
+          </span>
+          {big ? (
+            <>
+              <button
+                type="button"
+                className="btn btn-ghost press"
+                onClick={() => snooze(slot, 10)}
+                disabled={allTaken}
+              >
+                <Icon name="snooze" size={20} />
+                Snooze
+                <kbd className="kbd">Z</kbd>
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost press"
+                onClick={() => skip(open, slot.label)}
+                disabled={allTaken}
+              >
+                Skip
+                <kbd className="kbd">S</kbd>
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost press px-0! w-13"
+                aria-label="More options"
+                data-tip="More options"
+                onClick={() => setMore(true)}
+              >
+                <Icon name="more" />
+              </button>
+            </>
+          ) : (
             <button
               type="button"
-              className="btn btn-ghost press"
-              onClick={() => snooze(slot, 10)}
-              disabled={allTaken}
-            >
-              <Icon name="snooze" size={20} />
-              Snooze
-              <kbd className="kbd">Z</kbd>
-            </button>
-            <button
-              type="button"
-              className="btn btn-ghost press"
-              onClick={() => skip(open, slot.label)}
-              disabled={allTaken}
-            >
-              Skip
-              <kbd className="kbd">S</kbd>
-            </button>
-            <button
-              type="button"
-              className="btn btn-ghost press px-0! w-13"
+              className="btn btn-ghost press w-13 px-0!"
               aria-label="More options"
-              data-tip="More options"
               onClick={() => setMore(true)}
             >
               <Icon name="more" />
             </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            className="btn btn-ghost press w-13 px-0!"
-            aria-label="More options"
-            onClick={() => setMore(true)}
-          >
-            <Icon name="more" />
-          </button>
-        )}
+          )}
+        </div>
       </div>
       <ActionSheet
         open={more}

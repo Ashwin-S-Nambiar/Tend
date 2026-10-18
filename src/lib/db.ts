@@ -28,7 +28,13 @@ function open() {
       }
       if (e.oldVersion < 2) db.createObjectStore('plan', { keyPath: 'key' });
     };
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => {
+      req.result.onversionchange = () => {
+        req.result.close();
+        dbp = null;
+      };
+      resolve(req.result);
+    };
     req.onerror = () => reject(req.error);
   });
   return dbp;
