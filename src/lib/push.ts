@@ -113,12 +113,23 @@ export function replan() {
 async function sync(sub: PushSubscription) {
   if (!ENDPOINT) return;
   const { meds, logs } = data();
-  const items = plan(meds, routinesStore.get(), logs, new Date());
+  const now = new Date();
+  const routines = routinesStore.get();
+  const items = plan(
+    meds.filter((m) => !m.archived),
+    routines,
+    logs,
+    now,
+    14,
+  );
+  const logged = slotsOn(meds, routines, logs, dayKey(now), now)
+    .filter((s) => s.state === 'done')
+    .map((s) => s.key);
   try {
     const res = await fetch(`${ENDPOINT}/plan/${deviceId()}`, {
       method: 'PUT',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ subscription: sub.toJSON(), items }),
+      body: JSON.stringify({ subscription: sub.toJSON(), items, logged }),
     });
     if (res.status === 410 || res.status === 404) pushStore.set('gone');
   } catch {}
@@ -152,7 +163,7 @@ function entries(): PlanEntry[] {
   const hide = hideNamesStore.get();
   const today = dayKey();
   const out: PlanEntry[] = [];
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 15; i++) {
     for (const g of groupsOn(
       meds.filter((m) => !m.archived),
       routines,
@@ -181,4 +192,23 @@ function entries(): PlanEntry[] {
     }
   }
   return out;
+}
+
+let watching = false;
+
+export function watchPermission() {
+  if (watching || !navigator.permissions?.query) return;
+  watching = true;
+  navigator.permissions
+    .query({ name: 'notifications' })
+    .then((status) => {
+      status.onchange = () => {
+        checkPush();
+        if (status.state === 'granted') replan();
+      };
+    })
+    .catch(() => {});
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) checkPush();
+  });
 }

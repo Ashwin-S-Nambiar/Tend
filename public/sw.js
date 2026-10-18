@@ -1,6 +1,5 @@
 const SHELL = 'tend-shell-v1';
 const CORE = ['/', '/icon.svg', '/fonts/gabarito-latin.woff2', '/fonts/rethink-sans-latin.woff2', '/badge.png'];
-const PUSH = self.location.hostname === 'localhost' ? '' : 'https://push.tend.ashwin.co.in';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -69,7 +68,10 @@ function db() {
       }
       if (ev.oldVersion < 2) d.createObjectStore('plan', { keyPath: 'key' });
     };
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => {
+      req.result.onversionchange = () => req.result.close();
+      resolve(req.result);
+    };
     req.onerror = () => reject(req.error);
   });
 }
@@ -77,7 +79,10 @@ function db() {
 function get(d, store, key) {
   return new Promise((resolve) => {
     const req = d.transaction(store).objectStore(store).get(key);
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => {
+      req.result.onversionchange = () => req.result.close();
+      resolve(req.result);
+    };
     req.onerror = () => resolve(undefined);
   });
 }
@@ -112,14 +117,14 @@ self.addEventListener('push', (e) => {
           tag: `dose:${msg.key ?? 'now'}`,
           icon: '/icon-192.png',
           badge: '/badge.png',
-          data: { url: msg.key ? `/dose/${msg.key}` : '/dose/next', key: msg.key, device: msg.device },
+          data: { url: msg.key ? `/dose/${msg.key}` : '/dose/next', key: msg.key, device: msg.device, api: msg.api },
         });
         return;
       }
       const open = await openDoses(entry);
       if (!open.length) return;
       await self.registration.showNotification(entry.title, {
-        body: entry.body,
+        body: msg.last ? `${entry.body} Open Tend to keep reminders coming.` : entry.body,
         tag: `dose:${entry.key}`,
         renotify: Boolean(msg.follow),
         requireInteraction: true,
@@ -131,7 +136,7 @@ self.addEventListener('push', (e) => {
           { action: 'taken', title: 'Taken' },
           { action: 'snooze', title: 'In 10 min' },
         ],
-        data: { url: `/dose/${entry.key}`, key: entry.key, device: msg.device },
+        data: { url: `/dose/${entry.key}`, key: entry.key, device: msg.device, api: msg.api },
       });
       for (const c of await self.clients.matchAll({ type: 'window' })) c.postMessage({ type: 'due', key: entry.key });
     })(),
@@ -177,9 +182,9 @@ async function logAll(key, status) {
 }
 
 async function tell(path, data) {
-  if (!PUSH || !data?.device) return;
+  if (!data?.api || !data.device) return;
   try {
-    await fetch(`${PUSH}${path}/${data.device}`, {
+    await fetch(`${data.api}${path}/${data.device}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ key: data.key }),
