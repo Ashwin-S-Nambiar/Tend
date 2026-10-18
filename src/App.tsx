@@ -9,7 +9,7 @@ import { useKeyboardInset } from './lib/hooks.ts';
 import { navigate, type Route, screenOf, useRoute } from './lib/route.ts';
 import { onboardedStore } from './lib/settings.ts';
 import { useStore } from './lib/store.ts';
-import DoseSheet from './screens/DoseSheet.tsx';
+import DoseSheet, { DosePanel } from './screens/DoseSheet.tsx';
 import History, { DayPanel } from './screens/History.tsx';
 import MedicineDetail from './screens/MedicineDetail.tsx';
 import MedicineEdit from './screens/MedicineEdit.tsx';
@@ -56,8 +56,9 @@ function Main({ route, panel }: { route: Route; panel: boolean }) {
 function Panel({ route }: { route: Route }) {
   switch (route.name) {
     case 'today':
-    case 'dose':
       return <TodayPanel />;
+    case 'dose':
+      return <DosePanel key={route.due} due={route.due} />;
     case 'medicine':
       return <MedicineDetail id={route.id} inPanel />;
     case 'medicines':
@@ -136,7 +137,7 @@ export default function App() {
           </aside>
         )}
       </div>
-      {route.name === 'dose' && <DoseSheet due={route.due} />}
+      {route.name === 'dose' && !panel && <DoseSheet due={route.due} />}
       {(route.name === 'new' || route.name === 'edit') && (
         <MedicineEdit id={route.name === 'edit' ? route.id : undefined} />
       )}

@@ -8,6 +8,7 @@ import MedRow from '../components/MedRow.tsx';
 import { Pill } from '../components/PillLook.tsx';
 import Pip, { type Mood } from '../components/Pip.tsx';
 import { SceneArt, SceneIcon } from '../components/Scene.tsx';
+import SwipeRow from '../components/SwipeRow.tsx';
 import TimeSheet from '../components/TimeSheet.tsx';
 import { Card, H2, IconButton } from '../components/ui.tsx';
 import WeekRings from '../components/WeekRings.tsx';
@@ -366,7 +367,7 @@ function DueCard({
   return (
     <article
       className={`fade-in relative isolate grid content-between gap-4 overflow-hidden rounded-[28px] p-4 ${
-        compact ? 'h-full' : big ? 'min-h-[min(360px,44dvh)] p-6' : 'min-h-60'
+        compact ? 'h-full' : big ? 'min-h-[min(320px,40dvh)] p-6' : 'min-h-60'
       }`}
       data-scene-dark={nightCard ? '' : undefined}
       aria-labelledby={`card-${slot.key}`}
@@ -397,15 +398,22 @@ function DueCard({
               const med = medById(meds, d.medId);
               if (!med) return null;
               const c = courseDay(med, slot.day);
+              const st = doseState(logs, d, nk);
               return (
-                <MedRow
+                <SwipeRow
                   key={d.medId}
-                  med={med}
-                  index={i}
-                  state={doseState(logs, d, nk)}
-                  extra={c?.total ? `day ${c.n} of ${c.total}` : undefined}
-                  onClick={() => navigate(`/dose/${slot.key}`)}
-                />
+                  label={`Skip ${med.name}`}
+                  disabled={st === 'taken' || st === 'skipped'}
+                  onCommit={() => skip([d], slot.label)}
+                >
+                  <MedRow
+                    med={med}
+                    index={i}
+                    state={st}
+                    extra={c?.total ? `day ${c.n} of ${c.total}` : undefined}
+                    onClick={() => navigate(`/dose/${slot.key}`)}
+                  />
+                </SwipeRow>
               );
             })}
           </div>
