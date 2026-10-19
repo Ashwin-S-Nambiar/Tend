@@ -84,7 +84,6 @@ private fun WheelColumn(
             }
         }
     }
-    // The detents are felt as it spins; the click is heard once, where it lands.
     LaunchedEffect(Unit) {
         var from = centre % n
         snapshotFlow { state.isScrollInProgress }.distinctUntilChanged().collect { moving ->
