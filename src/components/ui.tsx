@@ -68,7 +68,7 @@ export function Segmented<T extends string>({
               }
               onChange(o.value);
             }}
-            className={`press relative z-1 min-w-0 max-w-full ${wrap ? '' : 'flex-1'} ${size === 'sm' ? 'min-h-10 text-[14px]' : 'min-h-11 text-[15px]'} rounded-xl px-3 py-2 font-semibold leading-snug wrap-anywhere transition-colors duration-150 ${
+            className={`press relative z-1 min-w-0 max-w-full ${wrap ? '' : 'flex-1'} ${size === 'sm' ? 'min-h-10 text-[14px]' : 'min-h-11 text-[15px]'} rounded-xl px-3 py-2 font-semibold leading-snug break-words transition-colors duration-150 ${
               on
                 ? wrap
                   ? 'bg-ink text-milk'
@@ -233,7 +233,7 @@ export function Stepper({
       >
         <Icon name="skip" size={20} />
       </button>
-      <span className="num min-w-0 flex-1 px-1 text-center font-bold font-display text-[18px] wrap-anywhere">
+      <span className="num min-w-0 flex-1 px-1 text-center font-bold font-display text-[18px] break-words">
         {format(value)}
       </span>
       <button

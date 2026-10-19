@@ -1,4 +1,4 @@
-const SHELL = 'tend-shell-v2';
+const SHELL = 'tend-shell-v3';
 const CORE = ['/', '/icon.svg', '/fonts/gabarito-latin.woff2', '/fonts/rethink-sans-latin.woff2', '/badge.png'];
 
 self.addEventListener('install', (e) => {
@@ -15,6 +15,7 @@ self.addEventListener('activate', (e) => {
     caches
       .keys()
       .then((keys) => Promise.all(keys.filter((k) => k !== SHELL).map((k) => caches.delete(k))))
+      .then(() => self.registration.navigationPreload?.enable())
       .then(() => self.clients.claim()),
   );
 });
@@ -27,16 +28,21 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
   if (e.request.mode === 'navigate') {
+    // A cold start paints the cached shell at once; the network copy refreshes it for next launch.
+    const fresh = Promise.resolve(e.preloadResponse)
+      .then((res) => res || fetch(e.request))
+      .then((res) => {
+        if (res.ok) {
+          const copy = res.clone();
+          e.waitUntil(caches.open(SHELL).then((c) => c.put('/', copy)));
+        }
+        return res;
+      });
+    e.waitUntil(fresh.catch(() => {}));
     e.respondWith(
-      Promise.race([fetch(e.request), timeout(3000)])
-        .then((res) => {
-          if (res.ok) {
-            const copy = res.clone();
-            caches.open(SHELL).then((c) => c.put('/', copy));
-          }
-          return res;
-        })
-        .catch(() => caches.match('/')),
+      caches.match('/').then(
+        (hit) => hit || Promise.race([fresh, timeout(3000)]).catch(() => caches.match('/')),
+      ),
     );
     return;
   }

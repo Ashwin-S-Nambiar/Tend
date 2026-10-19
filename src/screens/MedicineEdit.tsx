@@ -447,7 +447,7 @@ function MedicineFields({
                 <button
                   key={name}
                   type="button"
-                  className="press min-h-11 max-w-full rounded-xl bg-pip-wash px-3 text-left font-semibold text-[14px] text-pip-ink wrap-anywhere"
+                  className="press min-h-11 max-w-full rounded-xl bg-pip-wash px-3 text-left font-semibold text-[14px] text-pip-ink break-words"
                   aria-label={`Use medicine name ${name}`}
                   onPointerDown={(e) => e.preventDefault()}
                   onClick={() => {
