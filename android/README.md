@@ -60,7 +60,16 @@ push a tag like `v1.0.0`. `.github/workflows/android-release.yml` runs the tests
 | `TEND_KEY_ALIAS` | the key's alias |
 | `TEND_KEY_PASSWORD` | the key's password |
 
-no keystore is committed or generated here. keep the keystore safe: android only installs updates signed with the same key.
+the keystore is not in the repo. it lives at `~/.tend-signing/tend-release.jks`, with its passwords in `tend-release.env` beside it, and the same values are in the repository secrets. back that folder up somewhere safe: android only installs an update signed with the same key, so losing it means everyone has to uninstall and reinstall.
+
+to sign a build locally:
+
+```sh
+set -a; . ~/.tend-signing/tend-release.env; set +a
+./gradlew :app:assembleRelease   # app/build/outputs/apk/release/app-release.apk
+```
+
+an apk built without these variables comes out unsigned, and phones refuse to install it ("App not installed").
 
 ## the shape of it
 
