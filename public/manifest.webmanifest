@@ -1,79 +1,18 @@
 {
-  "name": "Tend",
+  "name": "Tend · Medicine reminders for Android",
   "short_name": "Tend",
-  "description": "Your medicines, on time.",
+  "description": "A gentle medicine reminder for Android. Everything stays on your phone.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
-  "display": "standalone",
-  "orientation": "any",
+  "display": "browser",
   "background_color": "#faf7f3",
-  "theme_color": "#faf7f3",
-  "categories": [
-    "health",
-    "medical",
-    "lifestyle"
-  ],
+  "theme_color": "#fff1c9",
+  "categories": ["health", "medical", "lifestyle"],
   "icons": [
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    },
-    {
-      "src": "/icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Log a dose",
-      "short_name": "Log",
-      "url": "/dose/next",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Add medicine",
-      "short_name": "Add",
-      "url": "/medicine/new",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Today",
-      "url": "/today",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    }
-  ],
-  "display_override": [
-    "standalone"
-  ],
-  "launch_handler": {
-    "client_mode": [
-      "navigate-existing",
-      "auto"
-    ]
-  },
-  "prefer_related_applications": false
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
 }

@@ -6,8 +6,6 @@ node_modules
 dist
 dist-ssr
 *.local
-.wrangler
-worker/.dev.vars
 
 .claude/*
 .vscode/*

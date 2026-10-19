@@ -2,97 +2,346 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-visual" />
-    <meta name="theme-color" content="#faf7f3" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fff1c9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#3a3320" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
-    <title>Tend · Your medicines, on time</title>
-    <meta name="description" content="A gentle medicine reminder. Tell Tend when your day happens and what you take, and Pip reminds you at each routine. Everything stays on your phone." />
+    <title>Tend · Medicine reminders for Android</title>
+    <meta name="description" content="A gentle medicine reminder for Android. Reminders follow your meals and bedtime, Taken and Snooze work right from the notification, and your medicines never leave your phone. Free, with no account." />
     <link rel="canonical" href="https://tend.ashwin.co.in/" />
     <meta property="og:site_name" content="Tend" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_GB" />
-    <meta property="og:title" content="Tend · Your medicines, on time" />
-    <meta property="og:description" content="A gentle medicine reminder that follows your routines. Everything stays on your phone." />
+    <meta property="og:title" content="Tend · Medicine reminders for Android" />
+    <meta property="og:description" content="Reminders that follow your meals and bedtime. Taken and Snooze right from the notification. Everything stays on your phone." />
     <meta property="og:url" content="https://tend.ashwin.co.in/" />
-    <meta property="og:image" content="https://tend.ashwin.co.in/og.jpg?v=1" />
+    <meta property="og:image" content="https://tend.ashwin.co.in/og.jpg?v=2" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Tend: Pip, a teal capsule with a happy face, in front of a rising sun, beside the words Your medicines, on time" />
+    <meta property="og:image:alt" content="Tend for Android: Pip, a smiling teal capsule, in front of a rising sun beside the words Your medicines, on time" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Tend · Your medicines, on time" />
-    <meta name="twitter:description" content="A gentle medicine reminder that follows your routines. Everything stays on your phone." />
-    <meta name="twitter:image" content="https://tend.ashwin.co.in/og.jpg?v=1" />
-    <meta name="twitter:image:alt" content="Tend: Pip, a teal capsule with a happy face, in front of a rising sun, beside the words Your medicines, on time" />
-    <script>
-      (() => {
-        try {
-          const t = JSON.parse(localStorage.getItem('tend:theme') || '"system"');
-          const dark = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-          document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
-          if (dark) {
-            document.documentElement.setAttribute('data-dark', '');
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0e1528');
-          }
-        } catch {}
-      })();
-    </script>
-    <style>
-      html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #faf7f3; }
-      html[data-dark], html[data-dark] body { background: #0e1528; }
-      #root { opacity: 0.01; }
-      html.ready #root { opacity: 1; }
-    </style>
+    <meta name="twitter:title" content="Tend · Medicine reminders for Android" />
+    <meta name="twitter:description" content="Reminders that follow your meals and bedtime. Taken and Snooze right from the notification. Everything stays on your phone." />
+    <meta name="twitter:image" content="https://tend.ashwin.co.in/og.jpg?v=2" />
+    <meta name="twitter:image:alt" content="Tend for Android: Pip, a smiling teal capsule, in front of a rising sun beside the words Your medicines, on time" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/320x568@2.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/320x568@2-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/375x667@2.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/375x667@2-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/414x736@3.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/414x736@3-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/375x812@3.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/375x812@3-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/414x896@2.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/414x896@2-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/414x896@3.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/414x896@3-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/390x844@3.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/390x844@3-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/428x926@3.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/428x926@3-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/393x852@3.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/393x852@3-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/430x932@3.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/430x932@3-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/402x874@3.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/402x874@3-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/440x956@3.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/440x956@3-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/744x1133@2.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/744x1133@2-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/768x1024@2.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/768x1024@2-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/810x1080@2.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/810x1080@2-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/820x1180@2.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/820x1180@2-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/834x1194@2.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/834x1194@2-dark.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)" href="/splash/1024x1366@2.png" />
-    <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)" href="/splash/1024x1366@2-dark.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="application-name" content="Tend" />
     <meta name="apple-mobile-web-app-title" content="Tend" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="preload" href="/fonts/gabarito-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/rethink-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Tend",
+        "operatingSystem": "Android 8.0 and up",
+        "applicationCategory": "HealthApplication",
+        "description": "A gentle medicine reminder. Reminders follow your meals and bedtime, and everything stays on your phone.",
+        "url": "https://tend.ashwin.co.in/",
+        "downloadUrl": "https://github.com/Ashwin-S-Nambiar/Tend/releases/latest/download/tend.apk",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+    <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
-    <noscript>Tend needs JavaScript to keep your medicines on time.</noscript>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <div class="hero scene" data-scene="morning">
+      <span class="orb" aria-hidden="true"></span>
+      <svg class="hill" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 46 Q 80 6 160 40 T 300 30 V80 H0Z" /></svg>
+
+      <header class="wrap top">
+        <a class="brand" href="/" aria-label="Tend, home">
+          <img src="/icon.svg" width="36" height="36" alt="" />
+          Tend
+        </a>
+        <nav aria-label="Site">
+          <a class="wide" href="#day">What it does</a>
+          <a href="#install">Install</a>
+          <a class="wide" href="https://github.com/Ashwin-S-Nambiar/Tend">Source</a>
+        </nav>
+      </header>
+
+      <main id="main" class="wrap hero-grid" tabindex="-1">
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="15" r="7" fill="var(--sun)" /><path d="M3 21 Q 13 15 23 21" stroke="var(--sun)" stroke-width="2.5" fill="none" stroke-linecap="round" /></svg>
+            Medicine reminders for Android
+          </p>
+          <h1>Your medicines, on time.</h1>
+          <p class="lede">
+            Tell Tend when you wake, eat and sleep, and what you take. Pip, a small teal capsule, taps you on the shoulder at each one. Everything stays on your phone.
+          </p>
+          <div class="cta" id="hero-cta">
+            <a class="btn btn-go" href="https://github.com/Ashwin-S-Nambiar/Tend/releases/latest/download/tend.apk" data-download>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" /></svg>
+              Download for Android
+            </a>
+            <a class="btn btn-quiet" href="#install">How to install</a>
+          </div>
+          <ul class="facts">
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>Free</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>No account</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>Android 8.0 and up</li>
+          </ul>
+        </div>
+
+        <div class="hero-art">
+          <svg class="pip" viewBox="0 0 200 200" data-mood="idle" data-body="breathe" data-track role="img" aria-label="Pip, Tend's teal capsule, watching you">
+            <g class="rig"><g transform="rotate(-14 100 104)">
+              <rect x="64" y="22" width="72" height="164" rx="36" fill="var(--pip)" />
+              <path d="M64 116h72v34a36 36 0 0 1-72 0z" fill="var(--pip-deep)" opacity=".9" />
+              <path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M0 -7Q0 0 0 7" stroke-width="12" transform="translate(85 70)" />
+              <path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M0 -7Q0 0 0 7" stroke-width="12" transform="translate(115 72)" />
+            </g></g>
+          </svg>
+          <div class="phone cut">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/shots/dark-360.webp 360w, /shots/dark.webp 720w" sizes="(min-width: 900px) 320px, 74vw" />
+              <img src="/shots/today.webp" srcset="/shots/today-360.webp 360w, /shots/today.webp 720w" sizes="(min-width: 900px) 320px, 74vw" width="720" height="1600" fetchpriority="high" alt="Tend's Today screen on an Android phone: Time for Apidra, 6 units before dinner, with a Take button, then Amoxicillin and Metformin later this evening and Lantus at bedtime" />
+            </picture>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <section class="wrap section" id="day" aria-labelledby="day-title">
+      <div class="section-head">
+        <h2 id="day-title">A day with Tend</h2>
+        <p>Tend works around the times you already keep. Here's a day with Metformin, insulin, a course of antibiotics and the odd paracetamol.</p>
+      </div>
+
+      <div class="day">
+        <article class="moment scene" data-scene="morning" aria-labelledby="m1">
+          <span class="orb" aria-hidden="true"></span>
+          <svg class="hill" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 46 Q 80 6 160 40 T 300 30 V80 H0Z" /></svg>
+          <div class="moment-grid">
+            <div class="moment-copy">
+              <p class="when"><svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="15" r="7" fill="var(--sun)" /><path d="M3 21 Q 13 15 23 21" stroke="var(--sun)" stroke-width="2.5" fill="none" stroke-linecap="round" /></svg>7:45&nbsp;AM · before breakfast</p>
+              <h3 id="m1">Reminders that follow your day</h3>
+              <p>Link a medicine to breakfast, lunch, dinner, waking or bedtime, or give it a clock time. Move breakfast and everything tied to it moves too.</p>
+              <ul class="ticks">
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>A different dose at each meal, like 14, 8 and 6 units of insulin</li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>Weekends can keep their own, later times</li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>Every day, some weekdays, every few days, on-and-off cycles or when needed</li>
+              </ul>
+            </div>
+            <div class="moment-art">
+              <div class="phone cut solo">
+                <img src="/shots/schedule.webp" srcset="/shots/schedule-360.webp 360w, /shots/schedule.webp 720w" sizes="(min-width: 900px) 290px, 70vw" width="720" height="1600" loading="lazy" decoding="async" alt="Editing Apidra's schedule: meal times chosen, a reminder 15 minutes before each meal, and 14 units at breakfast at 7:45 AM" />
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="moment scene flip" data-scene="afternoon" aria-labelledby="m2">
+          <span class="orb" aria-hidden="true"></span>
+          <svg class="hill" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 46 Q 80 6 160 40 T 300 30 V80 H0Z" /></svg>
+          <div class="moment-grid">
+            <div class="moment-copy">
+              <p class="when"><svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="9" fill="var(--noon)" /></svg>1:15&nbsp;PM · before lunch</p>
+              <h3 id="m2">Log it without opening the app</h3>
+              <p>Each reminder is a real alarm on your phone, on the minute. Tap Taken, Snooze or Skip right on the notification. If nothing's logged, a gentle follow-up comes 30 minutes later.</p>
+              <ul class="ticks">
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>Forgot to tap? Spin the wheel to the time you took it</li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>Undo for every action</li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>Hide medicine names on the lock screen</li>
+              </ul>
+            </div>
+            <div class="moment-art">
+              <div class="phone cut solo">
+                <img src="/shots/wheel.webp" srcset="/shots/wheel-360.webp 360w, /shots/wheel.webp 720w" sizes="(min-width: 900px) 290px, 70vw" width="720" height="1600" loading="lazy" decoding="async" alt="The When did you take it? sheet: a wheel set to 8:15 PM, with Cancel and Save" />
+              </div>
+              <div class="notification">
+                <img src="/shots/notification.webp" width="720" height="300" loading="lazy" decoding="async" alt="A Tend notification: Dinner medicines, Amoxicillin 1 capsule, with Taken, Snooze 10 min and Skip buttons" />
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="moment scene" data-scene="evening" aria-labelledby="m3">
+          <span class="orb" aria-hidden="true"></span>
+          <svg class="hill" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 46 Q 80 6 160 40 T 300 30 V80 H0Z" /></svg>
+          <div class="moment-grid">
+            <div class="moment-copy">
+              <p class="when"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M3 18a10 10 0 0 1 20 0Z" fill="var(--dusk)" /></svg>8:15&nbsp;PM · before dinner</p>
+              <h3 id="m3">Know before you run out</h3>
+              <p>Count what's left and every dose you log takes from it. Tend says when you're down to about a week, and a refill tops it back up.</p>
+              <ul class="ticks">
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>History as rings for the last seven days, with no streaks to break</li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>Courses end on their own and show which day you're on</li>
+              </ul>
+            </div>
+            <div class="moment-art">
+              <div class="phone cut">
+                <img src="/shots/medicines.webp" srcset="/shots/medicines-360.webp 360w, /shots/medicines.webp 720w" sizes="(min-width: 900px) 250px, 46vw" width="720" height="1600" loading="lazy" decoding="async" alt="The Medicines list: Metformin with 6 left and refill soon, Apidra, Lantus, Vitamin D3 on Saturdays, Paracetamol when needed and Amoxicillin on day 3 of 5" />
+              </div>
+              <div class="phone cut">
+                <img src="/shots/history.webp" srcset="/shots/history-360.webp 360w, /shots/history.webp 720w" sizes="(min-width: 900px) 250px, 46vw" width="720" height="1600" loading="lazy" decoding="async" alt="History: a ring for each of the last seven days, and the share of doses taken per medicine over 30 days" />
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="moment scene flip" data-scene="night" aria-labelledby="m4">
+          <div class="stars" aria-hidden="true">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="8" cy="22" rx=".66" ry="1.2" fill="var(--star)" /><ellipse cx="22" cy="58" rx=".5" ry=".9" fill="var(--star)" /><ellipse cx="34" cy="14" rx=".55" ry="1" fill="var(--star)" /><ellipse cx="47" cy="40" rx=".44" ry=".8" fill="var(--star)" /><ellipse cx="58" cy="70" rx=".6" ry="1.1" fill="var(--star)" /><ellipse cx="66" cy="18" rx=".5" ry=".9" fill="var(--star)" /><ellipse cx="79" cy="52" rx=".66" ry="1.2" fill="var(--star)" /><ellipse cx="91" cy="30" rx=".44" ry=".8" fill="var(--star)" /></svg>
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="8" cy="22" rx=".66" ry="1.2" fill="var(--star)" /><ellipse cx="22" cy="58" rx=".5" ry=".9" fill="var(--star)" /><ellipse cx="34" cy="14" rx=".55" ry="1" fill="var(--star)" /><ellipse cx="47" cy="40" rx=".44" ry=".8" fill="var(--star)" /><ellipse cx="58" cy="70" rx=".6" ry="1.1" fill="var(--star)" /><ellipse cx="66" cy="18" rx=".5" ry=".9" fill="var(--star)" /><ellipse cx="79" cy="52" rx=".66" ry="1.2" fill="var(--star)" /><ellipse cx="91" cy="30" rx=".44" ry=".8" fill="var(--star)" /></svg>
+          </div>
+          <span class="moon" aria-hidden="true"></span>
+          <svg class="hill" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 46 Q 80 6 160 40 T 300 30 V80 H0Z" /></svg>
+          <div class="moment-grid">
+            <div class="moment-copy">
+              <p class="when"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M17 4a9 9 0 1 0 5 15A8 8 0 0 1 17 4Z" fill="var(--star)" /></svg>10:30&nbsp;PM · bedtime</p>
+              <h3 id="m4">Then Pip goes to sleep</h3>
+              <p>Log the last dose and Today turns to night. Nothing you enter leaves your phone: there's no account and no server, and reminders are alarms on the device.</p>
+              <ul class="ticks">
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>Back up to a file, restore on a new phone</li>
+                <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>A dark theme that follows your phone</li>
+              </ul>
+            </div>
+            <div class="moment-art">
+              <svg class="pip" viewBox="0 0 200 200" data-mood="sleep" data-body="sleep" style="left: 0; bottom: 14%" role="img" aria-label="Pip asleep">
+                <g class="rig"><g transform="rotate(-14 100 104)">
+                  <rect x="64" y="22" width="72" height="164" rx="36" fill="var(--pip)" />
+                  <path d="M64 116h72v34a36 36 0 0 1-72 0z" fill="var(--pip-deep)" opacity=".9" />
+                  <path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M-11 -4.4Q0 13.2 11 -4.4" stroke-width="5.5" transform="translate(83.2 79)" />
+                  <path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M-11 -4.4Q0 13.2 11 -4.4" stroke-width="5.5" transform="translate(116.8 79)" />
+                </g></g>
+                <g class="zz" fill="var(--star)" font-weight="800" style="font-family: var(--display)">
+                  <text x="150" y="44" font-size="22">z</text>
+                  <text x="166" y="28" font-size="15" style="animation-delay: 1.4s">z</text>
+                </g>
+              </svg>
+              <div class="phone cut solo">
+                <img src="/shots/night.webp" srcset="/shots/night-360.webp 360w, /shots/night.webp 720w" sizes="(min-width: 900px) 290px, 70vw" width="720" height="1600" loading="lazy" decoding="async" alt="Today after the last dose: a navy sky with a moon, Pip asleep, and All done for today, 9 of 9 logged" />
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="wrap section" aria-labelledby="more-title">
+      <div class="section-head">
+        <h2 id="more-title">Made for real prescriptions</h2>
+        <p>Tend records the plan you were given. It doesn't calculate or recommend doses.</p>
+      </div>
+      <ul class="grid">
+        <li>
+          <span class="icon" style="--tint: var(--sun-wash)" aria-hidden="true"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-30 12 12)" fill="var(--noon)" /><path d="M12 12 7.3 14.7a4 4 0 0 1-4-6.9L8 5.1" fill="var(--sun)" transform="translate(0 0)" /></svg></span>
+          <h3>Every kind of medicine</h3>
+          <p>Tablets, capsules, liquids, insulin and other injections, inhalers, drops, creams and patches each get their own fields. No tablet count for a cream.</p>
+        </li>
+        <li>
+          <span class="icon" style="--tint: var(--dusk-wash)" aria-hidden="true"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dusk)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 10h8M8 14h5" /></svg></span>
+          <h3>Type it or scan the label</h3>
+          <p>Write <code>Metformin 500mg 1-0-1 PC</code> or point the camera at the label. Tend fills the form for you to check, and the photo never leaves the phone.</p>
+        </li>
+        <li>
+          <span class="icon" style="--tint: var(--noon-wash)" aria-hidden="true"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--noon)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2" /><rect x="13" y="3" width="8" height="8" rx="2" /><rect x="3" y="13" width="18" height="8" rx="2" /></svg></span>
+          <h3>Widgets and shortcuts</h3>
+          <p>See the next dose on your home screen and take or snooze it there. Long-press the icon to log a dose or add a medicine.</p>
+        </li>
+        <li>
+          <span class="icon" style="--tint: var(--dusk-wash)" aria-hidden="true"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dusk)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" /></svg></span>
+          <h3>Travel without the maths</h3>
+          <p>Tend notices a new time zone and asks whether to follow the local clock or keep your home times.</p>
+        </li>
+        <li>
+          <span class="icon" style="--tint: var(--sun-wash)" aria-hidden="true"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d99a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 10h18M8 3v4M16 3v4" /></svg></span>
+          <h3>Share and keep</h3>
+          <p>A medicines card to show a doctor, a calendar file with alerts, and a backup you can restore on any phone.</p>
+        </li>
+        <li>
+          <span class="icon" style="--tint: var(--noon-wash)" aria-hidden="true"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--noon)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9" /><path d="M12 7v5l3 2" /><path d="M17 3h4v4" /></svg></span>
+          <h3>Keeps going when you don't</h3>
+          <p>Alarms come back after a restart, a clock change or an update. On Xiaomi, Oppo, Vivo, OnePlus and Realme phones, Tend shows where to let it run in the background.</p>
+        </li>
+      </ul>
+
+      <div class="tablet">
+        <img src="/shots/tablet.webp" srcset="/shots/tablet-800.webp 800w, /shots/tablet.webp 1600w" sizes="(min-width: 1160px) 1120px, 100vw" width="1600" height="1000" loading="lazy" decoding="async" alt="Tend on an Android tablet: a navigation rail, today's due dose and later reminders, and a side panel with this week, running low and the current course" />
+      </div>
+      <p class="caption">Tablets and foldables get a rail, side-by-side lists and a panel for the week.</p>
+    </section>
+
+    <section class="wrap section" id="install" aria-labelledby="install-title">
+      <div class="section-head">
+        <h2 id="install-title">Install Tend</h2>
+        <p>Tend comes straight from its open source code on GitHub rather than the Play Store. Each release is built and signed by GitHub Actions.</p>
+      </div>
+      <ol class="steps">
+        <li>
+          <h3>Download it on your phone</h3>
+          <p>Open this page on your Android phone and tap Download. The file is about 21&nbsp;MB.</p>
+        </li>
+        <li>
+          <h3>Let your browser install it</h3>
+          <p>Open the download. The first time, Android asks you to allow installs from your browser. Allow it, then tap Install.</p>
+        </li>
+        <li>
+          <h3>Say yes to reminders</h3>
+          <p>Tend asks for notifications and alarms once, and explains why. To update later, install a newer download over the top. Your medicines stay put.</p>
+        </li>
+      </ol>
+      <div class="install-cta">
+        <a class="btn btn-go" href="https://github.com/Ashwin-S-Nambiar/Tend/releases/latest/download/tend.apk" data-download>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" /></svg>
+          Download for Android
+        </a>
+        <p class="small">Or see <a class="link" href="https://github.com/Ashwin-S-Nambiar/Tend/releases">every release and what changed</a>.</p>
+      </div>
+
+      <div class="move scene" data-scene="evening">
+        <h3>Used Tend in your browser?</h3>
+        <p>Tend used to be a web app, and it has moved to Android. If you used it in this browser, your medicines and logs are still here. Save them to a file, then open Tend for Android and choose You, then Restore.</p>
+        <button class="btn btn-quiet" type="button" data-save-backup>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" /></svg>
+          Save my medicines
+        </button>
+        <p class="status" id="move-status" role="status"></p>
+      </div>
+    </section>
+
+    <footer class="wrap foot">
+      <div class="foot-inner">
+        <svg class="pip" viewBox="0 0 200 200" data-mood="hello" data-body="breathe" role="img" aria-label="Pip, smiling">
+          <g class="rig"><g transform="rotate(-14 100 104)">
+            <rect x="64" y="22" width="72" height="164" rx="36" fill="var(--pip)" />
+            <path d="M64 116h72v34a36 36 0 0 1-72 0z" fill="var(--pip-deep)" opacity=".9" />
+            <path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M-13 5.2Q0 -15.6 13 5.2" stroke-width="8" transform="translate(83.2 68)" />
+            <path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M-13 5.2Q0 -15.6 13 5.2" stroke-width="8" transform="translate(116.8 68)" />
+          </g></g>
+        </svg>
+        <p>Tend is a reminder, not medical advice. Take your medicines as prescribed and ask your doctor or pharmacist about any change.</p>
+        <nav aria-label="More">
+          <a href="https://github.com/Ashwin-S-Nambiar/Tend">Source on GitHub</a>
+          <a href="https://github.com/Ashwin-S-Nambiar/Tend/releases">Releases</a>
+          <a href="https://ashwin.co.in">Made by Ashwin</a>
+        </nav>
+      </div>
+    </footer>
+
+    <div class="dock" inert>
+      <a class="btn btn-go" href="https://github.com/Ashwin-S-Nambiar/Tend/releases/latest/download/tend.apk" data-download>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" /></svg>
+        Download for Android
+      </a>
+    </div>
+
+    <aside class="note" id="move-note" aria-labelledby="move-note-title" hidden>
+      <strong id="move-note-title">Welcome back</strong>
+      <button class="close" type="button" data-close aria-label="Dismiss">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
+      <p>Tend has moved to Android. Your <span data-count>medicines</span> from the web app are still in this browser. Save them, then restore them in the app.</p>
+      <button class="btn btn-go btn-small" type="button" data-save-backup>Save my medicines</button>
+    </aside>
   </body>
 </html>

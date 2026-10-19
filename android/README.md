@@ -1,10 +1,10 @@
 # tend for android
 
-the native android app. same pip, same day, same data model as [the web app](../README.md), with reminders that are real alarms on the phone instead of pushes from a server.
+the android app: what tend is now. same pip, same day and same data model as the web app it replaced, with reminders that are real alarms on the phone instead of pushes from a server. the [main readme](../README.md) covers the features; this one covers how it's built and released.
 
 ## what it does
 
-everything the web app does, plus:
+everything the web app did, plus:
 
 - **alarms on the minute.** each reminder is a local exact alarm (`SCHEDULE_EXACT_ALARM`, falling back to inexact when it isn't allowed). a follow-up comes 30 minutes later if nothing is logged. alarms re-arm after a reboot, a clock or time-zone change, and an app update. there is no server and no account.
 - **Taken, Snooze 10 min and Skip on the notification.** they work without opening the app. channels for doses, follow-ups, refills and travel, so each can sound different. with names hidden, the lock screen shows "Time for your 8:00 AM medicines" and nothing else.
