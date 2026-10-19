@@ -900,7 +900,6 @@ button,
   --key: linear-gradient(180deg, #a9a196, #efe9e1, #b4aca1);
   position: relative;
   isolation: isolate;
-  margin-top: 28px;
   container-type: inline-size;
 }
 .tablet .shell {
@@ -996,6 +995,19 @@ button,
   }
   .tablet .key-side {
     background: linear-gradient(90deg, #2a2f3a, #575e6d, #252a33);
+  }
+}
+.tablet-view {
+  margin-top: 28px;
+}
+@media (max-width: 599px) {
+  .tablet-view {
+    overflow-x: clip;
+    margin-right: calc(-1 * var(--gutter));
+    mask-image: linear-gradient(to right, #000 78%, transparent);
+  }
+  .tablet-view .tablet {
+    width: 170%;
   }
 }
 .caption {
