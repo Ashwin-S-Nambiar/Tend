@@ -18,7 +18,7 @@
 
 tend is a gentle medicine reminder for android. add what you take and when, and pip, a small teal capsule, taps you on the shoulder at each scheduled time. reminders are exact alarms on the phone, Taken and Snooze work right from the notification, and medicines and logs never leave the device. there is no account and no server.
 
-this repo holds the android app in [`android/`](./android/README.md) and its marketing page at the root, which is what [tend.ashwin.co.in](https://tend.ashwin.co.in) serves. tend started as a web app on that domain; it moved to android because a web page can't schedule reliable local reminders. the page still lets old web users save their medicines as a backup the app restores.
+this repo holds the android app in [`android/`](./android/README.md) and its marketing page at the root, which is what [tend.ashwin.co.in](https://tend.ashwin.co.in) serves. tend started as a web app on that domain; it moved to android because a web page can't schedule reliable local reminders.
 
 the screenshots use sample medicines, doses and logs. they demonstrate the app, not a treatment plan.
 
@@ -78,14 +78,6 @@ the editor has three steps: what you take, when you take it, and a review that s
 
 the notification buttons go to `ActionReceiver`, which applies the same pure actions the screens use (`core/Actions.kt`) and waits for the write to reach disk before returning. more in [`android/README.md`](./android/README.md).
 
-## moving from the web app
-
-the web app kept medicines in the browser's IndexedDB. the marketing page runs on the same domain, so it can still read them:
-
-1. on load it checks for the old `tend` database without creating one. a fresh visitor's browser is left untouched.
-2. if it finds medicines, a note offers **Save my medicines**, which downloads `tend-yyyy-mm-dd.json` in the web app's backup format. the same button sits in the install section for anyone who dismissed the note.
-3. in the app, You → Restore reads that file.
-
 ## the design
 
 the object is pip's day: sunrise, noon, dusk and night scenes, each with its own wash, orb and hill. teal is the one action colour.
@@ -95,7 +87,7 @@ the object is pip's day: sunrise, noon, dusk and night scenes, each with its own
 - **sheets.** one component. on phones it rises on the drawer curve, follows the finger down 1:1, rubber-bands up, closes past 30% or on a flick, and the back gesture previews the close. from 600dp wide it's a centred dialog.
 - **sound and touch.** every sound is synthesized pcm, rendered once into a static track and replayed from the start, so sounds never queue. each has a minimum gap, repeats inside it are dropped, and haptic ticks are throttled. the time wheel ticks under your thumb for each value and clicks once where it lands. animator scale 0 silences both.
 - **night.** the app follows the system theme until you choose. logging the last bedtime dose turns today navy with a sleeping pip. the page follows the system theme and shows the dark app in its hero when it's dark.
-- **the page.** a static html page told as a day, from a 7:45 am breakfast dose to a 10:30 pm bedtime one. on phones the download button moves into a bottom dock once the hero's button scrolls away. images reserve their boxes, so nothing shifts as they load.
+- **the page.** a static html page told as a day, from a 7:45 am breakfast dose to a 10:30 pm bedtime one. the screenshots sit in css device frames modelled on the oneplus 13 and pad 3: a metal rim, slim bezels, a punch-hole camera, the real button layout and a status bar drawn in html that follows each screen's theme. on phones the download button moves into a bottom dock once the hero's button scrolls away. images reserve their boxes, so nothing shifts as they load.
 
 ## the stack
 
@@ -104,7 +96,7 @@ the object is pip's day: sunrise, noon, dusk and night scenes, each with its own
 | app | kotlin 2.4, jetpack compose (bom 2026.09), agp 9.4 with built-in kotlin |
 | app libraries | kotlinx.serialization, core-splashscreen, ml kit text recognition (bundled); no navigation or material libraries |
 | page | static html, css and two small typescript modules, built with vite 8 |
-| tooling | biome, node's test runner, playwright for the share image, github actions for signed releases |
+| tooling | biome, playwright for the share image, github actions for signed releases |
 | hosting | vercel for the page, github releases for the apk |
 
 ## running it
@@ -130,7 +122,6 @@ npm install
 npm run dev          # http://localhost:5173
 npm run check        # lint, format and import order
 npm run typecheck
-npm test             # tests/: the backup format
 npm run build
 ```
 
@@ -142,12 +133,10 @@ npm run build
 android/        the app (see android/README.md)
 index.html      the page
 src/
-  main.ts       the dock, and saving medicines left by the web app
+  main.ts       the download dock
   pip.ts        pip's eye rig
-  backup.ts     reads the old IndexedDB into a backup file
   site.css      scenes, frames, sections and pip's keyframes
 public/         fonts, icons, app screenshots, the share image and the 404 page
-tests/          the backup format
 docs/
   screenshots/  images used in this README
 scripts/        share image rendering
@@ -159,7 +148,7 @@ scripts/        share image rendering
 - **oem battery savers.** the autostart screens move between os versions; when none is found tend opens battery optimisation settings, then the app's own settings page.
 - **widgets** refresh on every change and alarm, and at least every 30 minutes; a widget can show the previous state for a moment after a reboot.
 - **label scanning** reads latin script only, and works best on a printed prescription or box rather than a curved bottle.
-- **android only.** iphone users of the old web app can save their backup, but there's no ios app.
+- **android only.** there's no ios app.
 - **accessibility needs more device testing.** talkback and the largest font sizes still need a physical-device pass.
 
 <details>
