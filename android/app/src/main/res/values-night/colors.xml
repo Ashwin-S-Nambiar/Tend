@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="milk">#0E1528</color>
+    <color name="ink">#F2EEE8</color>
+    <color name="soft">#A9B2C3</color>
+    <color name="card">#172340</color>
+    <color name="pip_deep">#2CC1AA</color>
+    <color name="button">#22335C</color>
+    <color name="launch">#0E1528</color>
+</resources>

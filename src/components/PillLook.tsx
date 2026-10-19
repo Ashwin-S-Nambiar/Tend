@@ -154,7 +154,7 @@ export function Pill({
   if (shape === 'round')
     return (
       <span
-        className="relative block rounded-full"
+        className="block rounded-full"
         style={{
           width: size * 0.75,
           height: size * 0.75,
@@ -162,9 +162,7 @@ export function Pill({
           boxShadow: shadow,
           transform: 'rotate(-32deg)',
         }}
-      >
-        <span className="absolute inset-x-[22%] top-1/2 h-[1.5px] -translate-y-1/2 rounded-full bg-[rgba(29,36,48,.2)]" />
-      </span>
+      />
     );
   return (
     <span

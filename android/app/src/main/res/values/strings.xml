@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tend</string>
+    <string name="sc_log">Log a dose</string>
+    <string name="sc_add">Add medicine</string>
+    <string name="sc_today">Today</string>
+    <string name="widget_next_desc">The next dose, with Take and Snooze</string>
+    <string name="widget_small_desc">When the next dose is due</string>
+    <string name="widget_week_desc">Seven days of logged doses</string>
+</resources>

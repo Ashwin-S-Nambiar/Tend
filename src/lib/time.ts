@@ -170,6 +170,14 @@ export function relDay(key: string, today = dayKey()) {
   return fmtDay(key, { day: 'numeric', month: 'short' });
 }
 
+/** relDay phrased to follow a time: "at 8:00 AM tomorrow", "at 8:00 AM on 25 Oct". */
+export function relDayAfterTime(key: string, today = dayKey()) {
+  const d = dayDiff(today, key);
+  if (d === 0) return '';
+  const r = relDay(key, today);
+  return d >= -1 && d < 7 ? ` ${r}` : ` on ${r}`;
+}
+
 export function zoneName(z: string) {
   const city = z.split('/').pop()?.replace(/_/g, ' ') ?? z;
   return city;
