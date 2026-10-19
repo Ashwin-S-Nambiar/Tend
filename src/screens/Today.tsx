@@ -30,6 +30,7 @@ import {
   fmtTime,
   nowKey,
   relDay,
+  relDayAfterTime,
 } from '../lib/time.ts';
 import { useTitle } from '../lib/title.ts';
 import { toast } from '../lib/toast.ts';
@@ -536,7 +537,7 @@ function AllDoneCard({
             Next up: {first?.name}
             {next.doses.length > 1 ? ` and ${next.doses.length - 1} more` : ''}{' '}
             at {fmtTime(next.key)}
-            {relDay(next.day) === 'today' ? '' : ` ${relDay(next.day)}`}.
+            {relDayAfterTime(next.day)}.
           </p>
         )}
       </div>
@@ -738,7 +739,7 @@ function Night({
         <p className="num max-w-[30ch] text-[17px] text-soft">
           {done} of {total} logged.
           {next && first
-            ? ` Next up: ${first.name}${next.doses.length > 1 ? ` and ${next.doses.length - 1} more` : ''} at ${fmtTime(next.key)} ${relDay(next.day)}.`
+            ? ` Next up: ${first.name}${next.doses.length > 1 ? ` and ${next.doses.length - 1} more` : ''} at ${fmtTime(next.key)}${relDayAfterTime(next.day)}.`
             : ''}{' '}
           Sleep well.
         </p>

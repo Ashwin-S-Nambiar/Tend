@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/w_bg_morning" android:clipToOutline="true">
+
+    <ImageView android:id="@+id/orb" android:layout_width="96dp" android:layout_height="96dp"
+        android:layout_gravity="top|end" android:layout_marginTop="-30dp" android:layout_marginEnd="-24dp"
+        android:src="@drawable/w_orb_morning" android:importantForAccessibility="no" />
+
+    <LinearLayout android:id="@+id/open" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:orientation="vertical" android:padding="14dp">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+            android:orientation="horizontal">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView android:id="@+id/meta" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textColor="#1D2430" android:textSize="13sp" android:textStyle="bold" android:alpha="0.8"
+                    android:maxLines="1" android:ellipsize="end" android:text="Breakfast · due 8:00 AM" />
+                <TextView android:id="@+id/title" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textColor="#1D2430" android:textSize="19sp" android:textStyle="bold"
+                    android:maxLines="2" android:ellipsize="end" android:text="Metformin, Amoxicillin" />
+            </LinearLayout>
+            <ImageView android:id="@+id/pip" android:layout_width="56dp" android:layout_height="56dp"
+                android:src="@drawable/pip" android:importantForAccessibility="no" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/actions" android:layout_width="match_parent" android:layout_height="48dp"
+            android:orientation="horizontal">
+            <TextView android:id="@+id/take" android:layout_width="0dp" android:layout_height="match_parent"
+                android:layout_weight="2" android:background="@drawable/w_take" android:gravity="center"
+                android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:text="Take both" />
+            <TextView android:id="@+id/snooze" android:layout_width="0dp" android:layout_height="match_parent"
+                android:layout_weight="1" android:layout_marginStart="8dp" android:background="@drawable/w_soft"
+                android:gravity="center" android:textColor="#1D2430" android:textSize="16sp" android:textStyle="bold"
+                android:text="Snooze" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

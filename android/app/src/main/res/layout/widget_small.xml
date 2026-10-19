@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/w_night" android:clipToOutline="true"
+    android:gravity="center_vertical" android:orientation="horizontal" android:padding="12dp">
+    <ImageView android:id="@+id/pip" android:layout_width="40dp" android:layout_height="40dp"
+        android:src="@drawable/pip_night" android:importantForAccessibility="no" />
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+        android:layout_marginStart="10dp" android:orientation="vertical">
+        <TextView android:id="@+id/time" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textColor="#F2EEE8" android:textSize="20sp" android:textStyle="bold" android:maxLines="1" android:text="1:15 PM" />
+        <TextView android:id="@+id/what" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textColor="#A9B2C3" android:textSize="13sp" android:maxLines="1" android:ellipsize="end" android:text="Lunch · Apidra" />
+    </LinearLayout>
+</LinearLayout>

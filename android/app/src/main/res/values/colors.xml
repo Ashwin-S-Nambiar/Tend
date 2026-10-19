@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="milk">#FAF7F3</color>
+    <color name="sun">#FFC845</color>
+    <color name="pip">#17A58F</color>
+    <color name="pip_deep">#0E8576</color>
+    <color name="ink">#1D2430</color>
+    <color name="soft">#5E6673</color>
+    <color name="card">#FFFFFF</color>
+    <color name="button">#E8E3DB</color>
+    <color name="launch">#FAF7F3</color>
+    <color name="eye">#FFFFFF</color>
+</resources>

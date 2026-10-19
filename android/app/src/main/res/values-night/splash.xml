@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- At night the tile is the evening sky, matching the in-app splash. -->
+    <color name="splash_tile">#22335C</color>
+</resources>

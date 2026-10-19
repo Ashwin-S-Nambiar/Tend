@@ -63,3 +63,10 @@ test('a home time in the spring-forward gap still lands', () => {
   const t = zonedInstant(2027, 3, 14, 2, 30, 'America/New_York');
   assert.ok(Number.isFinite(t.getTime()));
 });
+
+test('next up reads naturally after a time', async () => {
+  const { relDayAfterTime } = await import('../src/lib/time.ts');
+  assert.equal(relDayAfterTime('2026-10-19', '2026-10-19'), '');
+  assert.equal(relDayAfterTime('2026-10-20', '2026-10-19'), ' tomorrow');
+  assert.match(relDayAfterTime('2026-10-30', '2026-10-19'), /^ on /);
+});

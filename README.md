@@ -22,6 +22,8 @@ reminders can follow meals, waking or bedtime, or stay at a fixed clock time. a 
 
 the screenshots use sample medicines, doses and logs. they demonstrate the app, not a treatment plan.
 
+there is also a native android app in [`android/`](./android/README.md), with local exact alarms, Taken and Snooze on the notification, widgets and label scanning. it reads the same backups.
+
 ## what it does
 
 <p align="center">
