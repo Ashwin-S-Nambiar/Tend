@@ -80,9 +80,16 @@ private fun WheelColumn(
             val v = i % n
             if (v != latest) {
                 Feels.haptic(Haptic.Tick)
-                Feels.sound(Sound.Tick)
                 emit(v)
             }
+        }
+    }
+    // The detents are felt as it spins; the click is heard once, where it lands.
+    LaunchedEffect(Unit) {
+        var from = centre % n
+        snapshotFlow { state.isScrollInProgress }.distinctUntilChanged().collect { moving ->
+            if (moving) from = centre % n
+            else if (centre % n != from) Feels.sound(Sound.Tick)
         }
     }
     LaunchedEffect(index) {
