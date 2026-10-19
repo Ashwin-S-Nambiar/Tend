@@ -238,7 +238,7 @@
     text-decoration: none;
     position: relative;
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .btn-primary {
     background: var(--pip-deep);

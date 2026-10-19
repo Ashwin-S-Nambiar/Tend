@@ -38,7 +38,7 @@ export function TimePicker({
             pattern="(?:[1-9]|0[1-9]|1[0-2])"
             required
             maxLength={2}
-            className="field num min-h-22 text-center font-display text-[42px]!"
+            className="field num min-h-22 text-center font-display text-[clamp(32px,11vw,42px)]!"
             value={h}
             onFocus={(e) => e.target.select()}
             onChange={(e) => {
@@ -49,7 +49,7 @@ export function TimePicker({
           />
         </label>
         <span
-          className="pb-3 font-display text-[40px] text-soft"
+          className="pb-3 font-display text-[clamp(30px,10.5vw,40px)] text-soft"
           aria-hidden="true"
         >
           :
@@ -64,7 +64,7 @@ export function TimePicker({
             pattern="[0-5]?[0-9]"
             required
             maxLength={2}
-            className="field num min-h-22 text-center font-display text-[42px]!"
+            className="field num min-h-22 text-center font-display text-[clamp(32px,11vw,42px)]!"
             value={m}
             onFocus={(e) => e.target.select()}
             onChange={(e) => {
@@ -75,7 +75,7 @@ export function TimePicker({
           />
         </label>
       </div>
-      <div className="flex justify-center">
+      <div className="mx-auto w-full max-w-60">
         <Segmented
           label="AM or PM"
           value={hour >= 12 ? 'pm' : 'am'}
