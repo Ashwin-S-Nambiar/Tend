@@ -32,7 +32,6 @@ object Feels {
 
     fun init(context: Context) {
         app = context.applicationContext
-        // Render and load every track up front, off the main thread, so the first play is instant.
         audio.execute { Sound.entries.forEach { runCatching { it.prepare() } } }
     }
 
@@ -45,7 +44,6 @@ object Feels {
 
     fun haptic(h: Haptic) {
         if (reducedMotion(app)) return
-        // A fast scroll crosses values quicker than a motor can tick cleanly; drop the extras.
         if (h == Haptic.Tick) {
             val now = SystemClock.uptimeMillis()
             if (now - lastTick < 35) return
@@ -73,7 +71,6 @@ object Feels {
         runCatching { v.vibrate(effect) }
     }
 
-    /** Never queues: a repeat inside the sound's gap is dropped, and a replay restarts the track. */
     fun sound(s: Sound) {
         if (!Repo.now.settings.sound || reducedMotion(app)) return
         if (!s.claim(SystemClock.uptimeMillis())) return
@@ -89,11 +86,7 @@ object Feels {
     }
 }
 
-/**
- * Every sound is synthesized: sine tones and filtered noise with exponential envelopes, as on the web.
- * Each one is rendered once into its own static track and replayed from the start, so playing never
- * blocks and fast repeats never pile up behind each other. `gap` is the least time between plays.
- */
+/** Every sound is synthesized: sine tones and filtered noise with exponential envelopes, as on the web. */
 enum class Sound(private val gap: Long, private val build: Synth.() -> kotlin.Unit) {
     Taken(300, { tone(660.0, dur = 0.35, gain = 0.05); tone(990.0, dur = 0.4, gain = 0.04, delay = 0.09) }),
     Skip(150, { tone(330.0, to = 280.0, dur = 0.12, gain = 0.04) }),
@@ -106,7 +99,6 @@ enum class Sound(private val gap: Long, private val build: Synth.() -> kotlin.Un
     @Volatile private var last = 0L
     private var track: AudioTrack? = null
 
-    /** Called on the caller's thread so dropped repeats never reach the audio thread at all. */
     fun claim(now: Long): Boolean {
         if (now - last < gap) return false
         last = now
@@ -152,8 +144,7 @@ enum class Sound(private val gap: Long, private val build: Synth.() -> kotlin.Un
 class Synth {
     companion object {
         const val RATE = 44100
-        // Web Audio peaks at 1.0 through laptop speakers; a phone speaker needs a little more, but
-        // not much: it sits closer to the ear and the sonification stream is already loud.
+        // Web Audio peaks at 1.0 through laptop speakers; a phone speaker needs a little more.
         private const val LOUDNESS = 1.8
     }
 
