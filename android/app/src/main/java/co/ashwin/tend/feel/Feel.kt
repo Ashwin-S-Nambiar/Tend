@@ -5,6 +5,7 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 import android.os.Build
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -31,7 +32,11 @@ object Feels {
 
     fun init(context: Context) {
         app = context.applicationContext
+        // Render and load every track up front, off the main thread, so the first play is instant.
+        audio.execute { Sound.entries.forEach { runCatching { it.prepare() } } }
     }
+
+    private var lastTick = 0L
 
     private val vibrator: Vibrator? by lazy {
         if (Build.VERSION.SDK_INT >= 31) app.getSystemService(VibratorManager::class.java)?.defaultVibrator
@@ -40,6 +45,12 @@ object Feels {
 
     fun haptic(h: Haptic) {
         if (reducedMotion(app)) return
+        // A fast scroll crosses values quicker than a motor can tick cleanly; drop the extras.
+        if (h == Haptic.Tick) {
+            val now = SystemClock.uptimeMillis()
+            if (now - lastTick < 35) return
+            lastTick = now
+        }
         val v = vibrator ?: return
         if (!v.hasVibrator()) return
         val effect = if (Build.VERSION.SDK_INT >= 29) {
@@ -62,8 +73,10 @@ object Feels {
         runCatching { v.vibrate(effect) }
     }
 
+    /** Never queues: a repeat inside the sound's gap is dropped, and a replay restarts the track. */
     fun sound(s: Sound) {
         if (!Repo.now.settings.sound || reducedMotion(app)) return
+        if (!s.claim(SystemClock.uptimeMillis())) return
         audio.execute { runCatching { s.play() } }
     }
 
@@ -76,21 +89,34 @@ object Feels {
     }
 }
 
-/** Every sound is synthesized: sine tones and filtered noise with exponential envelopes, as on the web. */
-enum class Sound(private val build: Synth.() -> kotlin.Unit) {
-    Taken({ tone(660.0, dur = 0.35, gain = 0.07); tone(990.0, dur = 0.4, gain = 0.06, delay = 0.09) }),
-    Skip({ tone(330.0, to = 280.0, dur = 0.12, gain = 0.05) }),
-    Snooze({ tone(1200.0, dur = 0.04, gain = 0.03); tone(1200.0, dur = 0.04, gain = 0.03, delay = 0.09) }),
-    Whoosh({ noise(dur = 0.28, gain = 0.03, freq = 500.0) }),
-    Night({ tone(392.0, dur = 1.1, gain = 0.05); tone(587.0, dur = 1.2, gain = 0.035, delay = 0.14) }),
-    Tick({ tone(1800.0, dur = 0.02, gain = 0.02) }),
-    Tap({ tone(740.0, to = 560.0, dur = 0.035, gain = 0.02) });
+/**
+ * Every sound is synthesized: sine tones and filtered noise with exponential envelopes, as on the web.
+ * Each one is rendered once into its own static track and replayed from the start, so playing never
+ * blocks and fast repeats never pile up behind each other. `gap` is the least time between plays.
+ */
+enum class Sound(private val gap: Long, private val build: Synth.() -> kotlin.Unit) {
+    Taken(300, { tone(660.0, dur = 0.35, gain = 0.05); tone(990.0, dur = 0.4, gain = 0.04, delay = 0.09) }),
+    Skip(150, { tone(330.0, to = 280.0, dur = 0.12, gain = 0.04) }),
+    Snooze(200, { tone(1200.0, dur = 0.04, gain = 0.022); tone(1200.0, dur = 0.04, gain = 0.022, delay = 0.09) }),
+    Whoosh(250, { noise(dur = 0.28, gain = 0.022, freq = 500.0) }),
+    Night(1000, { tone(392.0, dur = 1.1, gain = 0.032); tone(587.0, dur = 1.2, gain = 0.022, delay = 0.14) }),
+    Tick(70, { tone(1800.0, dur = 0.02, gain = 0.012) }),
+    Tap(70, { tone(740.0, to = 560.0, dur = 0.035, gain = 0.014) });
 
-    private val pcm: ShortArray by lazy { Synth().apply(build).render() }
+    @Volatile private var last = 0L
+    private var track: AudioTrack? = null
 
-    fun play() {
-        val data = pcm
-        val track = AudioTrack.Builder()
+    /** Called on the caller's thread so dropped repeats never reach the audio thread at all. */
+    fun claim(now: Long): Boolean {
+        if (now - last < gap) return false
+        last = now
+        return true
+    }
+
+    fun prepare(): AudioTrack {
+        track?.let { return it }
+        val data = Synth().apply(build).render()
+        val t = AudioTrack.Builder()
             .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
@@ -107,18 +133,28 @@ enum class Sound(private val build: Synth.() -> kotlin.Unit) {
             .setTransferMode(AudioTrack.MODE_STATIC)
             .setBufferSizeInBytes(data.size * 2)
             .build()
-        track.write(data, 0, data.size)
-        track.play()
-        Thread.sleep(data.size * 1000L / Synth.RATE + 60)
-        track.release()
+        t.write(data, 0, data.size)
+        track = t
+        return t
+    }
+
+    fun play() {
+        val t = prepare()
+        if (t.playState != AudioTrack.PLAYSTATE_STOPPED) t.pause()
+        if (t.setPlaybackHeadPosition(0) != AudioTrack.SUCCESS) {
+            t.stop()
+            t.reloadStaticData()
+        }
+        t.play()
     }
 }
 
 class Synth {
     companion object {
         const val RATE = 44100
-        // Web Audio peaks at 1.0 through laptop speakers; a phone speaker needs a little more.
-        private const val LOUDNESS = 3.0
+        // Web Audio peaks at 1.0 through laptop speakers; a phone speaker needs a little more, but
+        // not much: it sits closer to the ear and the sonification stream is already loud.
+        private const val LOUDNESS = 1.8
     }
 
     private val parts = mutableListOf<Pair<Int, DoubleArray>>()
