@@ -36,7 +36,15 @@ debug builds take `tend://debug/sample` (sample medicines and a week of logs), `
 
 ## releasing
 
-push a tag like `v1.0.1`. `.github/workflows/android-release.yml` runs the tests, builds a signed apk and attaches it to the github release as `tend-1.0.1.apk` and `tend.apk`. the version name comes from the tag and the version code from the run number. the page links to `releases/latest/download/tend.apk`, so it picks up the new release on its own.
+push an annotated tag whose message is the release notes:
+
+```sh
+git tag -a v1.0.2 -m "- what changed, in a line someone using the app understands
+- one line per change, three to five in all"
+git push origin v1.0.2
+```
+
+`.github/workflows/android-release.yml` runs the tests, builds a signed apk and attaches it to the github release as `tend-1.0.2.apk` and `tend.apk`, with the tag's message as the notes (a plain tag gets github's generated notes). the version name comes from the tag and the version code from the run number. the page links to `releases/latest/download/tend.apk`, so it picks up the new release on its own.
 
 the workflow needs four repository secrets and refuses to publish without them:
 
