@@ -47,7 +47,7 @@ jobs:
           export TEND_VERSION_NAME="${GITHUB_REF_NAME#v}"
           export TEND_VERSION_CODE="${GITHUB_RUN_NUMBER}"
           ./gradlew :app:assembleRelease
-          cp app/build/outputs/apk/release/app-release.apk "tend-${TEND_VERSION_NAME}.apk"
+          # One fixed name, so the page's releases/latest/download/tend.apk link always finds it.
           cp app/build/outputs/apk/release/app-release.apk tend.apk
 
       - name: Attach to the release
@@ -58,4 +58,4 @@ jobs:
           git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
           if [ "$(git cat-file -t "$GITHUB_REF_NAME")" = tag ]; then notes=--notes-from-tag; else notes=--generate-notes; fi
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "Tend $GITHUB_REF_NAME" $notes
-          gh release upload "$GITHUB_REF_NAME" tend-*.apk tend.apk --clobber
+          gh release upload "$GITHUB_REF_NAME" tend.apk --clobber
