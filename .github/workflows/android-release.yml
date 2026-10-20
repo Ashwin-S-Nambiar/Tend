@@ -54,5 +54,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "Tend $GITHUB_REF_NAME" --generate-notes
+          # Checkout can leave the tag lightweight, so fetch it again to read an annotated tag's message.
+          git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
+          if [ "$(git cat-file -t "$GITHUB_REF_NAME")" = tag ]; then notes=--notes-from-tag; else notes=--generate-notes; fi
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "Tend $GITHUB_REF_NAME" $notes
           gh release upload "$GITHUB_REF_NAME" tend-*.apk tend.apk --clobber
