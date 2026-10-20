@@ -44,7 +44,7 @@ git tag -a v1.0.2 -m "- what changed, in a line someone using the app understand
 git push origin v1.0.2
 ```
 
-`.github/workflows/android-release.yml` runs the tests, builds a signed apk and attaches it to the github release as `tend.apk`, with the tag's message as the notes (a plain tag gets github's generated notes). the version name comes from the tag and the version code from the run number. the name never changes, so the page's `releases/latest/download/tend.apk` link picks up each new release on its own; the release itself carries the version.
+`.github/workflows/android-release.yml` runs the tests, builds a signed apk and attaches it to the github release as `tend-1.0.2.apk`, with the tag's message as the notes (a plain tag gets github's generated notes). the version name comes from the tag and the version code from the run number. the page asks github's api for the latest release and points its download buttons at that apk, falling back to the latest release page, so it picks up each new release on its own.
 
 the workflow needs four repository secrets and refuses to publish without them:
 
