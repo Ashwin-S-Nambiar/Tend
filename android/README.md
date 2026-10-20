@@ -49,6 +49,8 @@ cd android
 ./gradlew :app:installDebug        # installs "in.co.ashwin.tend.debug" beside a release build
 ```
 
+on a debug build, `adb shell am start -d tend://debug/sample` loads sample medicines and a week of logs, `tend://debug/night` also logs today so the night scene shows, and `tend://debug/widgets` renders the widgets as pngs into the cache folder.
+
 ## releasing
 
 push a tag like `v1.0.0`. `.github/workflows/android-release.yml` runs the tests, builds a signed apk and attaches it to the github release. it needs four repository secrets, and refuses to publish without them:

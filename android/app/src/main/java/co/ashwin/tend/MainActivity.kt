@@ -1,6 +1,7 @@
 package co.ashwin.tend
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.format.DateFormat
 import androidx.activity.ComponentActivity
@@ -49,13 +50,19 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    private fun debug(what: String?) = if (what == "widgets") Sample.renderWidgets(this) else Sample.load()
+    private fun debug(what: String?) = if (what == "widgets") Sample.renderWidgets(this) else Sample.load(night = what == "night")
 
     override fun onResume() {
         super.onResume()
         reduced = reducedMotion(this)
         use24h = DateFormat.is24HourFormat(this)
         Repo.applyZone()
+    }
+
+    // A theme change resets the bar icons to the window theme, so the next composition must reapply ours.
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        lightBars = null
     }
 
     override fun onNewIntent(intent: Intent) {

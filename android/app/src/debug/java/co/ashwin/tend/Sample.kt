@@ -21,7 +21,7 @@ import co.ashwin.tend.core.dosesOn
 import co.ashwin.tend.core.nowKey
 import co.ashwin.tend.data.Repo
 
-/** Debug builds only: tend://debug/sample loads the canvas's sample medicines and a week of logs. */
+/** Debug builds only: tend://debug/sample loads the sample medicines and a week of logs; tend://debug/night also logs today. */
 object Sample {
     /** tend://debug/widgets renders each widget's real views as PNGs in the cache folder. */
     fun renderWidgets(context: android.content.Context) {
@@ -44,7 +44,7 @@ object Sample {
         }
     }
 
-    fun load() {
+    fun load(night: Boolean = false) {
         val today = dayKey()
         val start = addDays(today, -10)
         val r = { id: RoutineId, off: Int, amount: Double? -> Anchor.AtRoutine(id, off, amount) }
@@ -69,7 +69,7 @@ object Sample {
         )
         val now = nowKey()
         val logs = mutableListOf<DoseLog>()
-        for (i in 1..7) {
+        for (i in (if (night) 0 else 1)..7) {
             val day = addDays(today, -i)
             for (d in dosesOn(meds, Repo.now.settings.routines, day)) {
                 if (d.due > now) continue

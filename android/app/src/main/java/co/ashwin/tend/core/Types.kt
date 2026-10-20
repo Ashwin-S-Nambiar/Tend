@@ -10,7 +10,7 @@ import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 
-// The data model mirrors src/lib/types.ts field for field, so backups move between web and Android.
+// Field names match the web app's backups, so those files still restore here.
 
 @Serializable
 enum class RoutineId {

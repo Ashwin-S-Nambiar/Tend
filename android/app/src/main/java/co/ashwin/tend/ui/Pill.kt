@@ -24,7 +24,6 @@ import co.ashwin.tend.core.Form
 import co.ashwin.tend.core.Look
 import co.ashwin.tend.core.Shape
 
-// Ported from src/components/PillLook.tsx.
 
 val PILL_COLORS = listOf(
     "#ffffff", "#f6d57a", "#e9a23b", "#f2c230", "#f08a6c", "#b3263a",

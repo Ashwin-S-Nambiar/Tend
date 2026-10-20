@@ -3,7 +3,6 @@ package co.ashwin.tend.core
 import java.text.NumberFormat
 import java.util.Locale
 
-// Ported from src/lib/shorthand.ts.
 
 data class Parsed(
     val name: String = "",

@@ -59,7 +59,6 @@ fun Splash(night: Boolean, done: () -> Unit) {
             listOf(
                 async { orb.animateTo(1f, tween(320, easing = EaseOut)) },
                 async {
-                    // Pip dips into the tile, then rises and hops.
                     pipY.animateTo(40f, tween(160, easing = FastOutSlowInEasing))
                     pipY.animateTo(-12f, tween(260, easing = EaseOut))
                     pipY.animateTo(0f, tween(140))

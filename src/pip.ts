@@ -1,4 +1,4 @@
-export type Mood = 'hello' | 'idle' | 'due' | 'sleep';
+export type Mood = 'hello' | 'idle' | 'due';
 
 const TAU = Math.PI * 2;
 const AX = 100;
@@ -71,15 +71,6 @@ function target(e: Rig, t: number) {
     sw = 8;
     gx = 0;
     gy = -2;
-    track = false;
-    blink = false;
-  }
-  if (m === 'sleep') {
-    k = -1;
-    span = 22;
-    sw = 5.5;
-    gx = 0;
-    gy = 9;
     track = false;
     blink = false;
   }

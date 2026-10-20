@@ -3,7 +3,7 @@ package co.ashwin.tend.core
 import java.time.Instant
 import java.time.ZoneId
 
-/** A wall time in the active zone, like `new Date(y, m - 1, d, h, mi)` in the web tests. */
+/** A wall time in the active zone. */
 fun local(y: Int, m: Int, d: Int, h: Int, mi: Int = 0): Instant = zonedInstant(y, m, d, h, mi, activeZone())
 
 fun resetClock(device: String = "Asia/Kolkata") {

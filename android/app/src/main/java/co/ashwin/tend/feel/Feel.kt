@@ -86,7 +86,7 @@ object Feels {
     }
 }
 
-/** Every sound is synthesized: sine tones and filtered noise with exponential envelopes, as on the web. */
+/** Every sound is synthesized: sine tones and filtered noise with exponential envelopes. */
 enum class Sound(private val gap: Long, private val build: Synth.() -> kotlin.Unit) {
     Taken(300, { tone(660.0, dur = 0.35, gain = 0.05); tone(990.0, dur = 0.4, gain = 0.04, delay = 0.09) }),
     Skip(150, { tone(330.0, to = 280.0, dur = 0.12, gain = 0.04) }),
@@ -169,7 +169,7 @@ class Synth {
         parts += (delay * RATE).toInt() to out
     }
 
-    /** Band-passed white noise whose centre sweeps up, like the web's whoosh. */
+    /** Band-passed white noise whose centre sweeps up. */
     fun noise(dur: Double, gain: Double, freq: Double, q: Double = 0.7) {
         val n = (dur * RATE).toInt()
         val out = DoubleArray(n)

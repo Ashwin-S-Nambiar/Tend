@@ -108,7 +108,6 @@ fun MedicinesScreen(top: Dp, selected: String? = null) {
                 }
             }
         }
-        // The add button sits in the thumb zone on phones.
         if (l.phone && active.isNotEmpty()) {
             Btn(
                 "Add medicine",

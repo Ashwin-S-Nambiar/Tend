@@ -3,7 +3,6 @@ package co.ashwin.tend.core
 import java.util.UUID
 import kotlin.math.abs
 
-// Ported from src/lib/medicine-fields.ts and src/lib/medicine-draft.ts.
 
 enum class MedicineType(val label: String, val form: Form) {
     Tablet("Tablet", Form.Tablet),

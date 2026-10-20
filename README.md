@@ -86,8 +86,8 @@ the object is pip's day: sunrise, noon, dusk and night scenes, each with its own
 - **type.** gabarito for headings, times and buttons; rethink sans for reading. self-hosted on the page with tuned fallback metrics, bundled in the app.
 - **sheets.** one component. on phones it rises on the drawer curve, follows the finger down 1:1, rubber-bands up, closes past 30% or on a flick, and the back gesture previews the close. from 600dp wide it's a centred dialog.
 - **sound and touch.** every sound is synthesized pcm, rendered once into a static track and replayed from the start, so sounds never queue. each has a minimum gap, repeats inside it are dropped, and haptic ticks are throttled. the time wheel ticks under your thumb for each value and clicks once where it lands. animator scale 0 silences both.
-- **night.** the app follows the system theme until you choose. logging the last bedtime dose turns today navy with a sleeping pip. the page follows the system theme and shows the dark app in its hero when it's dark.
-- **the page.** a static html page told as a day, from a 7:45 am breakfast dose to a 10:30 pm bedtime one. the screenshots sit in css device frames modelled on the oneplus 13 and pad 3: a metal rim, slim bezels, a punch-hole camera, the real button layout and a status bar drawn in html that follows each screen's theme. on phones the download button moves into a bottom dock once the hero's button scrolls away. images reserve their boxes, so nothing shifts as they load.
+- **night.** the app follows the system theme until you choose. logging the last bedtime dose turns today navy with a sleeping pip, and the tab bar, rail and side panel go navy with it, even in the light theme. the page follows the system theme and shows the dark app in its hero when it's dark.
+- **the page.** a static html page told as a day, from a 7:45 am breakfast dose to a 10:30 pm bedtime one. pip leans on the headline's full stop and watches the pointer. the screenshots sit in css device frames modelled on the oneplus 13 and pad 3: a metal rim, slim bezels, a punch-hole camera, the real button layout and a status bar drawn in html that follows each screen's theme. the notification is drawn in html too, in oxygenos's dark card, so it stays sharp at any size. on phones the download button moves into a bottom dock once the hero's button scrolls away. images reserve their boxes, so nothing shifts as they load.
 
 ## the stack
 
@@ -110,6 +110,8 @@ cd android
 ./gradlew :app:testDebugUnitTest   # the ported logic tests
 ./gradlew :app:installDebug        # installs "in.co.ashwin.tend.debug" beside a release build
 ```
+
+debug builds open `tend://debug/sample` (sample medicines and a week of logs) and `tend://debug/night` (the same, with today logged, for the night scene); the screenshots use these.
 
 push a tag like `v1.0.0` to release. `.github/workflows/android-release.yml` runs the tests, builds a signed apk and attaches it to the github release as `tend-1.0.0.apk` and `tend.apk`; the page links to `releases/latest/download/tend.apk`. signing and the repository secrets are in [`android/README.md`](./android/README.md#releasing).
 
@@ -156,7 +158,7 @@ scripts/        share image rendering
 
 <br>
 
-![The marketing page on desktop: Your medicines, on time, with Download for Android, beside a phone showing Today and Pip watching the pointer, on a sunrise-yellow sky](./docs/screenshots/site-desktop.webp)
+![The marketing page on desktop: Your medicines, on time, with Pip leaning on the full stop, Download for Android, and a phone showing Today on a sunrise-yellow sky](./docs/screenshots/site-desktop.webp)
 
 <p align="center">
   <img src="./docs/screenshots/site-phone.webp" width="32%" alt="The marketing page on a phone: the headline, Download for Android and How to install, and the Today screen below">

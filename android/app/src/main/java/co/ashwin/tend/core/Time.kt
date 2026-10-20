@@ -12,7 +12,7 @@ import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-// Ported from src/lib/time.ts. Day keys are yyyy-MM-dd and due keys yyyy-MM-ddTHH:mm, both wall
+// Day keys are yyyy-MM-dd and due keys yyyy-MM-ddTHH:mm, both wall
 // times in the active zone: the home zone while keeping home time, otherwise the device zone.
 
 private var zone: ZoneId? = null

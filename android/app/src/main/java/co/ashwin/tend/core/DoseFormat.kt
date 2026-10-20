@@ -9,7 +9,6 @@ import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
-// Ported from src/lib/dose-format.ts.
 
 private val numFmt = DecimalFormat("#,##0.###", DecimalFormatSymbols(Locale.ENGLISH))
 

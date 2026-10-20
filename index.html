@@ -73,7 +73,7 @@
             <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="15" r="7" fill="var(--sun)" /><path d="M3 21 Q 13 15 23 21" stroke="var(--sun)" stroke-width="2.5" fill="none" stroke-linecap="round" /></svg>
             Medicine reminders for Android
           </p>
-          <h1>Your medicines, on time.</h1>
+          <h1>Your medicines, on <span class="last">time.<svg class="pip" viewBox="0 0 200 200" data-mood="idle" data-body="breathe" data-track aria-hidden="true"><g class="rig"><g transform="rotate(-14 100 104)"><rect x="64" y="22" width="72" height="164" rx="36" fill="var(--pip)" /><path d="M64 116h72v34a36 36 0 0 1-72 0z" fill="var(--pip-deep)" opacity=".9" /><path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M0 -7Q0 0 0 7" stroke-width="12" transform="translate(85 70)" /><path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M0 -7Q0 0 0 7" stroke-width="12" transform="translate(115 72)" /></g></g></svg></span></h1>
           <p class="lede">
             Tell Tend when you wake, eat and sleep, and what you take. Pip, a small teal capsule, taps you on the shoulder at each one. Everything stays on your phone.
           </p>
@@ -92,14 +92,6 @@
         </div>
 
         <div class="hero-art">
-          <svg class="pip" viewBox="0 0 200 200" data-mood="idle" data-body="breathe" data-track role="img" aria-label="Pip, Tend's teal capsule, watching you">
-            <g class="rig"><g transform="rotate(-14 100 104)">
-              <rect x="64" y="22" width="72" height="164" rx="36" fill="var(--pip)" />
-              <path d="M64 116h72v34a36 36 0 0 1-72 0z" fill="var(--pip-deep)" opacity=".9" />
-              <path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M0 -7Q0 0 0 7" stroke-width="12" transform="translate(85 70)" />
-              <path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M0 -7Q0 0 0 7" stroke-width="12" transform="translate(115 72)" />
-            </g></g>
-          </svg>
           <div class="phone cut" data-tone="auto">
   <span class="key key-slider"></span><span class="key key-volume"></span><span class="key key-power"></span>
   <div class="shell"><div class="glass"><div class="screen">
@@ -169,8 +161,15 @@
     <div class="status" aria-hidden="true"><span>8:17</span><i class="cam"></i><span class="icons"><svg aria-hidden="true" viewBox="0 0 16 12" fill="currentColor"><path d="M8 11.6.3 3.9a11 11 0 0 1 15.4 0Z" /></svg><svg aria-hidden="true" viewBox="0 0 12 12" fill="currentColor"><path d="M11.6.4v11.2H.4Z" /></svg><svg aria-hidden="true" viewBox="0 0 24 12"><rect x=".5" y=".5" width="20.5" height="11" rx="3.5" fill="none" stroke="currentColor" stroke-opacity=".45" /><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor" /><rect x="22" y="4" width="1.6" height="4" rx=".8" fill="currentColor" fill-opacity=".45" /></svg></span></div>
   </div></div></div>
 </div>
-              <div class="notification">
-                <img src="/shots/notification.webp" width="661" height="273" loading="lazy" decoding="async" alt="A Tend notification: Dinner medicines, Amoxicillin 1 capsule, with Taken, Snooze 10 min and Skip buttons" />
+              <div class="notification" role="img" aria-label="A Tend notification: Lunch medicines, Apidra 6 units, before food, with Taken, Snooze 10 min and Skip buttons">
+                <svg class="n-app" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="100" fill="var(--sun)" /><g transform="translate(16 16) scale(.84) rotate(-14 100 104)"><rect x="64" y="22" width="72" height="164" rx="36" fill="#17a58f" /><path d="M64 116h72v34a36 36 0 0 1-72 0z" fill="#0e8576" opacity=".9" /><rect x="79" y="57" width="12" height="26" rx="6" fill="#fff" /><rect x="109" y="59" width="12" height="26" rx="6" fill="#fff" /></g></svg>
+                <div class="n-body" aria-hidden="true">
+                  <p class="n-head"><span>Tend</span><span class="n-when">now<svg aria-hidden="true" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.5 6 2l4.5 4.5" /></svg></span></p>
+                  <p class="n-title">Lunch medicines</p>
+                  <p class="n-text">Apidra 6 units, before food.</p>
+                  <p class="n-actions"><span>Taken</span><span>Snooze 10 min</span><span>Skip</span></p>
+                </div>
+                <svg class="n-pip" viewBox="40 0 120 200" aria-hidden="true"><g transform="rotate(-14 100 104)"><rect x="64" y="22" width="72" height="164" rx="36" fill="#17a58f" /><path d="M64 116h72v34a36 36 0 0 1-72 0z" fill="#0e8576" opacity=".9" /><rect x="79" y="57" width="12" height="26" rx="6" fill="#fff" /><rect x="109" y="59" width="12" height="26" rx="6" fill="#fff" /></g></svg>
               </div>
             </div>
           </div>
@@ -226,18 +225,6 @@
               </ul>
             </div>
             <div class="moment-art">
-              <svg class="pip" viewBox="0 0 200 200" data-mood="sleep" data-body="sleep" style="left: 0; bottom: 14%" role="img" aria-label="Pip asleep">
-                <g class="rig"><g transform="rotate(-14 100 104)">
-                  <rect x="64" y="22" width="72" height="164" rx="36" fill="var(--pip)" />
-                  <path d="M64 116h72v34a36 36 0 0 1-72 0z" fill="var(--pip-deep)" opacity=".9" />
-                  <path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M-11 -4.4Q0 13.2 11 -4.4" stroke-width="5.5" transform="translate(83.2 79)" />
-                  <path class="eye" fill="none" stroke="var(--eye)" stroke-linecap="round" d="M-11 -4.4Q0 13.2 11 -4.4" stroke-width="5.5" transform="translate(116.8 79)" />
-                </g></g>
-                <g class="zz" fill="var(--star)" font-weight="800" style="font-family: var(--display)">
-                  <text x="150" y="44" font-size="22">z</text>
-                  <text x="166" y="28" font-size="15" style="animation-delay: 1.4s">z</text>
-                </g>
-              </svg>
               <div class="phone cut" data-tone="dark">
   <span class="key key-slider"></span><span class="key key-volume"></span><span class="key key-power"></span>
   <div class="shell"><div class="glass"><div class="screen" style="--sb: #182544">

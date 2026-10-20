@@ -5,7 +5,6 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-// Ported from src/lib/schedule.ts.
 
 val ROUTINE_ORDER = listOf(RoutineId.Wake, RoutineId.Breakfast, RoutineId.Lunch, RoutineId.Dinner, RoutineId.Bed)
 

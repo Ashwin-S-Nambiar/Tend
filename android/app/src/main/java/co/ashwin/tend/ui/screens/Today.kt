@@ -633,7 +633,7 @@ private fun Night(t: TodayModel, top: androidx.compose.ui.unit.Dp) {
             Column(
                 Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp).padding(top = top, bottom = 40.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp, if (l.phone) Alignment.Bottom else Alignment.CenterVertically),
+                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
             ) {
                 Spacer(Modifier.weight(1f))
                 Pip(Mood.Sleep, size = if (l.mode == Mode.Land) 120.dp else 176.dp, label = "Pip asleep", poke = true, palette = p)
@@ -645,8 +645,8 @@ private fun Night(t: TodayModel, top: androidx.compose.ui.unit.Dp) {
                     body(17, 400, 1.45f, p.soft).copy(textAlign = TextAlign.Center),
                     Modifier.widthIn(max = 340.dp),
                 )
-                Btn("See tomorrow", Modifier.padding(top = 8.dp), Kind.Ghost) { Nav.open(Over.Dose("next")) }
-                if (!l.phone) Spacer(Modifier.weight(1f))
+                Btn("See tomorrow", Modifier.padding(top = 8.dp), Kind.Ghost, background = p.night2) { Nav.open(Over.Dose("next")) }
+                Spacer(Modifier.weight(1f))
             }
         }
     }

@@ -447,7 +447,6 @@ private fun Shorthand(onApply: (Parsed) -> Unit) {
     Btn("Use these details", kind = Kind.Ghost, small = true, enabled = ok) { onApply(parsedNow); Feels.haptic(Haptic.Tick) }
 }
 
-/** A time shown as a button that opens the wheel. */
 @Composable
 fun TimeField(label: String, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, tone: Color = LocalPalette.current.milk) {
     val p = LocalPalette.current
@@ -477,7 +476,6 @@ fun TimeField(label: String, value: String, onChange: (String) -> Unit, modifier
     ) { if (open) TimeWheel(draft) { draft = it } }
 }
 
-/** A date, picked with the system date picker. */
 @Composable
 fun DateField(label: String, value: String, onChange: (String) -> Unit) {
     val p = LocalPalette.current
