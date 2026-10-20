@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://tend.ashwin.co.in"><strong>tend.ashwin.co.in</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/Ashwin-S-Nambiar/Tend/releases/latest/download/tend.apk">download the apk</a>
+  <a href="https://github.com/Ashwin-S-Nambiar/Tend/releases/latest">download the apk</a>
   &nbsp;·&nbsp;
   <a href="#what-it-does">what it does</a>
   &nbsp;·&nbsp;
