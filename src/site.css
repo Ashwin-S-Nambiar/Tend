@@ -489,12 +489,15 @@ button,
   width: var(--phone-w);
   margin-bottom: -64px;
 }
-.hero-art .pip {
-  position: absolute;
-  z-index: 2;
-  width: 46%;
-  left: -30%;
-  bottom: 18%;
+.hero h1 .last {
+  white-space: nowrap;
+}
+.hero h1 .pip {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  margin: -0.4em -0.2em -0.04em -0.12em;
+  vertical-align: baseline;
   cursor: pointer;
 }
 @media (min-width: 900px) {
@@ -802,29 +805,98 @@ button,
   left: calc(50% + var(--phone-w) * 0.12);
   translate: 0 6%;
 }
-.moment-art .pip {
-  position: absolute;
-  z-index: 2;
-  width: clamp(76px, 18cqi, 130px);
-  cursor: pointer;
-}
+/* OxygenOS's dark, frosted notification card, drawn in HTML so it stays sharp at any size. */
 .notification {
+  --n: clamp(10px, 3.2cqi, 14px);
   position: absolute;
   z-index: 3;
   top: 10%;
   left: 50%;
-  width: min(380px, 84cqi);
+  display: flex;
+  gap: calc(var(--n) * 1.1);
+  width: min(400px, 92cqi);
+  padding: calc(var(--n) * 1.5) calc(var(--n) * 1.4) calc(var(--n) * 1.4);
   translate: -50% 0;
-  border-radius: 7% / 17%;
+  border-radius: calc(var(--n) * 2.4);
+  color: #fff;
+  font-family: var(--ui);
+  font-size: calc(var(--n) * 1.15);
+  line-height: 1.3;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #3b3a58, transparent 70%),
+    linear-gradient(to bottom, #2c2c47, #3c3352);
   box-shadow:
-    0 1px 2px rgb(29 36 48 / 0.08),
-    0 18px 40px -12px rgb(29 36 48 / 0.35);
-  overflow: hidden;
-  background: #e9e8ef;
+    inset 0 0 0 1px rgb(255 255 255 / 0.1),
+    0 1px 2px rgb(16 18 34 / 0.2),
+    0 22px 44px -14px rgb(16 18 34 / 0.55);
+  user-select: none;
+  -webkit-user-select: none;
 }
-.notification img {
-  width: 100%;
-  aspect-ratio: 661 / 273;
+.notification p {
+  margin: 0;
+  max-width: none;
+  color: #fff;
+  font-size: inherit;
+  line-height: inherit;
+}
+.n-app {
+  flex: none;
+  width: calc(var(--n) * 3.3);
+  height: calc(var(--n) * 3.3);
+}
+.n-body {
+  display: grid;
+  flex: 1;
+  gap: calc(var(--n) * 0.3);
+  min-width: 0;
+}
+.notification .n-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: calc(var(--n) * 0.2);
+}
+.n-when {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--n) * 0.5);
+  color: rgb(255 255 255 / 0.62);
+}
+.n-when svg {
+  width: calc(var(--n) * 0.9);
+}
+.n-title {
+  font-weight: 700;
+}
+.n-text {
+  padding-right: calc(var(--n) * 2.4);
+}
+.notification .n-actions {
+  display: flex;
+  gap: calc(var(--n) * 0.6);
+  margin: calc(var(--n) * 0.9) 0 0 calc(var(--n) * -0.3);
+  font-size: 0.94em;
+}
+.n-actions span {
+  padding: calc(var(--n) * 0.55) calc(var(--n) * 1.1);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.12);
+  white-space: nowrap;
+}
+.n-pip {
+  position: absolute;
+  top: calc(var(--n) * 4.6);
+  right: calc(var(--n) * 2.2);
+  width: calc(var(--n) * 1.9);
+}
+@container (max-width: 359px) {
+  .notification {
+    gap: calc(var(--n) * 0.8);
+    padding-inline: calc(var(--n) * 1.1);
+  }
+  .n-actions span {
+    padding-inline: calc(var(--n) * 0.85);
+  }
 }
 @container (min-width: 760px) {
   .moment-grid {
@@ -845,9 +917,10 @@ button,
     margin-left: calc(var(--phone-w) * -0.18);
   }
   .notification {
+    --n: clamp(10px, 1.3cqi, 14px);
     left: auto;
     right: 0;
-    width: min(380px, 40cqi);
+    width: min(400px, 44cqi);
     translate: 0 0;
   }
 }
@@ -1065,14 +1138,15 @@ button,
 }
 
 .foot {
-  margin-top: clamp(96px, 14vw, 160px);
+  margin-top: clamp(56px, 8vw, 96px);
   padding-bottom: calc(40px + var(--sab));
 }
 .foot-inner {
   display: grid;
   gap: 18px;
   justify-items: center;
-  padding-top: 48px;
+  padding-top: clamp(36px, 5vw, 56px);
+  border-top: 1px solid var(--line);
   text-align: center;
 }
 .foot .pip {
@@ -1143,9 +1217,6 @@ button,
 .pip[data-body="hop"] .rig {
   animation: pip-hop 1.3s var(--ease-out) 3;
 }
-.pip[data-body="sleep"] .rig {
-  animation: pip-sleep 5s ease-in-out infinite;
-}
 @keyframes pip-breathe {
   50% {
     transform: scale(1.02, 0.98);
@@ -1182,43 +1253,14 @@ button,
     transform: scale(0.98, 1.02);
   }
 }
-@keyframes pip-sleep {
-  0%,
-  100% {
-    transform: scale(1.03, 0.94);
-  }
-  50% {
-    transform: scale(1.045, 0.925);
-  }
-}
-.pip .zz text {
-  animation: pip-z 3s ease-in-out infinite;
-}
-@keyframes pip-z {
-  0% {
-    opacity: 0;
-    transform: translate(0, 6px);
-  }
-  40% {
-    opacity: 0.9;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(10px, -14px);
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .pip .rig,
-  .pip .zz text,
   .stars {
     animation: none !important;
-  }
-  .pip .zz text {
-    opacity: 0.8;
   }
   .btn:active {
     scale: 1;

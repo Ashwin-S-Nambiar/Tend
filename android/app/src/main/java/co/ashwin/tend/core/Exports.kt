@@ -6,7 +6,6 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-// Ported from src/lib/ics.ts and src/lib/backup.ts.
 
 private val stampFmt = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'").withZone(ZoneOffset.UTC)
 

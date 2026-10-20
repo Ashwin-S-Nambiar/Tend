@@ -43,8 +43,7 @@ import kotlin.math.min
 import kotlin.math.sign
 import kotlin.random.Random
 
-// Ported from src/components/Pip.tsx: the eye rig runs on hand-written springs (response and
-// damping, as Apple specifies them), and the body moves on the same keyframes as the web.
+// The eye rig runs on hand-written springs (response and damping, as Apple specifies them).
 
 enum class Mood { Hello, Idle, Due, Nudge, Taken, Skipped, Done, Low, Adding, Sleep, Lost }
 
@@ -311,7 +310,7 @@ fun Pip(
         val body = bodyFor(rig.mood)
         val key = if (body == null || reduced) Key(0f) else sample(body, t - start.longValue)
         scale(u, Offset.Zero) {
-            // The body moves about its feet, like transform-origin: 50% 100%.
+            // The body moves about its feet.
             val pivot = Offset(100f, 186f)
             translate(0f, key.ty) {
                 rotate(key.rot, pivot) {

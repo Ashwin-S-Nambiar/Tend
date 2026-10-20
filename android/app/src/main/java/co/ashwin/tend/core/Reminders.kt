@@ -2,7 +2,6 @@ package co.ashwin.tend.core
 
 import java.time.Instant
 
-// Replaces the push server in src/lib/push.ts: the same notification text, computed for local alarms.
 
 const val FOLLOW_UP_MIN = 30L
 

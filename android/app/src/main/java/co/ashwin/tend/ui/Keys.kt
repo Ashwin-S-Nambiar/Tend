@@ -20,7 +20,7 @@ import co.ashwin.tend.data.Repo
 import co.ashwin.tend.ui.screens.act
 
 /**
- * The web's shortcuts, for tablets and Chromebooks with a keyboard: T take, Z snooze, S skip,
+ * Shortcuts for tablets and Chromebooks with a keyboard: T take, Z snooze, S skip,
  * Enter opens the due dose, N adds a medicine, 1 to 4 switch tabs, Ctrl or ⌘ Z undoes.
  * Events only arrive here when no text field took them first.
  */

@@ -280,7 +280,7 @@ fun YouScreen(top: Dp) {
                     Row(Ic.Card, "My medicines card", "Share a list with your doctor") { card = true }
                     Row(Ic.Calendar, "Add to calendar", "The next 30 days as calendar alerts") { saveIcs.launch("tend.ics") }
                     Row(Ic.Download, "Back up", "Save everything to a file, or Google Drive") { saveBackup.launch("tend-${dayKey()}.json") }
-                    Row(Ic.Upload, "Restore", "Works with backups from the web app too") { restore.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }
+                    Row(Ic.Upload, "Restore", "Open a Tend backup file") { restore.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }
                 }
             }
 

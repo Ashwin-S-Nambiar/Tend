@@ -3,8 +3,7 @@ package co.ashwin.tend.core
 import java.time.Instant
 import kotlin.math.max
 
-// Ported from src/lib/actions.ts and the write helpers in src/lib/db.ts. Actions are pure: they
-// return the next data and an undo that reverses only what they changed.
+// Actions are pure: they return the next data and an undo that reverses only what they changed.
 
 data class Data(val meds: List<Medicine> = emptyList(), val logs: List<DoseLog> = emptyList())
 

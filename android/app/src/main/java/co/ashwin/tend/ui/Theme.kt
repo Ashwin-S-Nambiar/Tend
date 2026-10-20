@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import co.ashwin.tend.R
 
-// The tokens from src/index.css. Teal (pip) is the one action colour; the scene colours belong to
+// Teal (pip) is the one action colour; the scene colours belong to
 // Pip's day: sun for morning, noon for afternoon, dusk for evening, night for bedtime.
 
 @Immutable

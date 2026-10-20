@@ -116,7 +116,8 @@ fun TendRoot(reduced: Boolean, splash: Boolean, onSplashDone: () -> Unit, setBar
         val layout = layoutFor(maxWidth.value.toInt(), maxHeight.value.toInt())
         // Onboarding stays until it is finished or dismissed, even after its first medicine is added.
         val welcome = !s.settings.onboarded
-        val palette = animatePalette(if (dark) Dark else Light)
+        // The night sky takes the tab bar, rail and side pane with it, so no light strip sits under it.
+        val palette = animatePalette(if (dark || (Chrome.bleed && !welcome)) Dark else Light)
         setBars(welcome || (!dark && !Chrome.bleed))
         TendTheme(palette, reduced) {
             CompositionLocalProvider(

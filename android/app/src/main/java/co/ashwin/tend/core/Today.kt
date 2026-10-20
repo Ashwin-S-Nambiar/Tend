@@ -2,7 +2,6 @@ package co.ashwin.tend.core
 
 import java.time.Instant
 
-// Ported from src/lib/today.ts, without the React hook.
 
 data class Slot(val group: Group, val state: GroupState, val until: String?) {
     val key get() = group.key

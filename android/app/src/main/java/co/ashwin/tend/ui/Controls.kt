@@ -190,7 +190,6 @@ fun IconBtn(
     ) { Icon(icon, tint, size = 22.dp) }
 }
 
-/** The web's --shadow: a hairline and a soft lift, nothing heavier. */
 fun Modifier.softShadow(shape: Shape): Modifier = composed {
     val p = LocalPalette.current
     if (p.dark) this.dropShadow(shape, Shadow(2.dp, color = Color(0x4D000000), offset = DpOffset(0.dp, 1.dp)))
@@ -493,7 +492,7 @@ fun numberText(raw: String, decimals: Boolean = true): String {
 
 fun shown(n: Double): String = if (n == 0.0 || !n.isFinite()) "" else co.ashwin.tend.core.fmtNum(n).replace(",", "")
 
-/** A disclosure group, like the web's details element, that opens in place. */
+/** A disclosure group that opens in place. */
 @Composable
 fun Optional(title: String, hint: String?, open: Boolean, onToggle: (Boolean) -> Unit, tone: Color = LocalPalette.current.milk, content: @Composable ColumnScope.() -> Unit) {
     val p = LocalPalette.current
