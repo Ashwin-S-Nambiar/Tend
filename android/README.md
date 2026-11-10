@@ -48,12 +48,12 @@ git push origin v1.0.2
 
 the workflow needs four repository secrets and refuses to publish without them:
 
-| secret | what |
-| --- | --- |
-| `TEND_KEYSTORE_BASE64` | the release keystore, `base64 -i tend.jks` |
-| `TEND_KEYSTORE_PASSWORD` | its password |
-| `TEND_KEY_ALIAS` | the key's alias |
-| `TEND_KEY_PASSWORD` | the key's password |
+| secret                   | what                                       |
+| ------------------------ | ------------------------------------------ |
+| `TEND_KEYSTORE_BASE64`   | the release keystore, `base64 -i tend.jks` |
+| `TEND_KEYSTORE_PASSWORD` | its password                               |
+| `TEND_KEY_ALIAS`         | the key's alias                            |
+| `TEND_KEY_PASSWORD`      | the key's password                         |
 
 the keystore lives at `~/.tend-signing/tend-release.jks`, with its passwords in `tend-release.env` beside it, never in the repo. back that folder up: android only installs an update signed with the same key.
 

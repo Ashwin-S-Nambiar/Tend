@@ -9,15 +9,15 @@ Start here when building the native Android app. Design and features are signed 
 
 ## Decisions (final)
 
-| question | answer |
-| --- | --- |
-| where it lives | this repo, `android/` folder; web stays at the root |
-| distribution | GitHub Releases only, no Play Store |
-| package id | `in.co.ashwin.tend` (Kotlin namespace `co.ashwin.tend`, because `in` is a Kotlin keyword) |
-| reminders | local exact alarms on the phone; no server |
-| log-time picker | the wheel (hour, minute, AM/PM) |
-| label scanning | in v1 (on-device text recognition, fills the shorthand box) |
-| after launch | the website becomes Tend's marketing page and `worker/` (Cloudflare push) is deleted |
+| question        | answer                                                                                    |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| where it lives  | this repo, `android/` folder; web stays at the root                                       |
+| distribution    | GitHub Releases only, no Play Store                                                       |
+| package id      | `in.co.ashwin.tend` (Kotlin namespace `co.ashwin.tend`, because `in` is a Kotlin keyword) |
+| reminders       | local exact alarms on the phone; no server                                                |
+| log-time picker | the wheel (hour, minute, AM/PM)                                                           |
+| label scanning  | in v1 (on-device text recognition, fills the shorthand box)                               |
+| after launch    | the website becomes Tend's marketing page and `worker/` (Cloudflare push) is deleted      |
 
 ## Features
 

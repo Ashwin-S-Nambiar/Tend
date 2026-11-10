@@ -89,12 +89,12 @@ the object is pip's day: sunrise, noon, dusk and night, each with its own wash, 
 
 ## the stack
 
-| layer | choices |
-| --- | --- |
-| app | kotlin 2.4, jetpack compose, kotlinx.serialization, ml kit text recognition; no navigation or material libraries |
-| page | static html, css and two small typescript modules, built with vite 8 |
-| tooling | biome, playwright for the share image, github actions for signed releases |
-| hosting | vercel for the page, github releases for the apk |
+| layer   | choices                                                                                                          |
+| ------- | ---------------------------------------------------------------------------------------------------------------- |
+| app     | kotlin 2.4, jetpack compose, kotlinx.serialization, ml kit text recognition; no navigation or material libraries |
+| page    | static html, css and two small typescript modules, built with vite 8                                             |
+| tooling | biome, playwright for the share image, github actions for signed releases                                        |
+| hosting | vercel for the page, github releases for the apk                                                                 |
 
 ## running it
 
